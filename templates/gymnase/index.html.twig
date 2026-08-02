@@ -28,8 +28,8 @@
                     <td data-label="Adresse">{{ gymnase.adresse }}</td>
                     <td data-label="Téléphone">{{ gymnase.telephone ?? '-' }}</td>
                     <td data-label="Porteurs de clés">
-                        {% if gymnase.porteursCles|length %}
-                            {{ gymnase.porteursCles|map(l => l.nomComplet)|join(', ') }}
+                        {% if gymnase.cles|length %}
+                            {{ gymnase.cles|map(c => c.licencie.nomComplet ~ (c.reference ? ' (' ~ c.reference ~ ')' : ''))|join(', ') }}
                         {% else %}
                             -
                         {% endif %}

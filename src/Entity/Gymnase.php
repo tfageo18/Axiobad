@@ -34,16 +34,15 @@ class Gymnase
     private Collection $creneaux;
 
     /**
-     * @var Collection<int, Licencie>
+     * @var Collection<int, CleGymnase>
      */
-    #[ORM\ManyToMany(targetEntity: Licencie::class)]
-    #[ORM\JoinTable(name: 'gymnase_porteur_cles')]
-    private Collection $porteursCles;
+    #[ORM\OneToMany(targetEntity: CleGymnase::class, mappedBy: 'gymnase', orphanRemoval: true)]
+    private Collection $cles;
 
     public function __construct()
     {
         $this->creneaux = new ArrayCollection();
-        $this->porteursCles = new ArrayCollection();
+        $this->cles = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -108,26 +107,10 @@ class Gymnase
     }
 
     /**
-     * @return Collection<int, Licencie>
+     * @return Collection<int, CleGymnase>
      */
-    public function getPorteursCles(): Collection
+    public function getCles(): Collection
     {
-        return $this->porteursCles;
-    }
-
-    public function addPorteurCles(Licencie $licencie): static
-    {
-        if (!$this->porteursCles->contains($licencie)) {
-            $this->porteursCles->add($licencie);
-        }
-
-        return $this;
-    }
-
-    public function removePorteurCles(Licencie $licencie): static
-    {
-        $this->porteursCles->removeElement($licencie);
-
-        return $this;
+        return $this->cles;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\CleGymnase;
 use App\Entity\Gymnase;
 use App\Repository\GymnaseRepository;
 use App\Repository\LicencieRepository;
@@ -25,7 +26,7 @@ class GymnaseController extends AbstractController
 
     #[Route('/nouveau', name: 'app_gymnase_new', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_BUREAU')]
-    public function new(Request $request, EntityManagerInterface $entityManager, LicencieRepository $licencieRepository): Response
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         if ($request->isMethod('POST')) {
             $gymnase = (new Gymnase())
@@ -33,19 +34,16 @@ class GymnaseController extends AbstractController
                 ->setAdresse((string) $request->request->get('adresse'))
                 ->setTelephone((string) $request->request->get('telephone') ?: null);
 
-            $this->appliquerPorteursCles($request, $gymnase, $licencieRepository);
-
             $entityManager->persist($gymnase);
             $entityManager->flush();
 
-            $this->addFlash('success', 'Gymnase créé.');
+            $this->addFlash('success', 'Gymnase créé. Vous pouvez maintenant y ajouter des clés.');
 
-            return $this->redirectToRoute('app_gymnase_index');
+            return $this->redirectToRoute('app_gymnase_edit', ['id' => $gymnase->getId()]);
         }
 
         return $this->render('gymnase/form.html.twig', [
             'gymnase' => null,
-            'licencies' => $licencieRepository->findAll(),
         ]);
     }
 
@@ -58,8 +56,6 @@ class GymnaseController extends AbstractController
                 ->setNom((string) $request->request->get('nom'))
                 ->setAdresse((string) $request->request->get('adresse'))
                 ->setTelephone((string) $request->request->get('telephone') ?: null);
-
-            $this->appliquerPorteursCles($request, $gymnase, $licencieRepository);
 
             $entityManager->flush();
 
@@ -74,22 +70,47 @@ class GymnaseController extends AbstractController
         ]);
     }
 
-    private function appliquerPorteursCles(Request $request, Gymnase $gymnase, LicencieRepository $licencieRepository): void
+    #[Route('/{id}/cles', name: 'app_gymnase_cle_new', methods: ['POST'])]
+    #[IsGranted('ROLE_BUREAU')]
+    public function ajouterCle(Request $request, Gymnase $gymnase, EntityManagerInterface $entityManager, LicencieRepository $licencieRepository): Response
     {
-        $idsSelectionnes = array_map('intval', $request->request->all('porteursCles'));
+        $licencie = $licencieRepository->find($request->request->get('licencie'));
+        if (!$licencie) {
+            $this->addFlash('error', 'Licencié invalide.');
 
-        foreach ($gymnase->getPorteursCles() as $licencie) {
-            if (!in_array($licencie->getId(), $idsSelectionnes, true)) {
-                $gymnase->removePorteurCles($licencie);
+            return $this->redirectToRoute('app_gymnase_edit', ['id' => $gymnase->getId()]);
+        }
+
+        $cle = (new CleGymnase())
+            ->setGymnase($gymnase)
+            ->setLicencie($licencie)
+            ->setReference((string) $request->request->get('reference') ?: null);
+
+        $entityManager->persist($cle);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Clé ajoutée.');
+
+        return $this->redirectToRoute('app_gymnase_edit', ['id' => $gymnase->getId()]);
+    }
+
+    #[Route('/{id}/cles/{cleId}/supprimer', name: 'app_gymnase_cle_delete', methods: ['POST'])]
+    #[IsGranted('ROLE_BUREAU')]
+    public function supprimerCle(Request $request, Gymnase $gymnase, int $cleId, EntityManagerInterface $entityManager): Response
+    {
+        if ($this->isCsrfTokenValid('delete-cle-'.$cleId, (string) $request->request->get('_token'))) {
+            foreach ($gymnase->getCles() as $cle) {
+                if ($cle->getId() === $cleId) {
+                    $entityManager->remove($cle);
+                    $entityManager->flush();
+                    $this->addFlash('success', 'Clé supprimée.');
+
+                    break;
+                }
             }
         }
 
-        foreach ($idsSelectionnes as $id) {
-            $licencie = $licencieRepository->find($id);
-            if ($licencie) {
-                $gymnase->addPorteurCles($licencie);
-            }
-        }
+        return $this->redirectToRoute('app_gymnase_edit', ['id' => $gymnase->getId()]);
     }
 
     #[Route('/{id}/activer', name: 'app_gymnase_toggle_actif', methods: ['POST'])]

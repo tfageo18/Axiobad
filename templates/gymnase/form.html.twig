@@ -18,20 +18,58 @@
             <label for="telephone">Téléphone</label>
             <input type="tel" name="telephone" id="telephone" value="{{ gymnase ? gymnase.telephone : '' }}">
         </div>
-        <div>
-            <label>Porteurs de clés</label>
-            {% set idsPorteurs = gymnase ? gymnase.porteursCles|map(l => l.id) : [] %}
-            <div style="max-height: 220px; overflow-y: auto; border: 1px solid var(--color-border); border-radius: 8px; padding: 0.5rem 0.75rem;">
-                {% for licencie in licencies %}
-                    <label style="display: flex; align-items: center; gap: 0.4rem; font-weight: 400; margin-bottom: 0.3rem;">
-                        <input type="checkbox" name="porteursCles[]" value="{{ licencie.id }}" {{ licencie.id in idsPorteurs ? 'checked' : '' }} style="width: auto; margin: 0;">
-                        {{ licencie.nomComplet }}
-                    </label>
-                {% else %}
-                    <p style="margin: 0; color: var(--color-text-muted);">Aucun licencié.</p>
-                {% endfor %}
-            </div>
-        </div>
         <button type="submit">{{ gymnase ? 'Enregistrer' : 'Créer' }}</button>
     </form>
+
+    {% if gymnase %}
+        <h2>Clés du gymnase</h2>
+        <p style="color: var(--color-text-muted); font-size: 0.9rem;">
+            Ajoutez une référence à chaque clé (ex. « Clé principale », « Clé local matériel ») utile s'il en existe plusieurs.
+        </p>
+
+        {% if gymnase.cles|length %}
+            <table class="table-cards">
+                <thead>
+                    <tr>
+                        <th>Porteur</th>
+                        <th>Référence</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cle in gymnase.cles %}
+                        <tr>
+                            <td data-label="Porteur">{{ cle.licencie.nomComplet }}</td>
+                            <td data-label="Référence">{{ cle.reference ?? '-' }}</td>
+                            <td class="td-actions">
+                                <form method="post" action="{{ path('app_gymnase_cle_delete', {id: gymnase.id, cleId: cle.id}) }}" onsubmit="return confirm('Supprimer cette clé ?');" style="display:inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete-cle-' ~ cle.id) }}">
+                                    <button type="submit">Supprimer</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Aucune clé enregistrée.</p>
+        {% endif %}
+
+        <form method="post" action="{{ path('app_gymnase_cle_new', {id: gymnase.id}) }}">
+            <div>
+                <label for="cle-licencie">Porteur de la clé</label>
+                <select name="licencie" id="cle-licencie" required>
+                    <option value="">-</option>
+                    {% for licencie in licencies %}
+                        <option value="{{ licencie.id }}">{{ licencie.nomComplet }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="cle-reference">Référence (optionnel)</label>
+                <input type="text" name="reference" id="cle-reference" placeholder="ex: Clé principale">
+            </div>
+            <button type="submit">+ Ajouter la clé</button>
+        </form>
+    {% endif %}
 {% endblock %}

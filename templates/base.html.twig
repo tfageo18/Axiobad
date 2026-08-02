@@ -453,18 +453,17 @@
                     </div>
                 </div>
 
-                {% if is_granted('ROLE_BUREAU') or is_granted('ROLE_ENTRAINEUR') %}
+                {% if is_granted('ROLE_BUREAU') %}
                     <div class="nav-dropdown">
                         <button type="button" class="nav-link nav-dropdown-bouton" onclick="toggleNavDropdown(this)">Bureau <span class="chevron">▼</span></button>
                         <div class="nav-dropdown-liste">
-                            {% if is_granted('ROLE_BUREAU') %}
-                                <a class="nav-dropdown-item" href="{{ path('app_dashboard') }}">Tableau de bord</a>
-                                <a class="nav-dropdown-item" href="{{ path('app_licencie_index') }}">Licenciés</a>
-                                <a class="nav-dropdown-item" href="{{ path('app_stock_index') }}">Stock</a>
-                            {% endif %}
-                            <a class="nav-dropdown-item" href="{{ path('app_presence_index') }}">Présences</a>
+                            <a class="nav-dropdown-item" href="{{ path('app_dashboard') }}">Tableau de bord</a>
+                            <a class="nav-dropdown-item" href="{{ path('app_licencie_index') }}">Licenciés</a>
+                            <a class="nav-dropdown-item" href="{{ path('app_stock_index') }}">Stock</a>
                         </div>
                     </div>
+                {% elseif is_granted('ROLE_ENTRAINEUR') %}
+                    <a class="nav-link" href="{{ path('app_presence_index') }}">Présences</a>
                 {% endif %}
             {% endif %}
             <span class="spacer">

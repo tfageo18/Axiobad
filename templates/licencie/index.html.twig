@@ -24,6 +24,7 @@
     <p>
         <a href="{{ path('app_saison_index') }}">Gérer les saisons</a>
         · <a href="{{ path('app_licencie_import') }}">Importer en masse (CSV)</a>
+        · <a href="{{ path('app_presence_index') }}">Classement des présences</a>
     </p>
 
     <form method="get" style="margin-bottom: 1rem;">
@@ -75,6 +76,7 @@
                 <th data-sort="text">Compte</th>
                 <th data-sort="text">Activation</th>
                 {% if saison %}<th>Adhésion {{ saison.libelle }}</th>{% endif %}
+                <th>Présence</th>
                 <th></th>
             </tr>
         </thead>
@@ -111,6 +113,16 @@
                             {% endif %}
                         </td>
                     {% endif %}
+                    <td data-label="Présence">
+                        {% set taux = tauxPresence[licencie.id] is defined ? tauxPresence[licencie.id] : null %}
+                        <a href="{{ path('app_presence_detail', {id: licencie.id}) }}" style="text-decoration: none;">
+                            {% if taux is null %}
+                                <span style="color: var(--color-text-muted);">-</span>
+                            {% else %}
+                                <span class="quantite-badge {{ taux < 50 ? 'zero' : '' }}" style="{{ taux >= 75 ? 'background: var(--color-success-bg); color: var(--color-success);' : '' }}">{{ taux }} %</span>
+                            {% endif %}
+                        </a>
+                    </td>
                     <td class="td-actions">
                         <a href="{{ path('app_licencie_edit', {id: licencie.id}) }}">Modifier</a>
                         {% if licencie.mustChangePassword %}
@@ -132,7 +144,7 @@
                     </td>
                 </tr>
             {% else %}
-                <tr><td colspan="8">Aucun licencié.</td></tr>
+                <tr><td colspan="9">Aucun licencié.</td></tr>
             {% endfor %}
         </tbody>
     </table>

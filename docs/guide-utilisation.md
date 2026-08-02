@@ -208,15 +208,15 @@ Menu **Stock** (réservé au bureau).
 
 ## Historique des présences (bureau, entraîneurs)
 
-Menu **Présences** (réservé au bureau et aux entraîneurs).
+Pour chaque licencié, son **taux de présence** (nombre de « je viens » ÷ nombre de réponses
+données, tous créneaux confondus) est visible directement dans la colonne **Présence** de la
+liste des [licenciés](#gérer-les-licenciés-bureau) (bureau). Cliquer dessus (ou sur « Classement
+des présences » en haut de la liste) ouvre la fiche détail : récapitulatif, **graphique** de
+présence sur les 6 derniers mois glissants, et historique complet des réponses (date, créneau,
+présent ou absent).
 
-- La liste affiche, pour chaque licencié, son **taux de présence** (nombre de « je viens » ÷
-  nombre de réponses données, tous créneaux confondus), son nombre de séances où il/elle était
-  présent·e, et le nombre total de réponses données. La liste est triée par taux décroissant.
-- La fiche **détail** d'un licencié affiche un récapitulatif, un **graphique** de présence sur les
-  6 derniers mois glissants, et l'historique complet de ses réponses (date, créneau, présent ou
-  absent).
-- Cet outil est utile pour les entraîneurs afin de suivre l'assiduité des joueurs.
+Les **entraîneurs** qui ne sont pas du bureau n'ont pas accès à la liste des licenciés : ils
+retrouvent ce même classement des présences via le menu **Présences**, qui n'apparaît que pour eux.
 
 ## Cordage (tous les licenciés, cordeurs)
 

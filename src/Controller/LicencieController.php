@@ -9,6 +9,7 @@ use App\Entity\PaiementAdhesion;
 use App\Repository\AdhesionRepository;
 use App\Repository\LicencieRepository;
 use App\Repository\PaiementAdhesionRepository;
+use App\Repository\PresenceRepository;
 use App\Repository\SaisonRepository;
 use App\Service\InvitationMailer;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
@@ -30,6 +31,7 @@ class LicencieController extends AbstractController
         LicencieRepository $licencieRepository,
         SaisonRepository $saisonRepository,
         AdhesionRepository $adhesionRepository,
+        PresenceRepository $presenceRepository,
     ): Response {
         $saisonId = $request->query->get('saison');
         $saison = $saisonId ? $saisonRepository->find($saisonId) : $saisonRepository->findEnCours();
@@ -37,11 +39,22 @@ class LicencieController extends AbstractController
             $saison = $saisonRepository->findAllTrieesParDate()[0] ?? null;
         }
 
+        $licencies = $licencieRepository->findAll();
+
+        $tauxPresence = [];
+        foreach ($licencies as $licencie) {
+            $presences = $presenceRepository->findBy(['licencie' => $licencie]);
+            $total = count($presences);
+            $venus = count(array_filter($presences, static fn ($p) => $p->isPresent()));
+            $tauxPresence[$licencie->getId()] = $total > 0 ? round($venus / $total * 100) : null;
+        }
+
         return $this->render('licencie/index.html.twig', [
-            'licencies' => $licencieRepository->findAll(),
+            'licencies' => $licencies,
             'saisons' => $saisonRepository->findAllTrieesParDate(),
             'saison' => $saison,
             'adhesions' => $saison ? $adhesionRepository->findParLicenciePourSaison($saison) : [],
+            'tauxPresence' => $tauxPresence,
         ]);
     }
 

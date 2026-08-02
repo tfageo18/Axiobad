@@ -1,15 +1,21 @@
 #!/bin/bash
 # Script "user data" EC2 (Amazon Linux 2023) pour déployer Axiobad sur une seule instance,
 # la moins chère possible (ex: t4g.nano / t4g.micro), base de données PostgreSQL dans un conteneur
-# avec ses données persistées sur le volume EBS de l'instance.
+# avec ses données persistées sur le volume EBS de l'instance, HTTPS via Let's Encrypt.
 set -euo pipefail
 
 REPO_URL="https://github.com/tfageo18/Axiobad.git"
 BRANCH="claude/readme-initial-9yd1ej"
 APP_DIR="/opt/axiobad"
+DOMAIN="axiobad.thomas-fageol.fr"
+LETSENCRYPT_EMAIL="thomas.fageol@gmail.com"
 
 dnf update -y
-dnf install -y docker git
+dnf install -y docker git python3-pip cronie
+systemctl enable --now cronie
+
+# certbot n'est pas packagé pour AL2023/arm64 via dnf, on l'installe via pip.
+pip3 install --quiet certbot
 
 systemctl enable --now docker
 
@@ -37,5 +43,20 @@ EOF
     chmod 600 .env.prod.local
 fi
 
+mkdir -p /var/www/certbot
+
+# Obtention du certificat initial : nginx n'est pas encore démarré, on utilise le mode standalone
+# (certbot ouvre lui-même un mini-serveur sur le port 80 le temps de la validation ACME).
+if [ ! -d "/etc/letsencrypt/live/$DOMAIN" ]; then
+    /usr/local/bin/certbot certonly --standalone --non-interactive --agree-tos \
+        --email "$LETSENCRYPT_EMAIL" -d "$DOMAIN"
+fi
+
 docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local up -d --build
 docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local exec -T php bin/console doctrine:migrations:migrate --no-interaction
+
+# Renouvellement automatique : une fois nginx démarré, on utilise le mode webroot
+# (pas besoin de couper le service), puis on recharge la conf nginx.
+cat > /etc/cron.d/certbot-renew <<EOF
+0 3 * * * root /usr/local/bin/certbot renew --webroot -w /var/www/certbot --quiet --deploy-hook "cd $APP_DIR && docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local exec -T nginx nginx -s reload"
+EOF

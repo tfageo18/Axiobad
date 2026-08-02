@@ -1,0 +1,82 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ equipe ? 'Gérer' : 'Nouvelle' }} équipe — Axiobad{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('app_equipe_index') }}">&laquo; Retour aux équipes</a></p>
+
+    <h1>{{ equipe ? 'Gérer l\'équipe ' ~ equipe.nom : 'Nouvelle équipe' }}</h1>
+
+    <form method="post" action="{{ equipe ? path('app_equipe_edit', {id: equipe.id}) : path('app_equipe_new') }}">
+        <div>
+            <label for="nom">Nom</label>
+            <input type="text" name="nom" id="nom" value="{{ equipe ? equipe.nom : '' }}" placeholder="ex: Equipe 1 R1" required>
+        </div>
+        <div>
+            <label for="categorie">Catégorie (optionnel)</label>
+            <input type="text" name="categorie" id="categorie" value="{{ equipe ? equipe.categorie : '' }}" placeholder="ex: R1, PR, Vétérans">
+        </div>
+        {% if not equipe or estBureau %}
+            <div>
+                <label for="capitaine">Capitaine (optionnel)</label>
+                <select name="capitaine" id="capitaine">
+                    <option value="">-</option>
+                    {% for licencie in licencies %}
+                        <option value="{{ licencie.id }}" {{ equipe and equipe.capitaine and equipe.capitaine.id == licencie.id ? 'selected' : '' }}>{{ licencie.nomComplet }}</option>
+                    {% endfor %}
+                </select>
+                <p style="color: var(--color-text-muted); font-size: 0.85rem; margin: 0.25rem 0 0;">
+                    Seul le bureau peut désigner ou changer le capitaine.
+                </p>
+            </div>
+        {% elseif equipe.capitaine %}
+            <div>
+                <label>Capitaine</label>
+                <p>{{ equipe.capitaine.nomComplet }}</p>
+            </div>
+        {% endif %}
+        <button type="submit">{{ equipe ? 'Enregistrer' : 'Créer' }}</button>
+    </form>
+
+    {% if equipe %}
+        <h2>Membres de l'équipe</h2>
+        {% if equipe.membres|length %}
+            <table class="table-cards">
+                <thead>
+                    <tr>
+                        <th>Membre</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for membre in equipe.membres %}
+                        <tr>
+                            <td data-label="Membre">{{ membre.nomComplet }}{{ equipe.estCapitaine(membre) ? ' (capitaine)' : '' }}</td>
+                            <td class="td-actions">
+                                <form method="post" action="{{ path('app_equipe_membre_delete', {id: equipe.id, membreId: membre.id}) }}" onsubmit="return confirm('Retirer ce membre de l\'équipe ?');" style="display:inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('retirer-membre-' ~ membre.id) }}">
+                                    <button type="submit">Retirer</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Aucun membre pour l'instant.</p>
+        {% endif %}
+
+        <form method="post" action="{{ path('app_equipe_membre_new', {id: equipe.id}) }}">
+            <div>
+                <label for="membre-licencie">Ajouter un membre</label>
+                <select name="licencie" id="membre-licencie" required>
+                    <option value="">-</option>
+                    {% for licencie in licencies %}
+                        <option value="{{ licencie.id }}">{{ licencie.nomComplet }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit">+ Ajouter</button>
+        </form>
+    {% endif %}
+{% endblock %}

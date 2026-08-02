@@ -11,6 +11,7 @@ en ligne, une fois connecté, via le menu du compte (en haut à droite) → **Do
 - [Importer des licenciés en masse (CSV)](#importer-des-licenciés-en-masse-csv)
 - [Saisons et adhésions (bureau)](#saisons-et-adhésions-bureau)
 - [Gérer les gymnases (bureau)](#gérer-les-gymnases-bureau)
+- [Gérer les équipes (bureau, capitaines)](#gérer-les-équipes-bureau-capitaines)
 - [Gérer les créneaux (bureau)](#gérer-les-créneaux-bureau)
 - [Le calendrier](#le-calendrier)
 - [Indiquer sa présence à un créneau (tous les licenciés)](#indiquer-sa-présence-à-un-créneau-tous-les-licenciés)
@@ -123,6 +124,18 @@ Menu **Gymnases** (liste visible par tous, actions réservées au bureau).
   clés (avec leur référence) est visible par tous sur la page Gymnases.
 - **Activer/désactiver** un gymnase (affichage grisé quand inactif).
 - **Supprimer** un gymnase supprime aussi les créneaux qui y sont rattachés.
+
+## Gérer les équipes (bureau, capitaines)
+
+Menu **Équipes**, visible par tous les connectés.
+
+- Le **bureau** crée les équipes (nom, ex. « Equipe 1 R1 », « Equipe vétérans », et une catégorie
+  libre), et désigne un **capitaine** parmi les licenciés — seul le bureau peut nommer ou changer
+  le capitaine d'une équipe.
+- Un licencié peut appartenir à plusieurs équipes.
+- Le **capitaine** d'une équipe (même sans rôle bureau) peut lui aussi cliquer sur **Gérer** pour
+  modifier le nom/la catégorie de son équipe et ajouter ou retirer des membres — mais il ne peut
+  ni supprimer l'équipe, ni changer qui en est le capitaine.
 
 ## Gérer les créneaux (bureau)
 

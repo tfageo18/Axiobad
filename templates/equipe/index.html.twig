@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Équipes — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>Équipes</h1>
+
+    {% if is_granted('ROLE_BUREAU') %}
+        <p><a class="btn-cta" href="{{ path('app_equipe_new') }}">+ Nouvelle équipe</a></p>
+    {% endif %}
+
+    <div class="table-scroll">
+    <table class="table-cards">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Catégorie</th>
+                <th>Capitaine</th>
+                <th>Membres</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for equipe in equipes %}
+                <tr>
+                    <td data-label="Nom">{{ equipe.nom }}</td>
+                    <td data-label="Catégorie">{{ equipe.categorie ?? '-' }}</td>
+                    <td data-label="Capitaine">{{ equipe.capitaine ? equipe.capitaine.nomComplet : '-' }}</td>
+                    <td data-label="Membres">{{ equipe.membres|length }}</td>
+                    <td class="td-actions">
+                        {% if is_granted('ROLE_BUREAU') or equipe.estCapitaine(app.user) %}
+                            <a href="{{ path('app_equipe_edit', {id: equipe.id}) }}">Gérer</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="5">Aucune équipe.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+{% endblock %}

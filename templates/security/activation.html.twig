@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Activation du compte — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>Activez votre compte</h1>
+    <p>Bonjour {{ licencie.prenom }}, choisissez votre mot de passe pour activer votre compte Axiobad.</p>
+
+    <form method="post">
+        <div>
+            <label for="password">Mot de passe</label>
+            <input type="password" name="password" id="password" minlength="8" required>
+        </div>
+        <div>
+            <label for="confirm_password">Confirmer le mot de passe</label>
+            <input type="password" name="confirm_password" id="confirm_password" minlength="8" required>
+        </div>
+        <button type="submit">Activer mon compte</button>
+    </form>
+{% endblock %}

@@ -5,12 +5,15 @@
 {% block body %}
     <h1>Licenciés</h1>
 
+    <p><a href="{{ path('app_licencie_new') }}">+ Nouveau licencié</a></p>
+
     <table>
         <thead>
             <tr>
                 <th>Nom</th>
                 <th>Email</th>
                 <th>Rôles</th>
+                <th>Statut</th>
                 <th>Classement (S/D/M)</th>
                 <th></th>
             </tr>
@@ -21,6 +24,7 @@
                     <td>{{ licencie.nomComplet }}</td>
                     <td>{{ licencie.email }}</td>
                     <td>{{ licencie.roles|join(', ') }}</td>
+                    <td>{{ licencie.activationTokenValid ? 'En attente d\'activation' : 'Actif' }}</td>
                     <td>{{ licencie.classementSimple ?? '-' }} / {{ licencie.classementDouble ?? '-' }} / {{ licencie.classementMixte ?? '-' }}</td>
                     <td>
                         <form method="post" action="{{ path('app_licencie_classement', {id: licencie.id}) }}">
@@ -29,7 +33,7 @@
                     </td>
                 </tr>
             {% else %}
-                <tr><td colspan="5">Aucun licencié.</td></tr>
+                <tr><td colspan="6">Aucun licencié.</td></tr>
             {% endfor %}
         </tbody>
     </table>

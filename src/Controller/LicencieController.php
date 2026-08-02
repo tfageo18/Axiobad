@@ -66,6 +66,128 @@ class LicencieController extends AbstractController
         return $this->redirectToRoute('app_licencie_index', ['saison' => $saison->getId()]);
     }
 
+    #[Route('/import/modele', name: 'app_licencie_import_modele', methods: ['GET'])]
+    public function importModele(): Response
+    {
+        $lignes = [
+            ['prenom', 'nom', 'email', 'bureau', 'entraineur'],
+            ['Jean', 'Dupont', 'jean.dupont@example.com', 'non', 'non'],
+            ['Marie', 'Martin', 'marie.martin@example.com', 'non', 'oui'],
+        ];
+
+        $handle = fopen('php://temp', 'r+');
+        foreach ($lignes as $ligne) {
+            fputcsv($handle, $ligne, ';');
+        }
+        rewind($handle);
+        $csv = stream_get_contents($handle);
+        fclose($handle);
+
+        $response = new Response("\xEF\xBB\xBF".$csv);
+        $response->headers->set('Content-Type', 'text/csv; charset=UTF-8');
+        $response->headers->set('Content-Disposition', 'attachment; filename="modele-import-licencies.csv"');
+
+        return $response;
+    }
+
+    #[Route('/import', name: 'app_licencie_import', methods: ['GET', 'POST'])]
+    public function import(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        UserPasswordHasherInterface $passwordHasher,
+        InvitationMailer $invitationMailer,
+    ): Response {
+        if ($request->isMethod('POST')) {
+            $fichier = $request->files->get('fichier');
+            if (!$fichier) {
+                $this->addFlash('error', 'Aucun fichier sélectionné.');
+
+                return $this->redirectToRoute('app_licencie_import');
+            }
+
+            $handle = fopen($fichier->getPathname(), 'r');
+            if (!$handle) {
+                $this->addFlash('error', 'Impossible de lire le fichier.');
+
+                return $this->redirectToRoute('app_licencie_import');
+            }
+
+            $premiereLigne = fgetcsv($handle, 0, ';');
+            if ($premiereLigne && strtolower(trim((string) $premiereLigne[0])) !== 'prenom') {
+                // Le fichier ne commence pas par l'en-tête attendu : on la traite comme une donnée.
+                rewind($handle);
+            }
+
+            $creees = 0;
+            $ignorees = [];
+            $numeroLigne = 1;
+
+            while (($ligne = fgetcsv($handle, 0, ';')) !== false) {
+                ++$numeroLigne;
+                if (count(array_filter($ligne, static fn ($v) => trim((string) $v) !== '')) === 0) {
+                    continue;
+                }
+
+                $prenom = trim((string) ($ligne[0] ?? ''));
+                $nom = trim((string) ($ligne[1] ?? ''));
+                $email = trim((string) ($ligne[2] ?? ''));
+                $estBureau = in_array(strtolower(trim((string) ($ligne[3] ?? ''))), ['oui', '1', 'true', 'yes'], true);
+                $estEntraineur = in_array(strtolower(trim((string) ($ligne[4] ?? ''))), ['oui', '1', 'true', 'yes'], true);
+
+                if (!$prenom || !$nom || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $ignorees[] = sprintf('Ligne %d : données invalides (%s)', $numeroLigne, $email ?: 'email manquant');
+
+                    continue;
+                }
+
+                if ($entityManager->getRepository(Licencie::class)->findOneBy(['email' => $email])) {
+                    $ignorees[] = sprintf('Ligne %d : %s existe déjà', $numeroLigne, $email);
+
+                    continue;
+                }
+
+                $roles = [];
+                if ($estBureau) {
+                    $roles[] = Licencie::ROLE_BUREAU;
+                }
+                if ($estEntraineur) {
+                    $roles[] = Licencie::ROLE_ENTRAINEUR;
+                }
+
+                $licencie = (new Licencie())
+                    ->setEmail($email)
+                    ->setPrenom($prenom)
+                    ->setNom($nom)
+                    ->setRoles($roles)
+                    ->setMustChangePassword(true);
+                $licencie->setPassword($passwordHasher->hashPassword($licencie, bin2hex(random_bytes(32))));
+                $token = $licencie->generateActivationToken();
+
+                $entityManager->persist($licencie);
+                $entityManager->flush();
+
+                $invitationMailer->envoyerInvitation($licencie, $token);
+                ++$creees;
+            }
+
+            fclose($handle);
+
+            if ($creees > 0) {
+                $this->addFlash('success', sprintf('%d licencié(s) créé(s), invitation envoyée à chacun.', $creees));
+            }
+            if ($ignorees) {
+                $this->addFlash('error', sprintf('%d ligne(s) ignorée(s) : %s', count($ignorees), implode(' — ', $ignorees)));
+            }
+            if (0 === $creees && !$ignorees) {
+                $this->addFlash('error', 'Le fichier ne contient aucune ligne exploitable.');
+            }
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        return $this->render('licencie/import.html.twig');
+    }
+
     #[Route('/nouveau', name: 'app_licencie_new', methods: ['GET', 'POST'])]
     public function new(
         Request $request,

@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Documentation — Axiobad{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .doc-contenu {
+            background: var(--color-surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem 2rem;
+            max-width: 900px;
+        }
+        .doc-contenu h1 { font-size: 1.6rem; margin-top: 0; }
+        .doc-contenu h2 { border-top: 1px solid var(--color-border); padding-top: 1.25rem; }
+        .doc-contenu h3 { color: var(--color-primary-dark); }
+        .doc-contenu table { width: 100%; margin: 1rem 0; }
+        .doc-contenu code {
+            background: var(--color-bg);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .doc-contenu pre {
+            background: var(--color-bg);
+            padding: 0.85rem 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        .doc-contenu pre code { background: none; padding: 0; }
+        .doc-contenu blockquote {
+            border-left: 3px solid var(--color-accent);
+            margin: 1rem 0;
+            padding: 0.25rem 1rem;
+            color: var(--color-text-muted);
+        }
+        .doc-contenu ul, .doc-contenu ol { padding-left: 1.5rem; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <h1>Documentation</h1>
+    <div class="doc-contenu">
+        {{ contenu|raw }}
+    </div>
+{% endblock %}

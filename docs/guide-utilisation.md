@@ -1,24 +1,28 @@
 # Guide d'utilisation — Axiobad
 
-Ce guide explique comment utiliser l'application Axiobad au quotidien : connexion, gestion des
-licenciés, des gymnases et des créneaux.
+Ce guide explique comment utiliser l'application Axiobad au quotidien. Il est aussi consultable
+en ligne, une fois connecté, via le menu du compte (en haut à droite) → **Documentation**.
 
 ## Sommaire
 
 - [Se connecter](#se-connecter)
 - [Rôles et permissions](#rôles-et-permissions)
 - [Gérer les licenciés (bureau)](#gérer-les-licenciés-bureau)
+- [Importer des licenciés en masse (CSV)](#importer-des-licenciés-en-masse-csv)
+- [Saisons et adhésions (bureau)](#saisons-et-adhésions-bureau)
 - [Gérer les gymnases (bureau)](#gérer-les-gymnases-bureau)
 - [Gérer les créneaux (bureau)](#gérer-les-créneaux-bureau)
 - [Le calendrier](#le-calendrier)
 - [Indiquer sa présence à un créneau (tous les licenciés)](#indiquer-sa-présence-à-un-créneau-tous-les-licenciés)
-- [Consulter son classement](#consulter-son-classement)
-- [Mon profil (photo, licence, date de naissance)](#mon-profil-photo-licence-date-de-naissance)
+- [Gérer le stock (bureau)](#gérer-le-stock-bureau)
+- [Mon profil](#mon-profil)
+- [Configuration email (production)](#configuration-email-production)
 
 ## Se connecter
 
 Rendez-vous sur l'URL du club (ex. `https://axiobad.thomas-fageol.fr`) et connectez-vous avec
-votre email et votre mot de passe.
+votre email et votre mot de passe. Le menu de navigation n'est visible qu'une fois connecté ; la
+page d'accueil (et la connexion) redirigent vers le **calendrier**.
 
 **Premier compte administrateur du club :**
 - Email : `admin@axiobad.local`
@@ -26,7 +30,8 @@ votre email et votre mot de passe.
 
 ⚠️ Ce mot de passe doit impérativement être changé : l'application vous redirige automatiquement
 vers la page de changement de mot de passe dès la première connexion, et bloque l'accès au reste
-de l'application tant que ce n'est pas fait.
+de l'application tant que ce n'est pas fait. Ce compte administrateur par défaut est protégé :
+il ne peut être ni désactivé ni supprimé, et n'est pas soumis au suivi des adhésions.
 
 ## Rôles et permissions
 
@@ -34,13 +39,12 @@ Chaque licencié peut cumuler plusieurs rôles :
 
 | Rôle | Description | Accès |
 |---|---|---|
-| **Licencié** | Rôle de base, attribué automatiquement à tout le monde | Consulter les créneaux, indiquer sa présence |
-| **Membre du bureau** | Rôle administrateur | Tout ce que peut faire un licencié + gestion des licenciés, gymnases et créneaux |
+| **Licencié** | Rôle de base, attribué automatiquement à tout le monde | Consulter le calendrier et les créneaux, indiquer sa présence, gérer son profil |
+| **Membre du bureau** | Rôle administrateur | Tout ce que peut faire un licencié + gestion des licenciés, saisons, gymnases, créneaux et stock |
 | **Entraîneur** | Peut encadrer des créneaux | Peut être sélectionné comme entraîneur sur un créneau encadré |
 
-Les rôles se gèrent depuis la fiche de création d'un licencié (voir ci-dessous) ; il n'y a pas
-encore d'interface pour modifier les rôles d'un licencié existant (à faire directement via un
-membre du bureau technique si besoin).
+Les rôles se gèrent depuis la fiche de création ou de modification d'un licencié (page **Licenciés**,
+bureau uniquement).
 
 ## Gérer les licenciés (bureau)
 
@@ -56,25 +60,62 @@ Menu **Licenciés** (visible uniquement par les membres du bureau).
 Tant que le licencié n'a pas cliqué sur le lien et défini son mot de passe, son statut apparaît
 comme **"En attente d'activation"** dans la liste. Une fois activé, il apparaît comme **"Actif"**.
 
-> En développement local (sans serveur mail configuré), l'email n'est pas réellement envoyé
-> (DSN `null://null`). En production, la variable d'environnement `MAILER_DSN` doit pointer vers
-> un vrai service d'envoi d'emails (SMTP, Mailgun, etc.) pour que les invitations partent
-> réellement — voir la section [Configuration email](#configuration-email-production).
+### Rechercher, trier, désactiver, supprimer
 
-### Mettre à jour le classement d'un licencié
+- Un champ de **recherche instantanée** filtre la liste par nom, email ou rôle.
+- Cliquer sur l'en-tête d'une colonne pour trier la liste selon cette colonne.
+- **Désactiver** un compte bloque sa connexion sans supprimer ses données (présences, historique...).
+  Le compte peut être réactivé à tout moment.
+- **Supprimer** retire définitivement le licencié ; si des données lui sont liées (présences,
+  créneaux encadrés, mouvements de stock...), la suppression est refusée — désactiver le compte à
+  la place.
+- Le compte administrateur par défaut n'affiche pas ces actions : il est protégé.
+
+### Modifier le classement d'un licencié
 
 Il n'existe pas d'API publique fiable de la Fédération Française de Badminton pour récupérer
-automatiquement un classement. Le bureau saisit donc le classement simple/double/mixte
-manuellement dans le formulaire de modification du licencié, en le consultant sur
-[myffbad.fr](https://myffbad.fr/recherche/joueur).
+automatiquement un classement (testé : ni `api.ffbad.org`, ni badiste.fr, ni myffbad.fr n'offrent
+un accès exploitable). Le classement simple/double/mixte se saisit donc manuellement — par le
+bureau depuis la fiche du licencié, ou par le licencié lui-même depuis son profil — sur l'échelle
+officielle FFBaD (NC, P12, P11, P10, D9, D8, D7, R6, R5, R4, N3, N2, N1, du plus faible au plus
+fort), en la consultant sur [myffbad.fr](https://myffbad.fr/recherche/joueur).
+
+## Importer des licenciés en masse (CSV)
+
+Depuis la page **Licenciés**, lien **Importer en masse (CSV)** :
+
+1. Télécharger le modèle CSV (bouton dédié) : colonnes `prenom`, `nom`, `email`, `bureau`,
+   `entraineur`, séparateur point-virgule.
+2. Compléter une ligne par licencié à créer. Pour les colonnes `bureau` et `entraineur`, indiquer
+   `oui` ou `non`.
+3. Importer le fichier complété. Un email d'activation est envoyé automatiquement à chaque nouveau
+   licencié créé, comme pour une création individuelle. Les lignes avec un email déjà utilisé ou
+   invalide sont ignorées et listées après l'import (rien n'est perdu, seules ces lignes ne sont
+   pas importées).
+
+## Saisons et adhésions (bureau)
+
+Menu **Licenciés** → lien **Gérer les saisons**.
+
+- Créer une saison avec un libellé, une date de début et une date de fin. Une saison est
+  « en cours » si la date du jour est comprise entre ces deux dates.
+- Depuis la liste des licenciés, sélectionner une saison affiche, pour chacun, si son adhésion est
+  **payée** ou **non payée**, avec un bouton pour basculer le statut.
+- Un résumé indique le nombre d'impayés pour la saison sélectionnée, avec un filtre rapide
+  **Voir uniquement les impayés**. Le compte administrateur par défaut est exclu de ce suivi
+  (« Non applicable »), n'étant pas un licencié soumis à l'adhésion.
 
 ## Gérer les gymnases (bureau)
 
-Menu **Gymnases**.
+Menu **Gymnases** (liste visible par tous, actions réservées au bureau).
 
-- **+ Nouveau gymnase** : renseigner le nom et l'adresse.
-- **Supprimer** : retire le gymnase (attention, les créneaux qui y sont rattachés sont supprimés
-  avec lui).
+- **+ Nouveau gymnase** : nom, adresse, téléphone.
+- **Clés du gymnase** : depuis la fiche de modification d'un gymnase, ajouter une clé associe un
+  licencié porteur et, en option, une **référence** libre (utile s'il existe plusieurs clés pour
+  un même gymnase — ex. « Clé principale », « Clé local matériel »). La liste des porteurs de
+  clés (avec leur référence) est visible par tous sur la page Gymnases.
+- **Activer/désactiver** un gymnase (affichage grisé quand inactif).
+- **Supprimer** un gymnase supprime aussi les créneaux qui y sont rattachés.
 
 ## Gérer les créneaux (bureau)
 
@@ -83,60 +124,94 @@ Menu **Créneaux**.
 ### Créer un créneau
 
 1. Cliquer sur **+ Nouveau créneau**.
-2. Renseigner le nom, le gymnase, le jour de la semaine, l'heure de début et de fin.
-3. Optionnel : dates de **répétition** (début/fin) si le créneau doit être borné dans le temps
-   (ex. saison sportive) — laisser vide pour un créneau sans date de fin.
-4. Choisir la **catégorie** (Adultes ou Enfants) et, si besoin, un **classement minimum requis**
-   pour filtrer les licenciés d'un certain niveau (laisser vide si aucun niveau minimum).
-5. Cocher **Créneau encadré** si un entraîneur doit être associé, puis le sélectionner dans la
+2. Renseigner le nom et l'**activité** (Badminton par défaut ; Footing et Musculation suggérés,
+   mais texte libre pour toute autre activité).
+3. Choisir le gymnase, le jour de la semaine, l'heure de début et de fin.
+4. Optionnel : dates de **répétition** (début/fin) si le créneau doit être borné dans le temps —
+   des boutons **Effacer** à côté de chaque champ permettent de vider la date facilement.
+5. Choisir la **catégorie** (Adultes ou Enfants).
+6. Cocher **Loisir** et/ou **Compétiteur** (cumulables), et éventuellement **Ouvert aux personnes
+   extérieures au club** et/ou **Ouvert aux ados** — informations affichées partout où le créneau
+   apparaît (liste, détail, calendrier).
+7. Si besoin, un **classement minimum requis** (échelle FFBaD) pour filtrer les licenciés d'un
+   certain niveau (laisser vide si aucun niveau minimum).
+8. Cocher **Créneau encadré** si un entraîneur doit être associé, puis le sélectionner dans la
    liste (seuls les licenciés ayant le rôle Entraîneur apparaissent).
-6. Valider.
+9. Valider.
 
-### Supprimer un créneau
+### Rechercher, activer/désactiver, supprimer
 
-Bouton **Supprimer** sur la ligne du créneau concerné.
+- Un champ de **recherche instantanée** filtre la liste des créneaux.
+- **Désactiver** un créneau le fait disparaître du calendrier et de la liste vue par les licenciés
+  (le bureau continue de le voir, marqué « Inactif »), sans le supprimer.
+- **Supprimer** retire définitivement le créneau.
 
 ## Le calendrier
 
-Menu **Calendrier** : vue hebdomadaire de tous les créneaux, organisés par jour, avec horaire,
-gymnase, catégorie, niveau minimum et encadrement.
+Menu **Calendrier** : vue du mois en cours (mois précédent/suivant navigable).
+
+- Sur ordinateur : grille mensuelle classique.
+- Sur mobile : vue agenda, jour par jour, qui **masque les jours déjà passés** (le premier jour
+  affiché est toujours aujourd'hui).
+- Cliquer sur un créneau affiche son détail : qui vient, qui ne vient pas, qui n'a pas encore
+  répondu.
+- Pour chaque créneau et chaque date, le bureau peut indiquer qui **ouvre** et qui **ferme** le
+  gymnase ; cette information est visible par tous.
 
 ## Indiquer sa présence à un créneau (tous les licenciés)
 
-Sur la page **Créneaux**, chaque licencié voit par défaut uniquement les créneaux qui correspondent
-à **sa catégorie d'âge** (déduite de sa date de naissance) et à **son niveau** (si un classement
-minimum est requis sur le créneau). Un lien **Voir tous les créneaux** permet d'afficher l'ensemble
-des créneaux du club, y compris ceux qui ne correspondent pas à son profil. Les membres du bureau
-voient toujours tous les créneaux.
+Par défaut, chaque licencié voit uniquement les créneaux qui correspondent à **sa catégorie d'âge**
+(déduite de sa date de naissance) et à **son niveau** (si un classement minimum est requis). Un
+lien **Voir tous les créneaux** permet d'afficher l'ensemble des créneaux du club. Les membres du
+bureau voient toujours tous les créneaux (y compris désactivés).
 
-Sur chaque créneau, deux boutons : **Je viens** / **Je ne viens pas**. Le choix est enregistré
-instantanément et peut être changé à tout moment avant le créneau.
+Sur chaque créneau (liste ou calendrier), deux boutons : **Je viens** / **Je ne viens pas**. Le
+choix est enregistré instantanément, semaine par semaine, et peut être changé à tout moment avant
+le créneau.
 
-## Consulter son classement
+## Gérer le stock (bureau)
 
-Le classement (simple / double / mixte) est visible par le bureau sur la fiche du licencié
-(page **Licenciés**), et saisi manuellement (voir [Mettre à jour le classement d'un
-licencié](#mettre-à-jour-le-classement-dun-licencié)).
+Menu **Stock** (réservé au bureau).
 
-## Mon profil (photo, licence, date de naissance)
+- **Vêtements** : type, taille, marque (suggestions de marques sport courantes).
+- **Volants** : type, vitesse, destination, marque, modèle (suggestions de marques courantes).
+- Chaque article a une quantité en stock, gérée via de vrais **mouvements d'entrée/sortie** (avec
+  motif optionnel), pas une simple valeur modifiable — un historique de tous les mouvements est
+  consultable par article. Une sortie ne peut pas faire passer le stock sous zéro.
+- Une **recherche instantanée** filtre les deux catégories à la fois.
+
+## Mon profil
 
 Chaque licencié peut compléter et modifier lui-même son profil en cliquant sur son nom en haut à
-droite (page **Mon compte**) :
+droite → **Modifier mon profil** :
 - **Photo de profil** (affichée en rond).
-- **Téléphone**.
+- **Email**, **téléphone**.
 - **Date de naissance** : sert à déterminer automatiquement la catégorie d'âge (moins de 18 ans =
   Enfant, 18 ans et plus = Adulte), utilisée pour filtrer les créneaux adaptés.
 - **Numéro de licence FFBaD**.
+- **Classement** simple/double/mixte (voir [Modifier le classement d'un
+  licencié](#modifier-le-classement-dun-licencié)).
+
+Le menu du compte propose aussi un accès direct à la **documentation** et à la **déconnexion**.
 
 ## Configuration email (production)
 
-Pour que les emails d'invitation partent réellement en production, éditer `.env.prod.local` sur
-le serveur et renseigner :
+Pour que les emails d'invitation partent réellement en production, la variable d'environnement
+`MAILER_DSN` doit pointer vers un vrai service d'envoi SMTP dans `.env.prod.local` sur le serveur,
+par exemple avec **Amazon SES** (utilisé en production pour Axiobad, 62 000 emails/mois gratuits
+depuis une instance EC2) :
 
 ```
-MAILER_DSN=smtp://user:motdepasse@smtp.fournisseur.com:587
+MAILER_DSN=smtp://IDENTIFIANT:MOT_DE_PASSE@email-smtp.RÉGION.amazonaws.com:587
 MAILER_FROM=noreply@votre-domaine.fr
 ```
+
+Un compte SES neuf démarre en mode **sandbox** (envoi limité aux adresses vérifiées manuellement) :
+il faut demander la sortie du sandbox (« production access ») dans la console SES pour pouvoir
+envoyer à n'importe quelle adresse de licencié. Le domaine d'envoi doit aussi être vérifié (DKIM).
+
+En développement local (sans serveur mail configuré), l'email n'est pas réellement envoyé
+(DSN `null://null`) — c'est le comportement par défaut si `MAILER_DSN` n'est pas renseigné.
 
 Puis redémarrer les conteneurs (`docker compose -f compose.yaml -f compose.prod.yaml
 --env-file .env.prod.local up -d`).

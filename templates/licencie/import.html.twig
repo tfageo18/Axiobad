@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Importer des licenciés — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>Importer des licenciés en masse</h1>
+
+    <p><a href="{{ path('app_licencie_index') }}">&laquo; Retour à la liste des licenciés</a></p>
+
+    <ol>
+        <li>Téléchargez le modèle de fichier CSV ci-dessous.</li>
+        <li>Complétez une ligne par licencié à créer (colonnes : prénom, nom, email, bureau, entraineur).
+            Pour les colonnes « bureau » et « entraineur », indiquez <code>oui</code> ou <code>non</code>.</li>
+        <li>Importez le fichier complété : un email d'activation est envoyé automatiquement à chaque
+            nouveau licencié créé. Les lignes avec un email déjà existant ou invalide sont ignorées et
+            listées après l'import.</li>
+    </ol>
+
+    <p><a class="btn-cta" href="{{ path('app_licencie_import_modele') }}">⬇ Télécharger le modèle CSV</a></p>
+
+    <form method="post" enctype="multipart/form-data">
+        <div>
+            <label for="fichier">Fichier CSV rempli</label>
+            <input type="file" name="fichier" id="fichier" accept=".csv,text/csv" required>
+        </div>
+        <button type="submit">Importer</button>
+    </form>
+{% endblock %}

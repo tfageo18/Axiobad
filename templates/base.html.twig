@@ -93,6 +93,54 @@
             nav .logout-link { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.85rem; }
             nav .logout-link:hover { color: #fff; }
 
+            .compte-menu { position: relative; }
+            .compte-menu-bouton {
+                display: flex;
+                align-items: center;
+                gap: 0.3rem;
+                color: #fff;
+                background: rgba(255,255,255,0.1);
+                border: none;
+                cursor: pointer;
+                font-family: inherit;
+                font-weight: 600;
+                font-size: 0.9rem;
+                padding: 0.4rem 0.75rem;
+                border-radius: 999px;
+            }
+            .compte-menu-bouton:hover { background: rgba(255,255,255,0.2); }
+            .compte-menu-bouton .chevron { font-size: 0.65rem; opacity: 0.8; }
+            .compte-menu-liste {
+                display: none;
+                position: absolute;
+                right: 0;
+                top: calc(100% + 0.4rem);
+                background: var(--color-surface);
+                border-radius: var(--radius);
+                box-shadow: var(--shadow);
+                min-width: 200px;
+                overflow: hidden;
+                z-index: 20;
+            }
+            .compte-menu.ouvert .compte-menu-liste { display: block; }
+            .compte-menu-liste a, .compte-menu-liste button {
+                display: block;
+                width: 100%;
+                text-align: left;
+                padding: 0.65rem 1rem;
+                color: var(--color-text);
+                text-decoration: none;
+                background: none;
+                border: none;
+                font-family: inherit;
+                font-size: 0.9rem;
+                font-weight: 500;
+                cursor: pointer;
+                border-radius: 0;
+            }
+            .compte-menu-liste a:hover, .compte-menu-liste button:hover { background: var(--color-bg); }
+            .compte-menu-liste .deconnexion { color: var(--color-error); }
+
             main { padding: 1.75rem; max-width: 1200px; margin: 0 auto; }
 
             .flash-success, .flash-error {
@@ -335,11 +383,19 @@
                     <a class="nav-link" href="{{ path('app_licencie_index') }}">Licenciés</a>
                     <a class="nav-link" href="{{ path('app_stock_index') }}">Stock</a>
                 {% endif %}
-                <a class="nav-link" href="{{ path('app_mon_profil') }}">{{ app.user.nomComplet }}</a>
             {% endif %}
             <span class="spacer">
                 {% if app.user %}
-                    <a href="{{ path('app_logout') }}" class="logout-link">Déconnexion</a>
+                    <div class="compte-menu" id="compte-menu">
+                        <button type="button" class="compte-menu-bouton" onclick="document.getElementById('compte-menu').classList.toggle('ouvert');">
+                            {{ app.user.nomComplet }} <span class="chevron">▼</span>
+                        </button>
+                        <div class="compte-menu-liste">
+                            <a href="{{ path('app_mon_profil') }}">Modifier mon profil</a>
+                            <a href="{{ path('app_documentation') }}">Documentation</a>
+                            <a href="{{ path('app_logout') }}" class="deconnexion">Déconnexion</a>
+                        </div>
+                    </div>
                 {% else %}
                     <a href="{{ path('app_login') }}" class="user-link">Connexion</a>
                 {% endif %}
@@ -354,6 +410,15 @@
             {% endfor %}
             {% block body %}{% endblock %}
         </main>
+
+        <script>
+            document.addEventListener('click', function (event) {
+                var menu = document.getElementById('compte-menu');
+                if (menu && menu.classList.contains('ouvert') && !menu.contains(event.target)) {
+                    menu.classList.remove('ouvert');
+                }
+            });
+        </script>
 
         {% block javascripts %}
         {% endblock %}

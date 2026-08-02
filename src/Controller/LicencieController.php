@@ -7,7 +7,6 @@ use App\Entity\Licencie;
 use App\Repository\AdhesionRepository;
 use App\Repository\LicencieRepository;
 use App\Repository\SaisonRepository;
-use App\Service\FfbadClassementService;
 use App\Service\InvitationMailer;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -113,6 +112,11 @@ class LicencieController extends AbstractController
             $roles = $request->request->all('roles');
             $dateNaissance = (string) $request->request->get('dateNaissance');
             $numeroLicence = (string) $request->request->get('numeroLicence');
+            $classementSimple = $request->request->get('classementSimple');
+            $classementDouble = $request->request->get('classementDouble');
+            $classementMixte = $request->request->get('classementMixte');
+
+            $anciensClassements = [$licencie->getClassementSimple(), $licencie->getClassementDouble(), $licencie->getClassementMixte()];
 
             $licencie
                 ->setEmail((string) $request->request->get('email'))
@@ -120,7 +124,15 @@ class LicencieController extends AbstractController
                 ->setNom((string) $request->request->get('nom'))
                 ->setRoles(array_values(array_intersect($roles, [Licencie::ROLE_BUREAU, Licencie::ROLE_ENTRAINEUR])))
                 ->setDateNaissance($dateNaissance ? new \DateTimeImmutable($dateNaissance) : null)
-                ->setNumeroLicence($numeroLicence ?: null);
+                ->setNumeroLicence($numeroLicence ?: null)
+                ->setClassementSimple($classementSimple !== null && $classementSimple !== '' ? (int) $classementSimple : null)
+                ->setClassementDouble($classementDouble !== null && $classementDouble !== '' ? (int) $classementDouble : null)
+                ->setClassementMixte($classementMixte !== null && $classementMixte !== '' ? (int) $classementMixte : null);
+
+            $nouveauxClassements = [$licencie->getClassementSimple(), $licencie->getClassementDouble(), $licencie->getClassementMixte()];
+            if ($anciensClassements !== $nouveauxClassements) {
+                $licencie->setClassementMisAJourLe(new \DateTimeImmutable());
+            }
 
             $entityManager->flush();
 
@@ -179,22 +191,4 @@ class LicencieController extends AbstractController
         return $this->redirectToRoute('app_licencie_index');
     }
 
-    #[Route('/{id}/classement', name: 'app_licencie_classement', methods: ['POST'])]
-    public function classement(Licencie $licencie, FfbadClassementService $classementService, EntityManagerInterface $entityManager): Response
-    {
-        if (!$licencie->getNumeroLicence()) {
-            $this->addFlash('error', sprintf('Impossible de rafraîchir le classement de %s : aucun numéro de licence renseigné.', $licencie->getNomComplet()));
-
-            return $this->redirectToRoute('app_licencie_index');
-        }
-
-        if ($classementService->mettreAJourClassement($licencie)) {
-            $entityManager->flush();
-            $this->addFlash('success', 'Classement mis à jour.');
-        } else {
-            $this->addFlash('error', sprintf('Le classement de %s n\'a pas pu être récupéré auprès de la FFBaD (numéro de licence invalide ou service indisponible). Voir les logs pour le détail.', $licencie->getNomComplet()));
-        }
-
-        return $this->redirectToRoute('app_licencie_index');
-    }
 }

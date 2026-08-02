@@ -43,6 +43,10 @@
             </datalist>
         </div>
         <div>
+            <label for="modele">Modèle</label>
+            <input type="text" name="modele" id="modele" value="{{ volant ? volant.modele : '' }}" placeholder="ex: Aerosensa 50, Thunder Ace">
+        </div>
+        <div>
             <label for="commentaire">Commentaire</label>
             <textarea name="commentaire" id="commentaire">{{ volant ? volant.commentaire : '' }}</textarea>
         </div>

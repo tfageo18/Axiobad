@@ -12,7 +12,7 @@ licenciés, des gymnases et des créneaux.
 - [Gérer les créneaux (bureau)](#gérer-les-créneaux-bureau)
 - [Le calendrier](#le-calendrier)
 - [Indiquer sa présence à un créneau (tous les licenciés)](#indiquer-sa-présence-à-un-créneau-tous-les-licenciés)
-- [Consulter et rafraîchir son classement](#consulter-et-rafraîchir-son-classement)
+- [Consulter son classement](#consulter-son-classement)
 - [Mon profil (photo, licence, date de naissance)](#mon-profil-photo-licence-date-de-naissance)
 
 ## Se connecter
@@ -61,11 +61,12 @@ comme **"En attente d'activation"** dans la liste. Une fois activé, il apparaî
 > un vrai service d'envoi d'emails (SMTP, Mailgun, etc.) pour que les invitations partent
 > réellement — voir la section [Configuration email](#configuration-email-production).
 
-### Rafraîchir le classement d'un licencié
+### Mettre à jour le classement d'un licencié
 
-Sur la ligne du licencié, bouton **Rafraîchir le classement** : récupère le classement simple,
-double et mixte du licencié via l'API de la Fédération Française de Badminton, à partir de son
-numéro de licence.
+Il n'existe pas d'API publique fiable de la Fédération Française de Badminton pour récupérer
+automatiquement un classement. Le bureau saisit donc le classement simple/double/mixte
+manuellement dans le formulaire de modification du licencié, en le consultant sur
+[myffbad.fr](https://myffbad.fr/recherche/joueur).
 
 ## Gérer les gymnases (bureau)
 
@@ -111,11 +112,11 @@ voient toujours tous les créneaux.
 Sur chaque créneau, deux boutons : **Je viens** / **Je ne viens pas**. Le choix est enregistré
 instantanément et peut être changé à tout moment avant le créneau.
 
-## Consulter et rafraîchir son classement
+## Consulter son classement
 
 Le classement (simple / double / mixte) est visible par le bureau sur la fiche du licencié
-(page **Licenciés**). Sa mise à jour se fait manuellement via le bouton **Rafraîchir le
-classement**, qui interroge l'API de la FFBaD.
+(page **Licenciés**), et saisi manuellement (voir [Mettre à jour le classement d'un
+licencié](#mettre-à-jour-le-classement-dun-licencié)).
 
 ## Mon profil (photo, licence, date de naissance)
 
@@ -125,8 +126,7 @@ droite (page **Mon compte**) :
 - **Téléphone**.
 - **Date de naissance** : sert à déterminer automatiquement la catégorie d'âge (moins de 18 ans =
   Enfant, 18 ans et plus = Adulte), utilisée pour filtrer les créneaux adaptés.
-- **Numéro de licence FFBaD** : nécessaire pour que le bureau puisse rafraîchir le classement du
-  licencié via l'API de la fédération.
+- **Numéro de licence FFBaD**.
 
 ## Configuration email (production)
 

@@ -203,6 +203,7 @@ class StockController extends AbstractController
                 ->setVitesse((string) $request->request->get('vitesse'))
                 ->setDestination((string) $request->request->get('destination'))
                 ->setMarque((string) $request->request->get('marque') ?: null)
+                ->setModele((string) $request->request->get('modele') ?: null)
                 ->setCommentaire((string) $request->request->get('commentaire') ?: null);
 
             $entityManager->persist($volant);

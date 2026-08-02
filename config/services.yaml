@@ -19,10 +19,6 @@ services:
     App\:
         resource: '../src/'
 
-    App\Service\FfbadClassementService:
-        arguments:
-            $ffbadClient: '@ffbad.client'
-
     App\Service\InvitationMailer:
         arguments:
             $mailerFrom: '%env(MAILER_FROM)%'

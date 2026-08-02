@@ -35,16 +35,4 @@ class LicencieRepository extends ServiceEntityRepository implements PasswordUpgr
     {
         return $this->findOneBy(['activationToken' => $token]);
     }
-
-    /**
-     * @return Licencie[]
-     */
-    public function findAvecNumeroLicence(): array
-    {
-        return $this->createQueryBuilder('l')
-            ->andWhere('l.numeroLicence IS NOT NULL')
-            ->andWhere("l.numeroLicence != ''")
-            ->getQuery()
-            ->getResult();
-    }
 }

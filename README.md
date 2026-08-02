@@ -18,7 +18,7 @@ Fournir aux clubs de badminton un outil pour gérer leurs licenciés, leurs cré
 - Un compte administrateur par défaut est créé automatiquement (`admin@axiobad.local` / `admin`), avec changement de mot de passe obligatoire à la première connexion.
 - Le bureau peut créer de nouveaux licenciés depuis l'application : un email d'invitation leur est envoyé pour qu'ils définissent eux-mêmes leur mot de passe (lien valable 7 jours).
 - Chaque licencié peut gérer son propre profil (page "Mon compte") : photo, téléphone, date de naissance, numéro de licence FFBaD.
-- Récupération du classement du licencié via l'API de la Fédération Française de Badminton (FFBaD), à partir de son numéro de licence.
+- Classement du licencié (simple/double/mixte) saisi manuellement par le bureau (pas d'API publique fiable côté FFBaD).
 - Rôles (cumulables, un licencié peut appartenir à plusieurs groupes à la fois) :
   - **Licencié** : rôle de base, tout adhérent du club.
   - **Membre du bureau** : rôle administrateur de l'application.

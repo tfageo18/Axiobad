@@ -59,6 +59,9 @@ class StockVolant
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $marque = null;
 
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $modele = null;
+
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $commentaire = null;
 
@@ -143,6 +146,18 @@ class StockVolant
     public function setMarque(?string $marque): static
     {
         $this->marque = $marque;
+
+        return $this;
+    }
+
+    public function getModele(): ?string
+    {
+        return $this->modele;
+    }
+
+    public function setModele(?string $modele): static
+    {
+        $this->modele = $modele;
 
         return $this;
     }

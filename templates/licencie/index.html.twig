@@ -82,9 +82,6 @@
                     {% endif %}
                     <td class="td-actions">
                         <a href="{{ path('app_licencie_edit', {id: licencie.id}) }}">Modifier</a>
-                        <form method="post" action="{{ path('app_licencie_classement', {id: licencie.id}) }}" style="display:inline">
-                            <button type="submit">Rafraîchir le classement</button>
-                        </form>
                         <form method="post" action="{{ path('app_licencie_toggle_actif', {id: licencie.id}) }}" style="display:inline">
                             <button type="submit">{{ licencie.actif ? 'Désactiver' : 'Réactiver' }}</button>
                         </form>

@@ -1,5 +1,0 @@
-framework:
-    http_client:
-        scoped_clients:
-            ffbad.client:
-                base_uri: '%env(FFBAD_API_BASE_URL)%'

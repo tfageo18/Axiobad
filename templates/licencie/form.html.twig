@@ -42,6 +42,24 @@
                 <label for="numeroLicence">Numéro de licence FFBaD</label>
                 <input type="text" name="numeroLicence" id="numeroLicence" value="{{ licencie.numeroLicence }}">
             </div>
+            <div>
+                <label for="classementSimple">Classement simple</label>
+                <input type="number" name="classementSimple" id="classementSimple" value="{{ licencie.classementSimple }}">
+            </div>
+            <div>
+                <label for="classementDouble">Classement double</label>
+                <input type="number" name="classementDouble" id="classementDouble" value="{{ licencie.classementDouble }}">
+            </div>
+            <div>
+                <label for="classementMixte">Classement mixte</label>
+                <input type="number" name="classementMixte" id="classementMixte" value="{{ licencie.classementMixte }}">
+            </div>
+            <p style="font-size: 0.85rem; color: var(--color-text-muted);">
+                Les classements sont saisis manuellement par le bureau (à consulter sur
+                <a href="https://myffbad.fr/recherche/joueur" target="_blank" rel="noopener">myffbad.fr</a>) —
+                il n'existe pas de source automatisée fiable.
+                {% if licencie.classementMisAJourLe %}Dernière mise à jour : {{ licencie.classementMisAJourLe|date('d/m/Y') }}.{% endif %}
+            </p>
         {% endif %}
         <button type="submit">{{ licencie ? 'Enregistrer' : "Créer et envoyer l'invitation" }}</button>
     </form>

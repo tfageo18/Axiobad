@@ -4,16 +4,209 @@
         <meta charset="UTF-8">
         <title>{% block title %}Axiobad{% endblock %}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
         {% block stylesheets %}
         <style>
-            body { font-family: sans-serif; margin: 0; }
-            nav { background: #1b3a5c; padding: 1rem; display: flex; gap: 1rem; align-items: center; }
-            nav a { color: #fff; text-decoration: none; }
-            main { padding: 1.5rem; }
-            table { border-collapse: collapse; width: 100%; }
-            th, td { border: 1px solid #ddd; padding: 0.5rem; text-align: left; }
-            .flash-success { color: green; }
-            .flash-error { color: red; }
+            :root {
+                --color-bg: #f4f6fb;
+                --color-surface: #ffffff;
+                --color-border: #e4e8f1;
+                --color-text: #1c2333;
+                --color-text-muted: #6b7386;
+                --color-primary: #1b3a6b;
+                --color-primary-dark: #12274a;
+                --color-accent: #f97316;
+                --color-accent-dark: #ea580c;
+                --color-success: #16a34a;
+                --color-success-bg: #ecfdf3;
+                --color-error: #dc2626;
+                --color-error-bg: #fef2f2;
+                --radius: 12px;
+                --shadow: 0 1px 3px rgba(20, 30, 60, 0.08), 0 1px 2px rgba(20, 30, 60, 0.06);
+            }
+
+            * { box-sizing: border-box; }
+
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                margin: 0;
+                background: var(--color-bg);
+                color: var(--color-text);
+                line-height: 1.5;
+            }
+
+            h1, h2, h3 {
+                font-weight: 700;
+                letter-spacing: -0.01em;
+                color: var(--color-primary-dark);
+            }
+            h1 { font-size: 1.75rem; margin: 0 0 1.25rem; }
+            h2 { font-size: 1.25rem; margin: 2rem 0 0.75rem; }
+
+            nav {
+                background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+                padding: 0.75rem 1.5rem;
+                display: flex;
+                gap: 0.25rem;
+                align-items: center;
+                box-shadow: var(--shadow);
+                position: sticky;
+                top: 0;
+                z-index: 10;
+                flex-wrap: wrap;
+            }
+            nav .brand {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                margin-right: 1rem;
+                text-decoration: none;
+            }
+            nav .brand img { width: 28px; height: 28px; }
+            nav .brand span {
+                color: #fff;
+                font-weight: 800;
+                font-size: 1.15rem;
+                letter-spacing: -0.02em;
+            }
+            nav a.nav-link {
+                color: rgba(255,255,255,0.85);
+                text-decoration: none;
+                padding: 0.45rem 0.85rem;
+                border-radius: 999px;
+                font-size: 0.92rem;
+                font-weight: 500;
+                transition: background 0.15s ease, color 0.15s ease;
+            }
+            nav a.nav-link:hover { background: rgba(255,255,255,0.12); color: #fff; }
+            nav .spacer { margin-left: auto; display: flex; align-items: center; gap: 0.75rem; }
+            nav .user-link {
+                color: #fff;
+                text-decoration: none;
+                font-weight: 600;
+                font-size: 0.9rem;
+                padding: 0.4rem 0.75rem;
+                border-radius: 999px;
+                background: rgba(255,255,255,0.1);
+            }
+            nav .user-link:hover { background: rgba(255,255,255,0.2); }
+            nav .logout-link { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.85rem; }
+            nav .logout-link:hover { color: #fff; }
+
+            main { padding: 1.75rem; max-width: 1200px; margin: 0 auto; }
+
+            .flash-success, .flash-error {
+                padding: 0.75rem 1rem;
+                border-radius: var(--radius);
+                margin-bottom: 1rem;
+                font-size: 0.92rem;
+                font-weight: 500;
+                border-left: 4px solid;
+            }
+            .flash-success { background: var(--color-success-bg); color: var(--color-success); border-color: var(--color-success); }
+            .flash-error { background: var(--color-error-bg); color: var(--color-error); border-color: var(--color-error); }
+
+            table {
+                border-collapse: separate;
+                border-spacing: 0;
+                width: 100%;
+                background: var(--color-surface);
+                border-radius: var(--radius);
+                overflow: hidden;
+                box-shadow: var(--shadow);
+                margin-bottom: 1.5rem;
+            }
+            th, td {
+                padding: 0.7rem 1rem;
+                text-align: left;
+                border-bottom: 1px solid var(--color-border);
+                font-size: 0.92rem;
+            }
+            th {
+                background: #f8f9fc;
+                color: var(--color-text-muted);
+                font-weight: 600;
+                font-size: 0.78rem;
+                text-transform: uppercase;
+                letter-spacing: 0.04em;
+            }
+            tbody tr:last-child td { border-bottom: none; }
+            tbody tr:hover { background: #fafbfe; }
+
+            form { margin-bottom: 0; }
+            form > div { margin-bottom: 1rem; }
+            label {
+                display: block;
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: var(--color-text-muted);
+                margin-bottom: 0.3rem;
+            }
+            input[type="text"], input[type="email"], input[type="password"], input[type="tel"],
+            input[type="number"], input[type="date"], input[type="time"], input[type="file"],
+            select, textarea {
+                width: 100%;
+                max-width: 420px;
+                padding: 0.55rem 0.75rem;
+                border: 1px solid var(--color-border);
+                border-radius: 8px;
+                font-size: 0.92rem;
+                font-family: inherit;
+                background: var(--color-surface);
+                color: var(--color-text);
+            }
+            input:focus, select:focus, textarea:focus {
+                outline: none;
+                border-color: var(--color-primary);
+                box-shadow: 0 0 0 3px rgba(27, 58, 107, 0.12);
+            }
+            textarea { max-width: 100%; min-height: 5rem; }
+            input[type="checkbox"] { width: auto; margin-right: 0.4rem; }
+
+            button, input[type="submit"] {
+                background: var(--color-primary);
+                color: #fff;
+                border: none;
+                padding: 0.55rem 1.1rem;
+                border-radius: 8px;
+                font-size: 0.88rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background 0.15s ease, transform 0.05s ease;
+            }
+            button:hover, input[type="submit"]:hover { background: var(--color-primary-dark); }
+            button:active { transform: scale(0.98); }
+
+            a {
+                color: var(--color-primary);
+                font-weight: 500;
+            }
+            a[href*="supprimer"], form[action*="supprimer"] button {
+                background: transparent;
+                color: var(--color-error);
+                border: 1px solid var(--color-error-bg);
+            }
+            form[action*="supprimer"] button:hover { background: var(--color-error-bg); }
+
+            p > a:first-child:only-child {
+                display: inline-block;
+                background: var(--color-accent);
+                color: #fff;
+                padding: 0.5rem 1rem;
+                border-radius: 8px;
+                text-decoration: none;
+                font-weight: 600;
+                margin-bottom: 0.5rem;
+            }
+            p > a:first-child:only-child:hover { background: var(--color-accent-dark); }
+
+            .calendrier { box-shadow: var(--shadow); }
+            .calendrier th { background: var(--color-primary); color: #fff; }
+            .calendrier .hors-mois { background: #fafbfe !important; }
+            .creneau-cal {
+                background: #fff8f0;
+                border: 1px solid #fde4c8 !important;
+            }
         </style>
         {% endblock %}
 
@@ -22,18 +215,23 @@
     </head>
     <body>
         <nav>
-            <a href="{{ path('app_creneau_index') }}">Créneaux</a>
-            <a href="{{ path('app_calendrier') }}">Calendrier</a>
-            <a href="{{ path('app_gymnase_index') }}">Gymnases</a>
+            <a href="{{ path('app_home') }}" class="brand">
+                <img src="{{ asset('logo.svg') }}" alt="Axiobad">
+                <span>Axiobad</span>
+            </a>
+            <a class="nav-link" href="{{ path('app_creneau_index') }}">Créneaux</a>
+            <a class="nav-link" href="{{ path('app_calendrier') }}">Calendrier</a>
+            <a class="nav-link" href="{{ path('app_gymnase_index') }}">Gymnases</a>
             {% if is_granted('ROLE_BUREAU') %}
-                <a href="{{ path('app_licencie_index') }}">Licenciés</a>
-                <a href="{{ path('app_stock_index') }}">Stock</a>
+                <a class="nav-link" href="{{ path('app_licencie_index') }}">Licenciés</a>
+                <a class="nav-link" href="{{ path('app_stock_index') }}">Stock</a>
             {% endif %}
-            <span style="margin-left: auto">
+            <span class="spacer">
                 {% if app.user %}
-                    <a href="{{ path('app_mon_profil') }}" style="color:#fff">{{ app.user.nomComplet }}</a> — <a href="{{ path('app_logout') }}" style="color:#fff">Déconnexion</a>
+                    <a href="{{ path('app_mon_profil') }}" class="user-link">{{ app.user.nomComplet }}</a>
+                    <a href="{{ path('app_logout') }}" class="logout-link">Déconnexion</a>
                 {% else %}
-                    <a href="{{ path('app_login') }}" style="color:#fff">Connexion</a>
+                    <a href="{{ path('app_login') }}" class="user-link">Connexion</a>
                 {% endif %}
             </span>
         </nav>

@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créneaux — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>Créneaux</h1>
+
+    {% if is_granted('ROLE_BUREAU') %}
+        <p><a href="{{ path('app_creneau_new') }}">+ Nouveau créneau</a></p>
+    {% endif %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>Créneau</th>
+                <th>Gymnase</th>
+                <th>Jour</th>
+                <th>Horaire</th>
+                <th>Encadrement</th>
+                <th>Ma présence</th>
+                {% if is_granted('ROLE_BUREAU') %}<th></th>{% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for creneau in creneaux %}
+                <tr>
+                    <td>{{ creneau.nom }}</td>
+                    <td>{{ creneau.gymnase.nom }}</td>
+                    <td>{{ creneau.jourSemaine }}</td>
+                    <td>{{ creneau.heureDebut|date('H:i') }} - {{ creneau.heureFin|date('H:i') }}</td>
+                    <td>
+                        {% if creneau.encadre %}
+                            Encadré par {{ creneau.entraineur.nomComplet }}
+                        {% else %}
+                            Libre
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% set presence = presences[creneau.id] %}
+                        <form method="post" action="{{ path('app_creneau_presence', {id: creneau.id}) }}">
+                            <button type="submit" name="present" value="1" {% if presence and presence.present %}disabled{% endif %}>Je viens</button>
+                            <button type="submit" name="present" value="0" {% if presence and not presence.present %}disabled{% endif %}>Je ne viens pas</button>
+                        </form>
+                    </td>
+                    {% if is_granted('ROLE_BUREAU') %}
+                        <td>
+                            <form method="post" action="{{ path('app_creneau_delete', {id: creneau.id}) }}" onsubmit="return confirm('Supprimer ce créneau ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete-creneau-' ~ creneau.id) }}">
+                                <button type="submit">Supprimer</button>
+                            </form>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% else %}
+                <tr><td colspan="7">Aucun créneau.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

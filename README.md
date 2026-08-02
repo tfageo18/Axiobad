@@ -33,4 +33,11 @@ Fournir aux clubs de badminton un outil pour gérer leurs licenciés, leurs cré
 
 ## Démarrage
 
-_À compléter au fur et à mesure de la mise en place du projet._
+```bash
+docker compose build
+docker compose up -d
+docker compose exec php bin/console doctrine:database:create
+docker compose exec php bin/console doctrine:migrations:migrate
+```
+
+L'application est accessible sur http://localhost:8080.

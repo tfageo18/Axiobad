@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Licenciés — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>Licenciés</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Rôles</th>
+                <th>Classement (S/D/M)</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for licencie in licencies %}
+                <tr>
+                    <td>{{ licencie.nomComplet }}</td>
+                    <td>{{ licencie.email }}</td>
+                    <td>{{ licencie.roles|join(', ') }}</td>
+                    <td>{{ licencie.classementSimple ?? '-' }} / {{ licencie.classementDouble ?? '-' }} / {{ licencie.classementMixte ?? '-' }}</td>
+                    <td>
+                        <form method="post" action="{{ path('app_licencie_classement', {id: licencie.id}) }}">
+                            <button type="submit">Rafraîchir le classement</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="5">Aucun licencié.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

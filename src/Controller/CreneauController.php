@@ -1,0 +1,117 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\Creneau;
+use App\Entity\Gymnase;
+use App\Entity\Licencie;
+use App\Repository\CreneauRepository;
+use App\Repository\GymnaseRepository;
+use App\Repository\LicencieRepository;
+use App\Repository\PresenceRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+
+#[Route('/creneaux')]
+class CreneauController extends AbstractController
+{
+    #[Route('', name: 'app_creneau_index', methods: ['GET'])]
+    public function index(CreneauRepository $creneauRepository, PresenceRepository $presenceRepository): Response
+    {
+        /** @var Licencie $licencie */
+        $licencie = $this->getUser();
+        $creneaux = $creneauRepository->findAll();
+
+        $presencesParCreneau = [];
+        foreach ($creneaux as $creneau) {
+            $presencesParCreneau[$creneau->getId()] = $presenceRepository->findOneByCreneauAndLicencie($creneau, $licencie);
+        }
+
+        return $this->render('creneau/index.html.twig', [
+            'creneaux' => $creneaux,
+            'presences' => $presencesParCreneau,
+        ]);
+    }
+
+    #[Route('/nouveau', name: 'app_creneau_new', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_BUREAU')]
+    public function new(Request $request, EntityManagerInterface $entityManager, GymnaseRepository $gymnaseRepository, LicencieRepository $licencieRepository): Response
+    {
+        if ($request->isMethod('POST')) {
+            $gymnase = $gymnaseRepository->find($request->request->get('gymnase'));
+            if (!$gymnase instanceof Gymnase) {
+                $this->addFlash('error', 'Gymnase invalide.');
+
+                return $this->redirectToRoute('app_creneau_new');
+            }
+
+            $encadre = (bool) $request->request->get('encadre');
+            $entraineur = null;
+            if ($encadre) {
+                $entraineur = $licencieRepository->find($request->request->get('entraineur'));
+                if (!$entraineur instanceof Licencie || !$entraineur->isEntraineur()) {
+                    $this->addFlash('error', 'Un entraîneur valide est requis pour un créneau encadré.');
+
+                    return $this->redirectToRoute('app_creneau_new');
+                }
+            }
+
+            $creneau = (new Creneau())
+                ->setNom((string) $request->request->get('nom'))
+                ->setGymnase($gymnase)
+                ->setJourSemaine((string) $request->request->get('jourSemaine'))
+                ->setHeureDebut(new \DateTimeImmutable((string) $request->request->get('heureDebut')))
+                ->setHeureFin(new \DateTimeImmutable((string) $request->request->get('heureFin')))
+                ->setEncadre($encadre)
+                ->setEntraineur($entraineur);
+
+            $entityManager->persist($creneau);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Créneau créé.');
+
+            return $this->redirectToRoute('app_creneau_index');
+        }
+
+        return $this->render('creneau/new.html.twig', [
+            'gymnases' => $gymnaseRepository->findAll(),
+            'entraineurs' => $licencieRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/{id}/supprimer', name: 'app_creneau_delete', methods: ['POST'])]
+    #[IsGranted('ROLE_BUREAU')]
+    public function delete(Request $request, Creneau $creneau, EntityManagerInterface $entityManager): Response
+    {
+        if ($this->isCsrfTokenValid('delete-creneau-'.$creneau->getId(), (string) $request->request->get('_token'))) {
+            $entityManager->remove($creneau);
+            $entityManager->flush();
+            $this->addFlash('success', 'Créneau supprimé.');
+        }
+
+        return $this->redirectToRoute('app_creneau_index');
+    }
+
+    #[Route('/{id}/presence', name: 'app_creneau_presence', methods: ['POST'])]
+    public function presence(Request $request, Creneau $creneau, EntityManagerInterface $entityManager, PresenceRepository $presenceRepository): Response
+    {
+        /** @var Licencie $licencie */
+        $licencie = $this->getUser();
+
+        $presence = $presenceRepository->findOneByCreneauAndLicencie($creneau, $licencie)
+            ?? (new \App\Entity\Presence())->setCreneau($creneau)->setLicencie($licencie);
+
+        $presence->setPresent('1' === $request->request->get('present'));
+
+        $entityManager->persist($presence);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Réponse enregistrée.');
+
+        return $this->redirectToRoute('app_creneau_index');
+    }
+}

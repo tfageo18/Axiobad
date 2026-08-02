@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gymnases — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>Gymnases</h1>
+
+    {% if is_granted('ROLE_BUREAU') %}
+        <p><a href="{{ path('app_gymnase_new') }}">+ Nouveau gymnase</a></p>
+    {% endif %}
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Adresse</th>
+                {% if is_granted('ROLE_BUREAU') %}<th></th>{% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for gymnase in gymnases %}
+                <tr>
+                    <td>{{ gymnase.nom }}</td>
+                    <td>{{ gymnase.adresse }}</td>
+                    {% if is_granted('ROLE_BUREAU') %}
+                        <td>
+                            <form method="post" action="{{ path('app_gymnase_delete', {id: gymnase.id}) }}" onsubmit="return confirm('Supprimer ce gymnase ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete-gymnase-' ~ gymnase.id) }}">
+                                <button type="submit">Supprimer</button>
+                            </form>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% else %}
+                <tr><td colspan="3">Aucun gymnase.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

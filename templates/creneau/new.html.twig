@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau créneau — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>Nouveau créneau</h1>
+
+    <form method="post">
+        <div>
+            <label for="nom">Nom</label>
+            <input type="text" name="nom" id="nom" required>
+        </div>
+        <div>
+            <label for="gymnase">Gymnase</label>
+            <select name="gymnase" id="gymnase" required>
+                {% for gymnase in gymnases %}
+                    <option value="{{ gymnase.id }}">{{ gymnase.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="jourSemaine">Jour</label>
+            <select name="jourSemaine" id="jourSemaine" required>
+                {% for jour in ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'] %}
+                    <option value="{{ jour }}">{{ jour }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="heureDebut">Heure de début</label>
+            <input type="time" name="heureDebut" id="heureDebut" required>
+        </div>
+        <div>
+            <label for="heureFin">Heure de fin</label>
+            <input type="time" name="heureFin" id="heureFin" required>
+        </div>
+        <div>
+            <label>
+                <input type="checkbox" name="encadre" value="1" onchange="document.getElementById('entraineur-field').style.display = this.checked ? 'block' : 'none';">
+                Créneau encadré
+            </label>
+        </div>
+        <div id="entraineur-field" style="display:none;">
+            <label for="entraineur">Entraîneur</label>
+            <select name="entraineur" id="entraineur">
+                {% for entraineur in entraineurs %}
+                    {% if 'ROLE_ENTRAINEUR' in entraineur.roles %}
+                        <option value="{{ entraineur.id }}">{{ entraineur.nomComplet }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit">Créer</button>
+    </form>
+{% endblock %}

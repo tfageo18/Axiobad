@@ -61,6 +61,9 @@ class Creneau
     #[ORM\Column]
     private bool $ouvertExternes = false;
 
+    #[ORM\Column]
+    private bool $ouvertAdos = false;
+
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $recurrenceDebut = null;
 
@@ -244,6 +247,18 @@ class Creneau
     public function setOuvertExternes(bool $ouvertExternes): static
     {
         $this->ouvertExternes = $ouvertExternes;
+
+        return $this;
+    }
+
+    public function isOuvertAdos(): bool
+    {
+        return $this->ouvertAdos;
+    }
+
+    public function setOuvertAdos(bool $ouvertAdos): static
+    {
+        $this->ouvertAdos = $ouvertAdos;
 
         return $this;
     }

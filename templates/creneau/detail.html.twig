@@ -13,6 +13,7 @@
         {% if creneau.classementMinimum %} · niveau min. {{ creneau.classementMinimum }}{% endif %}<br>
         {{ creneau.encadre ? 'Encadré par ' ~ creneau.entraineur.nomComplet : 'Créneau libre' }}<br>
         {{ creneau.ouvertExternes ? 'Ouvert aux personnes extérieures au club' : 'Réservé aux licenciés du club' }}
+        {% if creneau.ouvertAdos %} · Ouvert aux ados{% endif %}
     </p>
 
     <p>

@@ -65,6 +65,12 @@
             </label>
         </div>
         <div>
+            <label>
+                <input type="checkbox" name="ouvertAdos" value="1" {{ creneau and creneau.ouvertAdos ? 'checked' : '' }}>
+                Ouvert aux ados
+            </label>
+        </div>
+        <div>
             <label for="classementMinimum">Classement minimum requis</label>
             <select name="classementMinimum" id="classementMinimum">
                 <option value="">Aucun</option>

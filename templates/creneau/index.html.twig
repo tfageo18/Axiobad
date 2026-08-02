@@ -42,6 +42,7 @@
                 <th>Catégorie</th>
                 <th>Type</th>
                 <th>Externes</th>
+                <th>Ados</th>
                 <th>Niveau min.</th>
                 <th>Encadrement</th>
                 {% if is_granted('ROLE_BUREAU') %}<th>Statut</th><th></th>{% endif %}
@@ -57,6 +58,7 @@
                     <td data-label="Catégorie">{{ creneau.categorie == 'ENFANT' ? 'Enfants' : 'Adultes' }}</td>
                     <td data-label="Type">{{ creneau.typeLabel }}</td>
                     <td data-label="Externes">{{ creneau.ouvertExternes ? 'Oui' : 'Non' }}</td>
+                    <td data-label="Ados">{{ creneau.ouvertAdos ? 'Oui' : 'Non' }}</td>
                     <td data-label="Niveau min.">{{ creneau.classementMinimum ?? '-' }}</td>
                     <td data-label="Encadrement">
                         {% if creneau.encadre %}
@@ -80,7 +82,7 @@
                     {% endif %}
                 </tr>
             {% else %}
-                <tr><td colspan="11">Aucun créneau.</td></tr>
+                <tr><td colspan="12">Aucun créneau.</td></tr>
             {% endfor %}
         </tbody>
     </table>

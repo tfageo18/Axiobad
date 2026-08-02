@@ -254,6 +254,7 @@ class CreneauController extends AbstractController
             ->setClassementMinimum($classementMinimum)
             ->setType($type)
             ->setOuvertExternes((bool) $request->request->get('ouvertExternes'))
+            ->setOuvertAdos((bool) $request->request->get('ouvertAdos'))
             ->setRecurrenceDebut($recurrenceDebutRaw ? new \DateTimeImmutable($recurrenceDebutRaw) : null)
             ->setRecurrenceFin($recurrenceFinRaw ? new \DateTimeImmutable($recurrenceFinRaw) : null);
 

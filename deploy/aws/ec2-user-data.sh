@@ -24,6 +24,14 @@ curl -SL "https://github.com/docker/compose/releases/latest/download/docker-comp
     -o /usr/local/lib/docker/cli-plugins/docker-compose
 chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 
+# "docker compose build" nécessite buildx, non fourni par le paquet docker d'AL2023.
+BUILDX_ARCH="amd64"
+[ "$(uname -m)" = "aarch64" ] && BUILDX_ARCH="arm64"
+BUILDX_VERSION=$(curl -sL https://api.github.com/repos/docker/buildx/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")')
+curl -SL "https://github.com/docker/buildx/releases/download/${BUILDX_VERSION}/buildx-${BUILDX_VERSION}.linux-${BUILDX_ARCH}" \
+    -o /usr/local/lib/docker/cli-plugins/docker-buildx
+chmod +x /usr/local/lib/docker/cli-plugins/docker-buildx
+
 if [ ! -d "$APP_DIR" ]; then
     git clone --branch "$BRANCH" "$REPO_URL" "$APP_DIR"
 fi

@@ -234,6 +234,11 @@ class CreneauController extends AbstractController
         $classementMinimumRaw = (string) $request->request->get('classementMinimum');
         $classementMinimum = in_array($classementMinimumRaw, ClassementFfbad::CODES, true) ? $classementMinimumRaw : null;
 
+        $type = (string) $request->request->get('type');
+        if (!array_key_exists($type, Creneau::TYPES)) {
+            $type = Creneau::TYPE_LOISIR;
+        }
+
         $recurrenceDebutRaw = (string) $request->request->get('recurrenceDebut');
         $recurrenceFinRaw = (string) $request->request->get('recurrenceFin');
 
@@ -247,6 +252,8 @@ class CreneauController extends AbstractController
             ->setEntraineur($entraineur)
             ->setCategorie($categorie)
             ->setClassementMinimum($classementMinimum)
+            ->setType($type)
+            ->setOuvertExternes((bool) $request->request->get('ouvertExternes'))
             ->setRecurrenceDebut($recurrenceDebutRaw ? new \DateTimeImmutable($recurrenceDebutRaw) : null)
             ->setRecurrenceFin($recurrenceFinRaw ? new \DateTimeImmutable($recurrenceFinRaw) : null);
 

@@ -102,7 +102,7 @@
                                         <a href="{{ path('app_creneau_detail', {id: creneau.id, date: jour.date|date('Y-m-d')}) }}">
                                             <strong>{{ creneau.nom }}</strong> {{ creneau.heureDebut|date('H:i') }}
                                         </a><br>
-                                        <small>{{ creneau.gymnase.nom }}</small><br>
+                                        <small>{{ creneau.gymnase.nom }} · {{ creneau.typeLabel }}{{ creneau.ouvertExternes ? ' · Ouvert extérieurs' : '' }}</small><br>
 
                                         {% set presence = jour.presences[creneau.id] %}
                                         <form method="post" action="{{ path('app_creneau_presence', {id: creneau.id}) }}">
@@ -170,7 +170,7 @@
                         {% set presence = jour.presences[creneau.id] %}
                         <div class="agenda-creneau">
                             <a href="{{ path('app_creneau_detail', {id: creneau.id, date: jour.date|date('Y-m-d')}) }}">{{ creneau.nom }} — {{ creneau.heureDebut|date('H:i') }}</a>
-                            <div class="lieu">{{ creneau.gymnase.nom }}</div>
+                            <div class="lieu">{{ creneau.gymnase.nom }} · {{ creneau.typeLabel }}{{ creneau.ouvertExternes ? ' · Ouvert extérieurs' : '' }}</div>
 
                             <form method="post" action="{{ path('app_creneau_presence', {id: creneau.id}) }}">
                                 <input type="hidden" name="date" value="{{ jour.date|date('Y-m-d') }}">

@@ -51,6 +51,20 @@
             </select>
         </div>
         <div>
+            <label for="type">Type</label>
+            <select name="type" id="type" required>
+                {% for valeur, libelle in constant('App\\Entity\\Creneau::TYPES') %}
+                    <option value="{{ valeur }}" {{ (creneau and creneau.type == valeur) or (not creneau and valeur == 'LOISIR') ? 'selected' : '' }}>{{ libelle }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label>
+                <input type="checkbox" name="ouvertExternes" value="1" {{ creneau and creneau.ouvertExternes ? 'checked' : '' }}>
+                Ouvert aux personnes extérieures au club
+            </label>
+        </div>
+        <div>
             <label for="classementMinimum">Classement minimum requis</label>
             <select name="classementMinimum" id="classementMinimum">
                 <option value="">Aucun</option>

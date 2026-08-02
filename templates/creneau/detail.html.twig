@@ -9,9 +9,10 @@
 
     <p>
         {{ creneau.gymnase.nom }} · {{ creneau.heureDebut|date('H:i') }} - {{ creneau.heureFin|date('H:i') }}<br>
-        {{ creneau.categorie == 'ENFANT' ? 'Enfants' : 'Adultes' }}
+        {{ creneau.categorie == 'ENFANT' ? 'Enfants' : 'Adultes' }} · {{ creneau.typeLabel }}
         {% if creneau.classementMinimum %} · niveau min. {{ creneau.classementMinimum }}{% endif %}<br>
-        {{ creneau.encadre ? 'Encadré par ' ~ creneau.entraineur.nomComplet : 'Créneau libre' }}
+        {{ creneau.encadre ? 'Encadré par ' ~ creneau.entraineur.nomComplet : 'Créneau libre' }}<br>
+        {{ creneau.ouvertExternes ? 'Ouvert aux personnes extérieures au club' : 'Réservé aux licenciés du club' }}
     </p>
 
     <p>

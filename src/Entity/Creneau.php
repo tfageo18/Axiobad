@@ -14,6 +14,14 @@ class Creneau
     public const CATEGORIE_ADULTE = 'ADULTE';
     public const CATEGORIE_ENFANT = 'ENFANT';
 
+    public const TYPE_LOISIR = 'LOISIR';
+    public const TYPE_COMPETITEUR = 'COMPETITEUR';
+
+    public const TYPES = [
+        self::TYPE_LOISIR => 'Loisir',
+        self::TYPE_COMPETITEUR => 'Compétiteur',
+    ];
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -46,6 +54,12 @@ class Creneau
 
     #[ORM\Column(length: 5, nullable: true)]
     private ?string $classementMinimum = null;
+
+    #[ORM\Column(length: 15)]
+    private string $type = self::TYPE_LOISIR;
+
+    #[ORM\Column]
+    private bool $ouvertExternes = false;
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $recurrenceDebut = null;
@@ -201,6 +215,35 @@ class Creneau
     public function setClassementMinimum(?string $classementMinimum): static
     {
         $this->classementMinimum = $classementMinimum;
+
+        return $this;
+    }
+
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): static
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getTypeLabel(): string
+    {
+        return self::TYPES[$this->type] ?? $this->type;
+    }
+
+    public function isOuvertExternes(): bool
+    {
+        return $this->ouvertExternes;
+    }
+
+    public function setOuvertExternes(bool $ouvertExternes): static
+    {
+        $this->ouvertExternes = $ouvertExternes;
 
         return $this;
     }

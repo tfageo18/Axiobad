@@ -40,6 +40,8 @@
                 <th>Jour</th>
                 <th>Horaire</th>
                 <th>Catégorie</th>
+                <th>Type</th>
+                <th>Externes</th>
                 <th>Niveau min.</th>
                 <th>Encadrement</th>
                 {% if is_granted('ROLE_BUREAU') %}<th>Statut</th><th></th>{% endif %}
@@ -53,6 +55,8 @@
                     <td data-label="Jour">{{ creneau.jourSemaine }}</td>
                     <td data-label="Horaire">{{ creneau.heureDebut|date('H:i') }} - {{ creneau.heureFin|date('H:i') }}</td>
                     <td data-label="Catégorie">{{ creneau.categorie == 'ENFANT' ? 'Enfants' : 'Adultes' }}</td>
+                    <td data-label="Type">{{ creneau.typeLabel }}</td>
+                    <td data-label="Externes">{{ creneau.ouvertExternes ? 'Oui' : 'Non' }}</td>
                     <td data-label="Niveau min.">{{ creneau.classementMinimum ?? '-' }}</td>
                     <td data-label="Encadrement">
                         {% if creneau.encadre %}
@@ -76,7 +80,7 @@
                     {% endif %}
                 </tr>
             {% else %}
-                <tr><td colspan="9">Aucun créneau.</td></tr>
+                <tr><td colspan="11">Aucun créneau.</td></tr>
             {% endfor %}
         </tbody>
     </table>

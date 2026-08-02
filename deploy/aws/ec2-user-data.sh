@@ -79,3 +79,8 @@ docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local e
 cat > /etc/cron.d/certbot-renew <<EOF
 0 3 * * * root /usr/local/bin/certbot renew --webroot -w /var/www/certbot --quiet --deploy-hook "cd $APP_DIR && docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local exec -T nginx nginx -s reload"
 EOF
+
+# Rafraîchissement nocturne des classements FFBaD de tous les licenciés.
+cat > /etc/cron.d/axiobad-classements <<EOF
+0 2 * * * root cd $APP_DIR && docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local exec -T -u www-data php bin/console app:classements:rafraichir >> /var/log/axiobad-classements.log 2>&1
+EOF

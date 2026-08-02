@@ -17,10 +17,10 @@ class FfbadClassementService
     ) {
     }
 
-    public function mettreAJourClassement(Licencie $licencie): void
+    public function mettreAJourClassement(Licencie $licencie): bool
     {
         if (!$licencie->getNumeroLicence()) {
-            return;
+            return false;
         }
 
         try {
@@ -32,12 +32,14 @@ class FfbadClassementService
                 'message' => $exception->getMessage(),
             ]);
 
-            return;
+            return false;
         }
 
         $licencie->setClassementSimple($data['simple'] ?? null);
         $licencie->setClassementDouble($data['double'] ?? null);
         $licencie->setClassementMixte($data['mixte'] ?? null);
         $licencie->setClassementMisAJourLe(new \DateTimeImmutable());
+
+        return true;
     }
 }

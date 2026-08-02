@@ -182,10 +182,18 @@ class LicencieController extends AbstractController
     #[Route('/{id}/classement', name: 'app_licencie_classement', methods: ['POST'])]
     public function classement(Licencie $licencie, FfbadClassementService $classementService, EntityManagerInterface $entityManager): Response
     {
-        $classementService->mettreAJourClassement($licencie);
-        $entityManager->flush();
+        if (!$licencie->getNumeroLicence()) {
+            $this->addFlash('error', sprintf('Impossible de rafraîchir le classement de %s : aucun numéro de licence renseigné.', $licencie->getNomComplet()));
 
-        $this->addFlash('success', 'Classement mis à jour.');
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        if ($classementService->mettreAJourClassement($licencie)) {
+            $entityManager->flush();
+            $this->addFlash('success', 'Classement mis à jour.');
+        } else {
+            $this->addFlash('error', sprintf('Le classement de %s n\'a pas pu être récupéré auprès de la FFBaD (numéro de licence invalide ou service indisponible). Voir les logs pour le détail.', $licencie->getNomComplet()));
+        }
 
         return $this->redirectToRoute('app_licencie_index');
     }

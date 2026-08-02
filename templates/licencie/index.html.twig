@@ -2,6 +2,21 @@
 
 {% block title %}Licenciés — Axiobad{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        #recherche-licencies { max-width: 320px; margin-bottom: 1rem; }
+        table.datatable th[data-sort] { cursor: pointer; user-select: none; }
+        table.datatable th[data-sort]:hover { color: var(--color-primary); }
+        table.datatable th[data-sort]::after { content: ' \2195'; opacity: 0.4; }
+        table.datatable th[data-sort].tri-asc::after { content: ' \2191'; opacity: 1; }
+        table.datatable th[data-sort].tri-desc::after { content: ' \2193'; opacity: 1; }
+        .badge-inactif { background: var(--color-error-bg); color: var(--color-error); padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700; }
+        .badge-actif { background: var(--color-success-bg); color: var(--color-success); padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700; }
+        tr.ligne-inactive { opacity: 0.55; }
+    </style>
+{% endblock %}
+
 {% block body %}
     <h1>Licenciés</h1>
 
@@ -20,27 +35,32 @@
         <p class="flash-error">Aucune saison n'est configurée. <a href="{{ path('app_saison_new') }}">En créer une</a> pour suivre les adhésions.</p>
     {% endif %}
 
+    <div>
+        <label for="recherche-licencies">Rechercher</label>
+        <input type="search" id="recherche-licencies" placeholder="Nom, email, rôle...">
+    </div>
+
     <div class="table-scroll">
-    <table>
+    <table class="datatable" id="table-licencies">
         <thead>
             <tr>
-                <th>Nom</th>
-                <th>Email</th>
-                <th>Rôles</th>
-                <th>Statut</th>
-                <th>Classement (S/D/M)</th>
+                <th data-sort="text">Nom</th>
+                <th data-sort="text">Email</th>
+                <th data-sort="text">Rôles</th>
+                <th data-sort="text">Compte</th>
+                <th data-sort="text">Activation</th>
                 {% if saison %}<th>Adhésion {{ saison.libelle }}</th>{% endif %}
                 <th></th>
             </tr>
         </thead>
         <tbody>
             {% for licencie in licencies %}
-                <tr>
+                <tr class="{{ licencie.actif ? '' : 'ligne-inactive' }}">
                     <td>{{ licencie.nomComplet }}</td>
                     <td>{{ licencie.email }}</td>
                     <td>{{ licencie.roles|join(', ') }}</td>
-                    <td>{{ licencie.activationTokenValid ? 'En attente d\'activation' : 'Actif' }}</td>
-                    <td>{{ licencie.classementSimple ?? '-' }} / {{ licencie.classementDouble ?? '-' }} / {{ licencie.classementMixte ?? '-' }}</td>
+                    <td>{{ (licencie.actif ? '<span class="badge-actif">Actif</span>' : '<span class="badge-inactif">Désactivé</span>')|raw }}</td>
+                    <td>{{ licencie.activationTokenValid ? "En attente d'activation" : 'Activé' }}</td>
                     {% if saison %}
                         {% set adhesion = adhesions[licencie.id] is defined ? adhesions[licencie.id] : null %}
                         <td>
@@ -61,6 +81,13 @@
                         <form method="post" action="{{ path('app_licencie_classement', {id: licencie.id}) }}" style="display:inline">
                             <button type="submit">Rafraîchir le classement</button>
                         </form>
+                        <form method="post" action="{{ path('app_licencie_toggle_actif', {id: licencie.id}) }}" style="display:inline">
+                            <button type="submit">{{ licencie.actif ? 'Désactiver' : 'Réactiver' }}</button>
+                        </form>
+                        <form method="post" action="{{ path('app_licencie_delete', {id: licencie.id}) }}" onsubmit="return confirm('Supprimer définitivement ce licencié ?');" style="display:inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete-licencie-' ~ licencie.id) }}">
+                            <button type="submit">Supprimer</button>
+                        </form>
                     </td>
                 </tr>
             {% else %}
@@ -69,4 +96,45 @@
         </tbody>
     </table>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        (function () {
+            var input = document.getElementById('recherche-licencies');
+            var table = document.getElementById('table-licencies');
+            if (!table) { return; }
+            var tbody = table.querySelector('tbody');
+            var linesOriginal = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+
+            input.addEventListener('input', function () {
+                var terme = input.value.trim().toLowerCase();
+                linesOriginal.forEach(function (tr) {
+                    var texte = tr.textContent.toLowerCase();
+                    tr.style.display = texte.indexOf(terme) === -1 ? 'none' : '';
+                });
+            });
+
+            table.querySelectorAll('th[data-sort]').forEach(function (th, index) {
+                th.addEventListener('click', function () {
+                    var asc = !th.classList.contains('tri-asc');
+                    table.querySelectorAll('th[data-sort]').forEach(function (autre) {
+                        autre.classList.remove('tri-asc', 'tri-desc');
+                    });
+                    th.classList.add(asc ? 'tri-asc' : 'tri-desc');
+
+                    var lignes = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+                    lignes.sort(function (a, b) {
+                        var va = (a.children[index] ? a.children[index].textContent : '').trim().toLowerCase();
+                        var vb = (b.children[index] ? b.children[index].textContent : '').trim().toLowerCase();
+                        if (va < vb) { return asc ? -1 : 1; }
+                        if (va > vb) { return asc ? 1 : -1; }
+                        return 0;
+                    });
+                    lignes.forEach(function (tr) { tbody.appendChild(tr); });
+                });
+            });
+        })();
+    </script>
 {% endblock %}

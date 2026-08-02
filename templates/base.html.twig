@@ -247,8 +247,6 @@
         </style>
         {% endblock %}
 
-        {% block javascripts %}
-        {% endblock %}
     </head>
     <body>
         <nav>
@@ -283,5 +281,8 @@
             {% endfor %}
             {% block body %}{% endblock %}
         </main>
+
+        {% block javascripts %}
+        {% endblock %}
     </body>
 </html>

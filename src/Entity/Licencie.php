@@ -65,6 +65,9 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private bool $mustChangePassword = true;
 
+    #[ORM\Column]
+    private bool $actif = true;
+
     #[ORM\Column(length: 100, unique: true, nullable: true)]
     private ?string $activationToken = null;
 
@@ -257,6 +260,18 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     public function setClassementMisAJourLe(?\DateTimeImmutable $classementMisAJourLe): static
     {
         $this->classementMisAJourLe = $classementMisAJourLe;
+
+        return $this;
+    }
+
+    public function isActif(): bool
+    {
+        return $this->actif;
+    }
+
+    public function setActif(bool $actif): static
+    {
+        $this->actif = $actif;
 
         return $this;
     }

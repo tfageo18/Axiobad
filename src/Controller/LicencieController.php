@@ -9,6 +9,7 @@ use App\Repository\LicencieRepository;
 use App\Repository\SaisonRepository;
 use App\Service\FfbadClassementService;
 use App\Service\InvitationMailer;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,6 +31,9 @@ class LicencieController extends AbstractController
     ): Response {
         $saisonId = $request->query->get('saison');
         $saison = $saisonId ? $saisonRepository->find($saisonId) : $saisonRepository->findEnCours();
+        if (!$saison) {
+            $saison = $saisonRepository->findAllTrieesParDate()[0] ?? null;
+        }
 
         return $this->render('licencie/index.html.twig', [
             'licencies' => $licencieRepository->findAll(),
@@ -128,6 +132,51 @@ class LicencieController extends AbstractController
         return $this->render('licencie/form.html.twig', [
             'licencie' => $licencie,
         ]);
+    }
+
+    #[Route('/{id}/activer', name: 'app_licencie_toggle_actif', methods: ['POST'])]
+    public function toggleActif(Licencie $licencie, EntityManagerInterface $entityManager): Response
+    {
+        /** @var Licencie $moi */
+        $moi = $this->getUser();
+        if ($moi->getId() === $licencie->getId()) {
+            $this->addFlash('error', 'Vous ne pouvez pas désactiver votre propre compte.');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        $licencie->setActif(!$licencie->isActif());
+        $entityManager->flush();
+
+        $this->addFlash('success', $licencie->isActif() ? 'Compte réactivé.' : 'Compte désactivé.');
+
+        return $this->redirectToRoute('app_licencie_index');
+    }
+
+    #[Route('/{id}/supprimer', name: 'app_licencie_delete', methods: ['POST'])]
+    public function delete(Request $request, Licencie $licencie, EntityManagerInterface $entityManager): Response
+    {
+        /** @var Licencie $moi */
+        $moi = $this->getUser();
+        if ($moi->getId() === $licencie->getId()) {
+            $this->addFlash('error', 'Vous ne pouvez pas supprimer votre propre compte.');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        if (!$this->isCsrfTokenValid('delete-licencie-'.$licencie->getId(), (string) $request->request->get('_token'))) {
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        try {
+            $entityManager->remove($licencie);
+            $entityManager->flush();
+            $this->addFlash('success', 'Licencié supprimé.');
+        } catch (ForeignKeyConstraintViolationException) {
+            $this->addFlash('error', 'Impossible de supprimer ce licencié : des données lui sont liées (présences, créneaux encadrés, mouvements de stock...). Désactivez plutôt son compte.');
+        }
+
+        return $this->redirectToRoute('app_licencie_index');
     }
 
     #[Route('/{id}/classement', name: 'app_licencie_classement', methods: ['POST'])]

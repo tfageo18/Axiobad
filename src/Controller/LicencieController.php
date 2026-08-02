@@ -5,8 +5,10 @@ namespace App\Controller;
 use App\Badminton\ClassementFfbad;
 use App\Entity\Adhesion;
 use App\Entity\Licencie;
+use App\Entity\PaiementAdhesion;
 use App\Repository\AdhesionRepository;
 use App\Repository\LicencieRepository;
+use App\Repository\PaiementAdhesionRepository;
 use App\Repository\SaisonRepository;
 use App\Service\InvitationMailer;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
@@ -43,8 +45,52 @@ class LicencieController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/adhesion', name: 'app_licencie_adhesion', methods: ['POST'])]
+    #[Route('/{id}/adhesion', name: 'app_licencie_adhesion', methods: ['GET', 'POST'])]
     public function adhesion(Request $request, Licencie $licencie, EntityManagerInterface $entityManager, SaisonRepository $saisonRepository, AdhesionRepository $adhesionRepository): Response
+    {
+        $saisonId = $request->query->get('saison') ?? $request->request->get('saison');
+        $saison = $saisonId ? $saisonRepository->find($saisonId) : $saisonRepository->findEnCours();
+        if (!$saison) {
+            $saison = $saisonRepository->findAllTrieesParDate()[0] ?? null;
+        }
+        if (!$saison) {
+            $this->addFlash('error', "Aucune saison n'est configurée.");
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        $adhesion = $adhesionRepository->findOneByLicencieEtSaison($licencie, $saison)
+            ?? (new Adhesion())->setLicencie($licencie)->setSaison($saison);
+
+        if ($request->isMethod('POST')) {
+            $statut = (string) $request->request->get('statut');
+            if (!array_key_exists($statut, Adhesion::STATUTS)) {
+                $statut = Adhesion::STATUT_EN_ATTENTE;
+            }
+            $montantTotalRaw = $request->request->get('montantTotal');
+
+            $adhesion
+                ->setStatut($statut)
+                ->setMontantTotal(null !== $montantTotalRaw && '' !== $montantTotalRaw ? (float) str_replace(',', '.', (string) $montantTotalRaw) : null);
+
+            $entityManager->persist($adhesion);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Adhésion mise à jour.');
+
+            return $this->redirectToRoute('app_licencie_adhesion', ['id' => $licencie->getId(), 'saison' => $saison->getId()]);
+        }
+
+        return $this->render('licencie/adhesion.html.twig', [
+            'licencie' => $licencie,
+            'saison' => $saison,
+            'saisons' => $saisonRepository->findAllTrieesParDate(),
+            'adhesion' => $adhesion,
+        ]);
+    }
+
+    #[Route('/{id}/adhesion/paiements', name: 'app_licencie_adhesion_paiement_new', methods: ['POST'])]
+    public function ajouterPaiement(Request $request, Licencie $licencie, EntityManagerInterface $entityManager, SaisonRepository $saisonRepository, AdhesionRepository $adhesionRepository): Response
     {
         $saison = $saisonRepository->find($request->request->get('saison'));
         if (!$saison) {
@@ -56,14 +102,56 @@ class LicencieController extends AbstractController
         $adhesion = $adhesionRepository->findOneByLicencieEtSaison($licencie, $saison)
             ?? (new Adhesion())->setLicencie($licencie)->setSaison($saison);
 
-        $adhesion->setPayee('1' === $request->request->get('payee'));
+        $montant = (float) str_replace(',', '.', (string) $request->request->get('montant'));
+        $moyen = (string) $request->request->get('moyen');
+        if (!array_key_exists($moyen, PaiementAdhesion::MOYENS)) {
+            $moyen = PaiementAdhesion::MOYEN_ESPECES;
+        }
+        $dateRaw = (string) $request->request->get('date');
+
+        if ($montant <= 0) {
+            $this->addFlash('error', 'Le montant du versement doit être supérieur à zéro.');
+
+            return $this->redirectToRoute('app_licencie_adhesion', ['id' => $licencie->getId(), 'saison' => $saison->getId()]);
+        }
+
+        $paiement = (new PaiementAdhesion())
+            ->setAdhesion($adhesion)
+            ->setMontant($montant)
+            ->setDate($dateRaw ? new \DateTimeImmutable($dateRaw) : new \DateTimeImmutable())
+            ->setMoyen($moyen)
+            ->setNumeroCheque(PaiementAdhesion::MOYEN_CHEQUE === $moyen ? ((string) $request->request->get('numeroCheque') ?: null) : null);
 
         $entityManager->persist($adhesion);
+        $entityManager->persist($paiement);
+
+        // Passage automatique à "Payée" une fois le montant total couvert (si renseigné).
+        if (null !== $adhesion->getMontantTotal() && $adhesion->getMontantRestant() - $montant <= 0) {
+            $adhesion->setStatut(Adhesion::STATUT_PAYEE);
+        }
+
         $entityManager->flush();
 
-        $this->addFlash('success', 'Statut d\'adhésion mis à jour.');
+        $this->addFlash('success', 'Versement enregistré.');
 
-        return $this->redirectToRoute('app_licencie_index', ['saison' => $saison->getId()]);
+        return $this->redirectToRoute('app_licencie_adhesion', ['id' => $licencie->getId(), 'saison' => $saison->getId()]);
+    }
+
+    #[Route('/{id}/adhesion/paiements/{paiementId}/supprimer', name: 'app_licencie_adhesion_paiement_delete', methods: ['POST'])]
+    public function supprimerPaiement(Request $request, Licencie $licencie, int $paiementId, EntityManagerInterface $entityManager, PaiementAdhesionRepository $paiementRepository): Response
+    {
+        $paiement = $paiementRepository->find($paiementId);
+        if ($paiement && $paiement->getAdhesion()->getLicencie()->getId() === $licencie->getId()
+            && $this->isCsrfTokenValid('delete-paiement-'.$paiementId, (string) $request->request->get('_token'))) {
+            $saisonId = $paiement->getAdhesion()->getSaison()->getId();
+            $entityManager->remove($paiement);
+            $entityManager->flush();
+            $this->addFlash('success', 'Versement supprimé.');
+
+            return $this->redirectToRoute('app_licencie_adhesion', ['id' => $licencie->getId(), 'saison' => $saisonId]);
+        }
+
+        return $this->redirectToRoute('app_licencie_index');
     }
 
     #[Route('/import/modele', name: 'app_licencie_import_modele', methods: ['GET'])]

@@ -43,7 +43,7 @@
         {% for licencie in licencies %}
             {% if licencie.email != constant('App\\Entity\\Licencie::EMAIL_ADMIN_DEFAUT') %}
                 {% set adhesion = adhesions[licencie.id] is defined ? adhesions[licencie.id] : null %}
-                {% if not (adhesion and adhesion.payee) %}
+                {% if not (adhesion and adhesion.statut in ['PAYEE', 'EXONEREE']) %}
                     {% set nbImpayes = nbImpayes + 1 %}
                 {% endif %}
             {% endif %}
@@ -81,7 +81,7 @@
         <tbody>
             {% for licencie in licencies %}
                 {% set adhesion = saison and adhesions[licencie.id] is defined ? adhesions[licencie.id] : null %}
-                <tr class="{{ licencie.actif ? '' : 'ligne-inactive' }}" data-payee="{{ (licencie.email == constant('App\\Entity\\Licencie::EMAIL_ADMIN_DEFAUT') or (adhesion and adhesion.payee)) ? '1' : '0' }}">
+                <tr class="{{ licencie.actif ? '' : 'ligne-inactive' }}" data-payee="{{ (licencie.email == constant('App\\Entity\\Licencie::EMAIL_ADMIN_DEFAUT') or (adhesion and adhesion.statut in ['PAYEE', 'EXONEREE'])) ? '1' : '0' }}">
                     <td data-label="Nom">{{ licencie.nomComplet }}</td>
                     <td data-label="Email">{{ licencie.email }}</td>
                     <td data-label="Rôles">{{ licencie.roles|join(', ') }}</td>
@@ -100,16 +100,14 @@
                             {% if licencie.email == constant('App\\Entity\\Licencie::EMAIL_ADMIN_DEFAUT') %}
                                 <span style="color: var(--color-text-muted);">Non applicable</span>
                             {% else %}
-                                <form method="post" action="{{ path('app_licencie_adhesion', {id: licencie.id}) }}">
-                                    <input type="hidden" name="saison" value="{{ saison.id }}">
-                                    {% if adhesion and adhesion.payee %}
-                                        <span class="quantite-badge" style="background: var(--color-success-bg); color: var(--color-success);">Payée</span>
-                                        <button type="submit" name="payee" value="0">Annuler</button>
-                                    {% else %}
-                                        <span class="quantite-badge zero">Non payée</span>
-                                        <button type="submit" name="payee" value="1">Marquer payée</button>
-                                    {% endif %}
-                                </form>
+                                {% set libelleStatut = adhesion ? adhesion.statutLabel : 'En attente' %}
+                                {% set couleurStatut = adhesion and adhesion.statut == 'PAYEE' ? 'success' : (adhesion and adhesion.statut == 'EXONEREE' ? 'primary-dark' : 'error') %}
+                                <a href="{{ path('app_licencie_adhesion', {id: licencie.id, saison: saison.id}) }}" class="quantite-badge {{ couleurStatut == 'error' ? 'zero' : '' }}" style="text-decoration: none; {{ couleurStatut == 'success' ? 'background: var(--color-success-bg); color: var(--color-success);' : (couleurStatut == 'primary-dark' ? 'background: #eef2ff; color: var(--color-primary-dark);' : '') }}">
+                                    {{ libelleStatut }}
+                                </a>
+                                {% if adhesion and adhesion.montantRestant is not null and adhesion.montantRestant > 0 %}
+                                    <br><small style="color: var(--color-text-muted);">Reste {{ adhesion.montantRestant|number_format(2, ',', ' ') }} €</small>
+                                {% endif %}
                             {% endif %}
                         </td>
                     {% endif %}

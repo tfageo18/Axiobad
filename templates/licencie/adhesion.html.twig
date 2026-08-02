@@ -1,0 +1,125 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Adhésion — {{ licencie.nomComplet }} — Axiobad{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .statut-badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+        .statut-PAYEE { background: var(--color-success-bg); color: var(--color-success); }
+        .statut-EN_ATTENTE { background: var(--color-error-bg); color: var(--color-error); }
+        .statut-EXONEREE { background: #eef2ff; color: var(--color-primary-dark); }
+        .recap-montants { display: flex; gap: 1.5rem; flex-wrap: wrap; margin: 1rem 0 1.5rem; }
+        .recap-montants div { background: var(--color-surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 0.85rem 1.25rem; }
+        .recap-montants strong { display: block; font-size: 1.3rem; color: var(--color-primary-dark); }
+        .recap-montants small { color: var(--color-text-muted); }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('app_licencie_index', {saison: saison.id}) }}">&laquo; Retour aux licenciés</a></p>
+
+    <h1>Adhésion de {{ licencie.nomComplet }}</h1>
+
+    <form method="get" style="margin-bottom: 1rem;">
+        <label for="saison">Saison</label>
+        <select name="saison" id="saison" onchange="this.form.submit()">
+            {% for s in saisons %}
+                <option value="{{ s.id }}" {{ saison.id == s.id ? 'selected' : '' }}>{{ s.libelle }}{{ s.estEnCours ? ' (en cours)' : '' }}</option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <p>Statut actuel : <span class="statut-badge statut-{{ adhesion.statut }}">{{ adhesion.statutLabel }}</span></p>
+
+    <div class="recap-montants">
+        <div><small>Montant dû</small><strong>{{ adhesion.montantTotal is not null ? adhesion.montantTotal|number_format(2, ',', ' ') ~ ' €' : '—' }}</strong></div>
+        <div><small>Montant versé</small><strong>{{ adhesion.montantPaye|number_format(2, ',', ' ') }} €</strong></div>
+        <div><small>Montant restant</small><strong>{{ adhesion.montantRestant is not null ? adhesion.montantRestant|number_format(2, ',', ' ') ~ ' €' : '—' }}</strong></div>
+    </div>
+
+    <h2>Statut et montant dû</h2>
+    <form method="post" action="{{ path('app_licencie_adhesion', {id: licencie.id}) }}">
+        <input type="hidden" name="saison" value="{{ saison.id }}">
+        <div>
+            <label for="statut">Statut</label>
+            <select name="statut" id="statut">
+                {% for valeur, libelle in constant('App\\Entity\\Adhesion::STATUTS') %}
+                    <option value="{{ valeur }}" {{ adhesion.statut == valeur ? 'selected' : '' }}>{{ libelle }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="montantTotal">Montant dû (€)</label>
+            <input type="number" step="0.01" min="0" name="montantTotal" id="montantTotal" value="{{ adhesion.montantTotal }}" placeholder="ex: 120.00">
+        </div>
+        <button type="submit">Enregistrer</button>
+    </form>
+
+    <h2>Versements ({{ adhesion.paiements|length }})</h2>
+    {% if adhesion.paiements|length %}
+        <div class="table-scroll">
+        <table class="table-cards">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Montant</th>
+                    <th>Moyen</th>
+                    <th>N° chèque</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for paiement in adhesion.paiements %}
+                    <tr>
+                        <td data-label="Date">{{ paiement.date|date('d/m/Y') }}</td>
+                        <td data-label="Montant">{{ paiement.montant|number_format(2, ',', ' ') }} €</td>
+                        <td data-label="Moyen">{{ paiement.moyenLabel }}</td>
+                        <td data-label="N° chèque">{{ paiement.numeroCheque ?? '-' }}</td>
+                        <td class="td-actions">
+                            <form method="post" action="{{ path('app_licencie_adhesion_paiement_delete', {id: licencie.id, paiementId: paiement.id}) }}" onsubmit="return confirm('Supprimer ce versement ?');" style="display:inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete-paiement-' ~ paiement.id) }}">
+                                <button type="submit">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    {% else %}
+        <p>Aucun versement enregistré.</p>
+    {% endif %}
+
+    <h2>Ajouter un versement (paiement en plusieurs fois possible)</h2>
+    <form method="post" action="{{ path('app_licencie_adhesion_paiement_new', {id: licencie.id}) }}" id="form-paiement">
+        <input type="hidden" name="saison" value="{{ saison.id }}">
+        <div>
+            <label for="montant">Montant (€)</label>
+            <input type="number" step="0.01" min="0.01" name="montant" id="montant" required>
+        </div>
+        <div>
+            <label for="date">Date</label>
+            <input type="date" name="date" id="date" value="{{ 'now'|date('Y-m-d') }}" required>
+        </div>
+        <div>
+            <label for="moyen">Moyen de paiement</label>
+            <select name="moyen" id="moyen" onchange="document.getElementById('champ-numero-cheque').style.display = this.value === 'CHEQUE' ? 'block' : 'none';">
+                {% for valeur, libelle in constant('App\\Entity\\PaiementAdhesion::MOYENS') %}
+                    <option value="{{ valeur }}">{{ libelle }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="champ-numero-cheque" style="display: none;">
+            <label for="numeroCheque">Numéro de chèque</label>
+            <input type="text" name="numeroCheque" id="numeroCheque">
+        </div>
+        <button type="submit">+ Ajouter le versement</button>
+    </form>
+{% endblock %}

@@ -99,8 +99,14 @@ Menu **Licenciés** → lien **Gérer les saisons**.
 
 - Créer une saison avec un libellé, une date de début et une date de fin. Une saison est
   « en cours » si la date du jour est comprise entre ces deux dates.
-- Depuis la liste des licenciés, sélectionner une saison affiche, pour chacun, si son adhésion est
-  **payée** ou **non payée**, avec un bouton pour basculer le statut.
+- Depuis la liste des licenciés, sélectionner une saison affiche le statut d'adhésion de chacun ;
+  cliquer dessus ouvre la fiche d'adhésion du licencié pour cette saison :
+  - **Statut** : payée, en attente, ou exonérée.
+  - **Montant dû** (optionnel).
+  - **Versements** : un ou plusieurs paiements (montant, date, moyen — CB, chèque, espèces,
+    virement — et numéro de chèque le cas échéant), pour gérer un paiement en plusieurs fois.
+    Le **montant restant** se calcule automatiquement (montant dû − somme des versements), et le
+    statut passe automatiquement à « Payée » une fois le montant dû intégralement couvert.
 - Un résumé indique le nombre d'impayés pour la saison sélectionnée, avec un filtre rapide
   **Voir uniquement les impayés**. Le compte administrateur par défaut est exclu de ce suivi
   (« Non applicable »), n'étant pas un licencié soumis à l'adhésion.

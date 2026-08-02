@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Creneau;
 use App\Entity\Gymnase;
 use App\Entity\Licencie;
+use App\Entity\Presence;
 use App\Repository\CreneauRepository;
 use App\Repository\GymnaseRepository;
 use App\Repository\LicencieRepository;
@@ -20,20 +21,26 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class CreneauController extends AbstractController
 {
     #[Route('', name: 'app_creneau_index', methods: ['GET'])]
-    public function index(CreneauRepository $creneauRepository, PresenceRepository $presenceRepository): Response
+    public function index(Request $request, CreneauRepository $creneauRepository, PresenceRepository $presenceRepository): Response
     {
         /** @var Licencie $licencie */
         $licencie = $this->getUser();
-        $creneaux = $creneauRepository->findAll();
+        $toutAfficher = $request->query->getBoolean('tous') || $this->isGranted('ROLE_BUREAU');
+
+        $tousLesCreneaux = $creneauRepository->findAll();
+        $creneaux = $toutAfficher
+            ? $tousLesCreneaux
+            : array_values(array_filter($tousLesCreneaux, static fn (Creneau $c) => $c->correspondA($licencie)));
 
         $presencesParCreneau = [];
-        foreach ($creneaux as $creneau) {
+        foreach ($tousLesCreneaux as $creneau) {
             $presencesParCreneau[$creneau->getId()] = $presenceRepository->findOneByCreneauAndLicencie($creneau, $licencie);
         }
 
         return $this->render('creneau/index.html.twig', [
             'creneaux' => $creneaux,
             'presences' => $presencesParCreneau,
+            'toutAfficher' => $toutAfficher,
         ]);
     }
 
@@ -60,6 +67,17 @@ class CreneauController extends AbstractController
                 }
             }
 
+            $categorie = (string) $request->request->get('categorie');
+            if (!in_array($categorie, [Creneau::CATEGORIE_ADULTE, Creneau::CATEGORIE_ENFANT], true)) {
+                $categorie = Creneau::CATEGORIE_ADULTE;
+            }
+
+            $classementMinimumRaw = $request->request->get('classementMinimum');
+            $classementMinimum = ('' !== $classementMinimumRaw && null !== $classementMinimumRaw) ? (int) $classementMinimumRaw : null;
+
+            $recurrenceDebutRaw = (string) $request->request->get('recurrenceDebut');
+            $recurrenceFinRaw = (string) $request->request->get('recurrenceFin');
+
             $creneau = (new Creneau())
                 ->setNom((string) $request->request->get('nom'))
                 ->setGymnase($gymnase)
@@ -67,7 +85,11 @@ class CreneauController extends AbstractController
                 ->setHeureDebut(new \DateTimeImmutable((string) $request->request->get('heureDebut')))
                 ->setHeureFin(new \DateTimeImmutable((string) $request->request->get('heureFin')))
                 ->setEncadre($encadre)
-                ->setEntraineur($entraineur);
+                ->setEntraineur($entraineur)
+                ->setCategorie($categorie)
+                ->setClassementMinimum($classementMinimum)
+                ->setRecurrenceDebut($recurrenceDebutRaw ? new \DateTimeImmutable($recurrenceDebutRaw) : null)
+                ->setRecurrenceFin($recurrenceFinRaw ? new \DateTimeImmutable($recurrenceFinRaw) : null);
 
             $entityManager->persist($creneau);
             $entityManager->flush();
@@ -103,7 +125,7 @@ class CreneauController extends AbstractController
         $licencie = $this->getUser();
 
         $presence = $presenceRepository->findOneByCreneauAndLicencie($creneau, $licencie)
-            ?? (new \App\Entity\Presence())->setCreneau($creneau)->setLicencie($licencie);
+            ?? (new Presence())->setCreneau($creneau)->setLicencie($licencie);
 
         $presence->setPresent('1' === $request->request->get('present'));
 

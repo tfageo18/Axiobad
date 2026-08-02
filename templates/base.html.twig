@@ -23,13 +23,14 @@
     <body>
         <nav>
             <a href="{{ path('app_creneau_index') }}">Créneaux</a>
+            <a href="{{ path('app_calendrier') }}">Calendrier</a>
             <a href="{{ path('app_gymnase_index') }}">Gymnases</a>
             {% if is_granted('ROLE_BUREAU') %}
                 <a href="{{ path('app_licencie_index') }}">Licenciés</a>
             {% endif %}
             <span style="margin-left: auto">
                 {% if app.user %}
-                    {{ app.user.nomComplet }} — <a href="{{ path('app_logout') }}" style="color:#fff">Déconnexion</a>
+                    <a href="{{ path('app_mon_profil') }}" style="color:#fff">{{ app.user.nomComplet }}</a> — <a href="{{ path('app_logout') }}" style="color:#fff">Déconnexion</a>
                 {% else %}
                     <a href="{{ path('app_login') }}" style="color:#fff">Connexion</a>
                 {% endif %}

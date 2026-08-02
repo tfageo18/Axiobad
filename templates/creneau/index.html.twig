@@ -7,6 +7,14 @@
 
     {% if is_granted('ROLE_BUREAU') %}
         <p><a href="{{ path('app_creneau_new') }}">+ Nouveau créneau</a></p>
+    {% else %}
+        <p>
+            {% if toutAfficher %}
+                Affichage de tous les créneaux. <a href="{{ path('app_creneau_index') }}">Voir seulement les créneaux adaptés à mon niveau et mon âge</a>
+            {% else %}
+                Affichage des créneaux adaptés à votre niveau et votre âge. <a href="{{ path('app_creneau_index', {tous: 1}) }}">Voir tous les créneaux</a>
+            {% endif %}
+        </p>
     {% endif %}
 
     <table>
@@ -16,6 +24,8 @@
                 <th>Gymnase</th>
                 <th>Jour</th>
                 <th>Horaire</th>
+                <th>Catégorie</th>
+                <th>Niveau min.</th>
                 <th>Encadrement</th>
                 <th>Ma présence</th>
                 {% if is_granted('ROLE_BUREAU') %}<th></th>{% endif %}
@@ -28,6 +38,8 @@
                     <td>{{ creneau.gymnase.nom }}</td>
                     <td>{{ creneau.jourSemaine }}</td>
                     <td>{{ creneau.heureDebut|date('H:i') }} - {{ creneau.heureFin|date('H:i') }}</td>
+                    <td>{{ creneau.categorie == 'ENFANT' ? 'Enfants' : 'Adultes' }}</td>
+                    <td>{{ creneau.classementMinimum ?? '-' }}</td>
                     <td>
                         {% if creneau.encadre %}
                             Encadré par {{ creneau.entraineur.nomComplet }}
@@ -52,7 +64,7 @@
                     {% endif %}
                 </tr>
             {% else %}
-                <tr><td colspan="7">Aucun créneau.</td></tr>
+                <tr><td colspan="9">Aucun créneau.</td></tr>
             {% endfor %}
         </tbody>
     </table>

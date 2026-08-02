@@ -59,6 +59,9 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $classementMisAJourLe = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $photo = null;
+
     #[ORM\Column]
     private bool $mustChangePassword = true;
 
@@ -256,6 +259,40 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
         $this->classementMisAJourLe = $classementMisAJourLe;
 
         return $this;
+    }
+
+    public function getPhoto(): ?string
+    {
+        return $this->photo;
+    }
+
+    public function setPhoto(?string $photo): static
+    {
+        $this->photo = $photo;
+
+        return $this;
+    }
+
+    public function getAge(): ?int
+    {
+        if (!$this->dateNaissance) {
+            return null;
+        }
+
+        return $this->dateNaissance->diff(new \DateTimeImmutable())->y;
+    }
+
+    /**
+     * Catégorie d'âge du licencié (Creneau::CATEGORIE_*), ou null si la date de naissance est inconnue.
+     */
+    public function getCategorie(): ?string
+    {
+        $age = $this->getAge();
+        if (null === $age) {
+            return null;
+        }
+
+        return $age < 18 ? Creneau::CATEGORIE_ENFANT : Creneau::CATEGORIE_ADULTE;
     }
 
     public function mustChangePassword(): bool

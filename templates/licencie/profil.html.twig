@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon profil — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>Mon profil</h1>
+
+    <div style="display: flex; gap: 2rem; align-items: flex-start;">
+        <div>
+            {% if licencie.photo %}
+                <img src="{{ licencie.photo }}" alt="Photo de {{ licencie.nomComplet }}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%;">
+            {% else %}
+                <div style="width: 150px; height: 150px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center;">
+                    {{ licencie.prenom|slice(0, 1) }}{{ licencie.nom|slice(0, 1) }}
+                </div>
+            {% endif %}
+        </div>
+
+        <form method="post" enctype="multipart/form-data" style="flex: 1;">
+            <p><strong>{{ licencie.nomComplet }}</strong> — {{ licencie.email }}</p>
+
+            <div>
+                <label for="photo">Photo de profil</label>
+                <input type="file" name="photo" id="photo" accept="image/*">
+            </div>
+            <div>
+                <label for="telephone">Téléphone</label>
+                <input type="tel" name="telephone" id="telephone" value="{{ licencie.telephone }}">
+            </div>
+            <div>
+                <label for="dateNaissance">Date de naissance</label>
+                <input type="date" name="dateNaissance" id="dateNaissance" value="{{ licencie.dateNaissance ? licencie.dateNaissance|date('Y-m-d') : '' }}">
+            </div>
+            <div>
+                <label for="numeroLicence">Numéro de licence FFBaD</label>
+                <input type="text" name="numeroLicence" id="numeroLicence" value="{{ licencie.numeroLicence }}">
+                <small>Permet de récupérer votre classement.</small>
+            </div>
+            <div>
+                <p>Classement : {{ licencie.classementSimple ?? '-' }} (simple) / {{ licencie.classementDouble ?? '-' }} (double) / {{ licencie.classementMixte ?? '-' }} (mixte)</p>
+                {% if licencie.age is not null %}
+                    <p>Âge : {{ licencie.age }} ans ({{ licencie.categorie == 'ENFANT' ? 'enfant' : 'adulte' }})</p>
+                {% endif %}
+            </div>
+            <button type="submit">Enregistrer</button>
+        </form>
+    </div>
+{% endblock %}

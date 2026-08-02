@@ -35,6 +35,27 @@
             <input type="time" name="heureFin" id="heureFin" required>
         </div>
         <div>
+            <label for="recurrenceDebut">Le créneau se répète du</label>
+            <input type="date" name="recurrenceDebut" id="recurrenceDebut">
+        </div>
+        <div>
+            <label for="recurrenceFin">au</label>
+            <input type="date" name="recurrenceFin" id="recurrenceFin">
+            <small>Laisser vide si le créneau n'a pas de date de fin.</small>
+        </div>
+        <div>
+            <label for="categorie">Catégorie</label>
+            <select name="categorie" id="categorie" required>
+                <option value="ADULTE">Adultes</option>
+                <option value="ENFANT">Enfants</option>
+            </select>
+        </div>
+        <div>
+            <label for="classementMinimum">Classement minimum requis</label>
+            <input type="number" name="classementMinimum" id="classementMinimum">
+            <small>Laisser vide si aucun niveau minimum n'est requis.</small>
+        </div>
+        <div>
             <label>
                 <input type="checkbox" name="encadre" value="1" onchange="document.getElementById('entraineur-field').style.display = this.checked ? 'block' : 'none';">
                 Créneau encadré

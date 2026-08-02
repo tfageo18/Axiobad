@@ -10,6 +10,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: CreneauRepository::class)]
 class Creneau
 {
+    public const CATEGORIE_ADULTE = 'ADULTE';
+    public const CATEGORIE_ENFANT = 'ENFANT';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -33,6 +36,18 @@ class Creneau
 
     #[ORM\Column]
     private bool $encadre = false;
+
+    #[ORM\Column(length: 10)]
+    private string $categorie = self::CATEGORIE_ADULTE;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $classementMinimum = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $recurrenceDebut = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $recurrenceFin = null;
 
     #[ORM\ManyToOne(targetEntity: Licencie::class)]
     #[ORM\JoinColumn(nullable: true)]
@@ -148,5 +163,77 @@ class Creneau
     public function getPresences(): Collection
     {
         return $this->presences;
+    }
+
+    public function getCategorie(): string
+    {
+        return $this->categorie;
+    }
+
+    public function setCategorie(string $categorie): static
+    {
+        $this->categorie = $categorie;
+
+        return $this;
+    }
+
+    public function getClassementMinimum(): ?int
+    {
+        return $this->classementMinimum;
+    }
+
+    public function setClassementMinimum(?int $classementMinimum): static
+    {
+        $this->classementMinimum = $classementMinimum;
+
+        return $this;
+    }
+
+    public function getRecurrenceDebut(): ?\DateTimeImmutable
+    {
+        return $this->recurrenceDebut;
+    }
+
+    public function setRecurrenceDebut(?\DateTimeImmutable $recurrenceDebut): static
+    {
+        $this->recurrenceDebut = $recurrenceDebut;
+
+        return $this;
+    }
+
+    public function getRecurrenceFin(): ?\DateTimeImmutable
+    {
+        return $this->recurrenceFin;
+    }
+
+    public function setRecurrenceFin(?\DateTimeImmutable $recurrenceFin): static
+    {
+        $this->recurrenceFin = $recurrenceFin;
+
+        return $this;
+    }
+
+    /**
+     * Indique si ce créneau correspond au niveau et à la catégorie d'âge du licencié.
+     */
+    public function correspondA(Licencie $licencie): bool
+    {
+        if ($licencie->getCategorie() !== null && $licencie->getCategorie() !== $this->categorie) {
+            return false;
+        }
+
+        if (null !== $this->classementMinimum) {
+            $meilleurClassement = max(
+                $licencie->getClassementSimple() ?? 0,
+                $licencie->getClassementDouble() ?? 0,
+                $licencie->getClassementMixte() ?? 0,
+            );
+
+            if ($meilleurClassement < $this->classementMinimum) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

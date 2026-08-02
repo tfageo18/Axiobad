@@ -156,8 +156,10 @@
     </div>
 
     <div class="agenda-mobile">
+        {% set aujourdhui = "now"|date('Y-m-d') %}
         {% for semaine in semaines %}
             {% for jour in semaine %}
+                {% if jour.date|date('Y-m-d') >= aujourdhui %}
                 <div class="agenda-jour {{ jour.dansLeMois ? '' : 'hors-mois' }}">
                     <div class="agenda-jour-titre">{{ jour.date|date('d/m') }} — {{ jour.date|date('N') == '1' ? 'Lundi' : jour.date|date('N') == '2' ? 'Mardi' : jour.date|date('N') == '3' ? 'Mercredi' : jour.date|date('N') == '4' ? 'Jeudi' : jour.date|date('N') == '5' ? 'Vendredi' : jour.date|date('N') == '6' ? 'Samedi' : 'Dimanche' }}</div>
 
@@ -213,6 +215,7 @@
                         </div>
                     {% endfor %}
                 </div>
+                {% endif %}
             {% endfor %}
         {% endfor %}
     </div>

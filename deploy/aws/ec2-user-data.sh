@@ -70,7 +70,9 @@ if [ ! -d "/etc/letsencrypt/live/$DOMAIN" ]; then
 fi
 
 docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local up -d --build
-docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local exec -T php bin/console doctrine:migrations:migrate --no-interaction
+docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local exec -T -u www-data php bin/console doctrine:migrations:migrate --no-interaction
+# Filet de sécurité : si un exec précédent (root) a laissé des fichiers de cache mal owned, on corrige.
+docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local exec -T -u root php chown -R www-data:www-data /var/www/html/var
 
 # Renouvellement automatique : une fois nginx démarré, on utilise le mode webroot
 # (pas besoin de couper le service), puis on recharge la conf nginx.

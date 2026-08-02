@@ -20,6 +20,11 @@ class StockVolant
 
     public const VITESSES = ['76', '77', '78', '79'];
 
+    public const MARQUES = [
+        'Yonex', 'Victor', 'Babolat', 'Li-Ning', 'Forza', 'RSL',
+        'Ashaway', 'Carlton', 'Dunlop', 'Wilson', 'Apacs', 'Fleet',
+    ];
+
     public const DESTINATION_COMPETITION = 'COMPETITION';
     public const DESTINATION_EQUIPE_1 = 'EQUIPE_1';
     public const DESTINATION_INTERCLUBS = 'INTERCLUBS';
@@ -116,6 +121,16 @@ class StockVolant
     public function setQuantiteTubes(int $quantiteTubes): static
     {
         $this->quantiteTubes = $quantiteTubes;
+
+        return $this;
+    }
+
+    /**
+     * Applique un mouvement de stock (positif pour une entrée, négatif pour une sortie).
+     */
+    public function ajusterQuantite(int $delta): static
+    {
+        $this->quantiteTubes = max(0, $this->quantiteTubes + $delta);
 
         return $this;
     }

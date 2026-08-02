@@ -4,6 +4,9 @@
 
 {% block body %}
     <h1>{{ volant ? 'Modifier le tube' : 'Nouveau tube de volants' }}</h1>
+    {% if not volant %}
+        <p>La quantité en stock se gère ensuite via des mouvements d'entrée/sortie depuis la liste du stock.</p>
+    {% endif %}
 
     <form method="post" action="{{ volant ? path('app_stock_volant_edit', {id: volant.id}) : path('app_stock_volant_new') }}">
         <div>
@@ -31,12 +34,13 @@
             </select>
         </div>
         <div>
-            <label for="quantiteTubes">Nombre de tubes en stock</label>
-            <input type="number" name="quantiteTubes" id="quantiteTubes" min="0" value="{{ volant ? volant.quantiteTubes : 0 }}" required>
-        </div>
-        <div>
             <label for="marque">Marque</label>
-            <input type="text" name="marque" id="marque" value="{{ volant ? volant.marque : '' }}">
+            <input type="text" name="marque" id="marque" list="marques-volant" value="{{ volant ? volant.marque : '' }}" placeholder="Choisir ou saisir une marque">
+            <datalist id="marques-volant">
+                {% for marque in constant('App\\Entity\\StockVolant::MARQUES') %}
+                    <option value="{{ marque }}">
+                {% endfor %}
+            </datalist>
         </div>
         <div>
             <label for="commentaire">Commentaire</label>

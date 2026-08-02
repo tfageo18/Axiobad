@@ -2,6 +2,29 @@
 
 {% block title %}Stock — Axiobad{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .mouvement-form { display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap; }
+        .mouvement-form input[type="number"] { width: 70px; max-width: 70px; }
+        .mouvement-form input[type="text"] { width: 140px; max-width: 140px; }
+        .mouvement-form button { padding: 0.35rem 0.6rem; font-size: 0.8rem; }
+        .btn-entree { background: var(--color-success) !important; }
+        .btn-sortie { background: var(--color-error) !important; }
+        .quantite-badge {
+            display: inline-block;
+            min-width: 2rem;
+            text-align: center;
+            padding: 0.15rem 0.5rem;
+            border-radius: 999px;
+            font-weight: 700;
+            background: #eef2ff;
+            color: var(--color-primary-dark);
+        }
+        .quantite-badge.zero { background: var(--color-error-bg); color: var(--color-error); }
+    </style>
+{% endblock %}
+
 {% block body %}
     <h1>Gestion du stock</h1>
 
@@ -12,9 +35,9 @@
             <tr>
                 <th>Type</th>
                 <th>Taille</th>
-                <th>Quantité</th>
                 <th>Marque</th>
-                <th>Commentaire</th>
+                <th>En stock</th>
+                <th>Mouvement</th>
                 <th></th>
             </tr>
         </thead>
@@ -23,10 +46,18 @@
                 <tr>
                     <td>{{ vetement.typeLabel }}</td>
                     <td>{{ vetement.taille }}</td>
-                    <td>{{ vetement.quantite }}</td>
                     <td>{{ vetement.marque ?? '-' }}</td>
-                    <td>{{ vetement.commentaire ?? '-' }}</td>
+                    <td><span class="quantite-badge {{ vetement.quantite == 0 ? 'zero' : '' }}">{{ vetement.quantite }}</span></td>
                     <td>
+                        <form method="post" action="{{ path('app_stock_vetement_mouvement', {id: vetement.id}) }}" class="mouvement-form">
+                            <input type="number" name="quantite" min="1" value="1" required>
+                            <input type="text" name="motif" placeholder="Motif (optionnel)">
+                            <button type="submit" name="type" value="ENTREE" class="btn-entree">+ Entrée</button>
+                            <button type="submit" name="type" value="SORTIE" class="btn-sortie">− Sortie</button>
+                        </form>
+                    </td>
+                    <td>
+                        <a href="{{ path('app_stock_vetement_historique', {id: vetement.id}) }}">Historique</a>
                         <a href="{{ path('app_stock_vetement_edit', {id: vetement.id}) }}">Modifier</a>
                         <form method="post" action="{{ path('app_stock_vetement_delete', {id: vetement.id}) }}" onsubmit="return confirm('Supprimer cet article ?');" style="display:inline">
                             <input type="hidden" name="_token" value="{{ csrf_token('delete-stock-vetement-' ~ vetement.id) }}">
@@ -48,9 +79,9 @@
                 <th>Type</th>
                 <th>Vitesse</th>
                 <th>Destination</th>
-                <th>Tubes en stock</th>
                 <th>Marque</th>
-                <th>Commentaire</th>
+                <th>Tubes en stock</th>
+                <th>Mouvement</th>
                 <th></th>
             </tr>
         </thead>
@@ -60,10 +91,18 @@
                     <td>{{ volant.typeLabel }}</td>
                     <td>{{ volant.vitesse }}</td>
                     <td>{{ volant.destinationLabel }}</td>
-                    <td>{{ volant.quantiteTubes }}</td>
                     <td>{{ volant.marque ?? '-' }}</td>
-                    <td>{{ volant.commentaire ?? '-' }}</td>
+                    <td><span class="quantite-badge {{ volant.quantiteTubes == 0 ? 'zero' : '' }}">{{ volant.quantiteTubes }}</span></td>
                     <td>
+                        <form method="post" action="{{ path('app_stock_volant_mouvement', {id: volant.id}) }}" class="mouvement-form">
+                            <input type="number" name="quantite" min="1" value="1" required>
+                            <input type="text" name="motif" placeholder="Motif (optionnel)">
+                            <button type="submit" name="type" value="ENTREE" class="btn-entree">+ Entrée</button>
+                            <button type="submit" name="type" value="SORTIE" class="btn-sortie">− Sortie</button>
+                        </form>
+                    </td>
+                    <td>
+                        <a href="{{ path('app_stock_volant_historique', {id: volant.id}) }}">Historique</a>
                         <a href="{{ path('app_stock_volant_edit', {id: volant.id}) }}">Modifier</a>
                         <form method="post" action="{{ path('app_stock_volant_delete', {id: volant.id}) }}" onsubmit="return confirm('Supprimer ce tube ?');" style="display:inline">
                             <input type="hidden" name="_token" value="{{ csrf_token('delete-stock-volant-' ~ volant.id) }}">

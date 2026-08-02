@@ -26,6 +26,11 @@ class StockVetement
 
     public const TAILLES = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
 
+    public const MARQUES = [
+        'Nike', 'Adidas', 'Puma', 'Under Armour', 'Asics', 'New Balance',
+        'Kappa', 'Decathlon / Kipsta', 'Errea', 'Hummel', 'Uhlsport', 'Mizuno',
+    ];
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -88,6 +93,16 @@ class StockVetement
     public function setQuantite(int $quantite): static
     {
         $this->quantite = $quantite;
+
+        return $this;
+    }
+
+    /**
+     * Applique un mouvement de stock (positif pour une entrée, négatif pour une sortie).
+     */
+    public function ajusterQuantite(int $delta): static
+    {
+        $this->quantite = max(0, $this->quantite + $delta);
 
         return $this;
     }

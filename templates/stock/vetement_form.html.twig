@@ -4,6 +4,9 @@
 
 {% block body %}
     <h1>{{ vetement ? 'Modifier l\'article' : 'Nouvel article de vêtement' }}</h1>
+    {% if not vetement %}
+        <p>La quantité en stock se gère ensuite via des mouvements d'entrée/sortie depuis la liste du stock.</p>
+    {% endif %}
 
     <form method="post" action="{{ vetement ? path('app_stock_vetement_edit', {id: vetement.id}) : path('app_stock_vetement_new') }}">
         <div>
@@ -23,12 +26,13 @@
             </select>
         </div>
         <div>
-            <label for="quantite">Quantité</label>
-            <input type="number" name="quantite" id="quantite" min="0" value="{{ vetement ? vetement.quantite : 0 }}" required>
-        </div>
-        <div>
             <label for="marque">Marque</label>
-            <input type="text" name="marque" id="marque" value="{{ vetement ? vetement.marque : '' }}">
+            <input type="text" name="marque" id="marque" list="marques-vetement" value="{{ vetement ? vetement.marque : '' }}" placeholder="Choisir ou saisir une marque">
+            <datalist id="marques-vetement">
+                {% for marque in constant('App\\Entity\\StockVetement::MARQUES') %}
+                    <option value="{{ marque }}">
+                {% endfor %}
+            </datalist>
         </div>
         <div>
             <label for="commentaire">Commentaire</label>

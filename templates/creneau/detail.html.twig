@@ -28,6 +28,10 @@
         <button type="submit" name="present" value="0" {% if maPresence and not maPresence.present %}disabled{% endif %}>Je ne viens pas</button>
     </form>
 
+    {% if maPresence and maPresence.present %}
+        <p><a href="{{ path('app_creneau_ics', {id: creneau.id, date: date|date('Y-m-d')}) }}">📅 Ajouter à mon agenda (téléphone/ordinateur)</a></p>
+    {% endif %}
+
     <h2>Viennent ({{ viennent|length }})</h2>
     <ul>
         {% for licencie in viennent %}

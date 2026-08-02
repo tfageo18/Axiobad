@@ -112,6 +112,10 @@
                                             <button type="submit" name="present" value="0" {% if presence and not presence.present %}disabled{% endif %}>Non</button>
                                         </form>
 
+                                        {% if presence and presence.present %}
+                                            <a href="{{ path('app_creneau_ics', {id: creneau.id, date: jour.date|date('Y-m-d')}) }}">📅 Ajouter à mon agenda</a><br>
+                                        {% endif %}
+
                                         <div>
                                             <small>
                                                 Ouvre : {{ ouverture and ouverture.licencieOuverture ? ouverture.licencieOuverture.nomComplet : '—' }}<br>
@@ -180,6 +184,10 @@
                                 <button type="submit" name="present" value="1" {% if presence and presence.present %}disabled{% endif %}>Je viens</button>
                                 <button type="submit" name="present" value="0" {% if presence and not presence.present %}disabled{% endif %}>Non</button>
                             </form>
+
+                            {% if presence and presence.present %}
+                                <p style="margin: 0 0 0.5rem;"><a href="{{ path('app_creneau_ics', {id: creneau.id, date: jour.date|date('Y-m-d')}) }}">📅 Ajouter à mon agenda</a></p>
+                            {% endif %}
 
                             <div class="ouv-ferm">
                                 Ouvre : {{ ouverture and ouverture.licencieOuverture ? ouverture.licencieOuverture.nomComplet : '—' }}<br>

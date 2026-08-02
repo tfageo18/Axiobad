@@ -159,6 +159,40 @@ class CreneauController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/ics', name: 'app_creneau_ics', methods: ['GET'])]
+    public function ics(Request $request, Creneau $creneau): Response
+    {
+        $date = new \DateTimeImmutable((string) $request->query->get('date', 'today'));
+
+        $debut = $date->setTime((int) $creneau->getHeureDebut()->format('H'), (int) $creneau->getHeureDebut()->format('i'));
+        $fin = $date->setTime((int) $creneau->getHeureFin()->format('H'), (int) $creneau->getHeureFin()->format('i'));
+
+        $echapper = static fn (string $texte): string => str_replace(["\\", "\n", ',', ';'], ['\\\\', '\\n', '\\,', '\\;'], $texte);
+
+        $lignes = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'PRODID:-//Axiobad//FR',
+            'CALSCALE:GREGORIAN',
+            'BEGIN:VEVENT',
+            'UID:creneau-'.$creneau->getId().'-'.$date->format('Ymd').'@axiobad',
+            'DTSTAMP:'.(new \DateTimeImmutable())->format('Ymd\THis\Z'),
+            'DTSTART:'.$debut->format('Ymd\THis'),
+            'DTEND:'.$fin->format('Ymd\THis'),
+            'SUMMARY:'.$echapper($creneau->getNom().' — '.$creneau->getActivite()),
+            'LOCATION:'.$echapper($creneau->getGymnase()->getNom().', '.$creneau->getGymnase()->getAdresse()),
+            'DESCRIPTION:'.$echapper('Créneau Axiobad : '.$creneau->getNom()),
+            'END:VEVENT',
+            'END:VCALENDAR',
+        ];
+
+        $response = new Response(implode("\r\n", $lignes));
+        $response->headers->set('Content-Type', 'text/calendar; charset=UTF-8');
+        $response->headers->set('Content-Disposition', 'attachment; filename="creneau-'.$creneau->getId().'-'.$date->format('Y-m-d').'.ics"');
+
+        return $response;
+    }
+
     #[Route('/{id}/presence', name: 'app_creneau_presence', methods: ['POST'])]
     public function presence(Request $request, Creneau $creneau, EntityManagerInterface $entityManager, PresenceRepository $presenceRepository): Response
     {

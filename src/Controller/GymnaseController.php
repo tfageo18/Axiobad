@@ -32,7 +32,8 @@ class GymnaseController extends AbstractController
             $gymnase = (new Gymnase())
                 ->setNom((string) $request->request->get('nom'))
                 ->setAdresse((string) $request->request->get('adresse'))
-                ->setTelephone((string) $request->request->get('telephone') ?: null);
+                ->setTelephone((string) $request->request->get('telephone') ?: null)
+                ->setNombreTerrains($request->request->get('nombreTerrains') !== null && $request->request->get('nombreTerrains') !== '' ? (int) $request->request->get('nombreTerrains') : null);
 
             $entityManager->persist($gymnase);
             $entityManager->flush();
@@ -55,7 +56,8 @@ class GymnaseController extends AbstractController
             $gymnase
                 ->setNom((string) $request->request->get('nom'))
                 ->setAdresse((string) $request->request->get('adresse'))
-                ->setTelephone((string) $request->request->get('telephone') ?: null);
+                ->setTelephone((string) $request->request->get('telephone') ?: null)
+                ->setNombreTerrains($request->request->get('nombreTerrains') !== null && $request->request->get('nombreTerrains') !== '' ? (int) $request->request->get('nombreTerrains') : null);
 
             $entityManager->flush();
 

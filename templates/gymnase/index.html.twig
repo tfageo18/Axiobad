@@ -16,6 +16,7 @@
                 <th>Nom</th>
                 <th>Adresse</th>
                 <th>Téléphone</th>
+                <th>Terrains</th>
                 <th>Porteurs de clés</th>
                 <th>Statut</th>
                 {% if is_granted('ROLE_BUREAU') %}<th></th>{% endif %}
@@ -27,6 +28,7 @@
                     <td data-label="Nom">{{ gymnase.nom }}</td>
                     <td data-label="Adresse">{{ gymnase.adresse }}</td>
                     <td data-label="Téléphone">{{ gymnase.telephone ?? '-' }}</td>
+                    <td data-label="Terrains">{{ gymnase.nombreTerrains ?? '-' }}</td>
                     <td data-label="Porteurs de clés">
                         {% if gymnase.cles|length %}
                             {{ gymnase.cles|map(c => c.licencie.nomComplet ~ (c.reference ? ' (' ~ c.reference ~ ')' : ''))|join(', ') }}
@@ -49,7 +51,7 @@
                     {% endif %}
                 </tr>
             {% else %}
-                <tr><td colspan="6">Aucun gymnase.</td></tr>
+                <tr><td colspan="7">Aucun gymnase.</td></tr>
             {% endfor %}
         </tbody>
     </table>

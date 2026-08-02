@@ -18,6 +18,10 @@
             <label for="telephone">Téléphone</label>
             <input type="tel" name="telephone" id="telephone" value="{{ gymnase ? gymnase.telephone : '' }}">
         </div>
+        <div>
+            <label for="nombreTerrains">Nombre de terrains</label>
+            <input type="number" name="nombreTerrains" id="nombreTerrains" min="0" value="{{ gymnase ? gymnase.nombreTerrains : '' }}">
+        </div>
         <button type="submit">{{ gymnase ? 'Enregistrer' : 'Créer' }}</button>
     </form>
 

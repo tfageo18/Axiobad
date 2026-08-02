@@ -24,6 +24,9 @@ class Gymnase
     #[ORM\Column(length: 30, nullable: true)]
     private ?string $telephone = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $nombreTerrains = null;
+
     #[ORM\Column]
     private bool $actif = true;
 
@@ -82,6 +85,18 @@ class Gymnase
     public function setTelephone(?string $telephone): static
     {
         $this->telephone = $telephone;
+
+        return $this;
+    }
+
+    public function getNombreTerrains(): ?int
+    {
+        return $this->nombreTerrains;
+    }
+
+    public function setNombreTerrains(?int $nombreTerrains): static
+    {
+        $this->nombreTerrains = $nombreTerrains;
 
         return $this;
     }

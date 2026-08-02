@@ -193,6 +193,26 @@ class CreneauController extends AbstractController
         return $response;
     }
 
+    #[Route('/{id}/google-agenda', name: 'app_creneau_google_agenda', methods: ['GET'])]
+    public function googleAgenda(Request $request, Creneau $creneau): Response
+    {
+        $date = new \DateTimeImmutable((string) $request->query->get('date', 'today'));
+
+        $debut = $date->setTime((int) $creneau->getHeureDebut()->format('H'), (int) $creneau->getHeureDebut()->format('i'));
+        $fin = $date->setTime((int) $creneau->getHeureFin()->format('H'), (int) $creneau->getHeureFin()->format('i'));
+
+        $parametres = [
+            'action' => 'TEMPLATE',
+            'text' => $creneau->getNom().' — '.$creneau->getActivite(),
+            'dates' => $debut->format('Ymd\THis').'/'.$fin->format('Ymd\THis'),
+            'details' => 'Créneau Axiobad : '.$creneau->getNom(),
+            'location' => $creneau->getGymnase()->getNom().', '.$creneau->getGymnase()->getAdresse(),
+            'ctz' => 'Europe/Paris',
+        ];
+
+        return $this->redirect('https://calendar.google.com/calendar/render?'.http_build_query($parametres));
+    }
+
     #[Route('/{id}/presence', name: 'app_creneau_presence', methods: ['POST'])]
     public function presence(Request $request, Creneau $creneau, EntityManagerInterface $entityManager, PresenceRepository $presenceRepository): Response
     {

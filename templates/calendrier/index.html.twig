@@ -113,7 +113,8 @@
                                         </form>
 
                                         {% if presence and presence.present %}
-                                            <a href="{{ path('app_creneau_ics', {id: creneau.id, date: jour.date|date('Y-m-d')}) }}">📅 Ajouter à mon agenda</a><br>
+                                            <a href="{{ path('app_creneau_ics', {id: creneau.id, date: jour.date|date('Y-m-d')}) }}">📅 Mon agenda</a>
+                                            · <a href="{{ path('app_creneau_google_agenda', {id: creneau.id, date: jour.date|date('Y-m-d')}) }}" target="_blank" rel="noopener">Google Agenda</a><br>
                                         {% endif %}
 
                                         <div>
@@ -186,7 +187,10 @@
                             </form>
 
                             {% if presence and presence.present %}
-                                <p style="margin: 0 0 0.5rem;"><a href="{{ path('app_creneau_ics', {id: creneau.id, date: jour.date|date('Y-m-d')}) }}">📅 Ajouter à mon agenda</a></p>
+                                <p style="margin: 0 0 0.5rem;">
+                                    <a href="{{ path('app_creneau_ics', {id: creneau.id, date: jour.date|date('Y-m-d')}) }}">📅 Mon agenda</a>
+                                    · <a href="{{ path('app_creneau_google_agenda', {id: creneau.id, date: jour.date|date('Y-m-d')}) }}" target="_blank" rel="noopener">Google Agenda</a>
+                                </p>
                             {% endif %}
 
                             <div class="ouv-ferm">

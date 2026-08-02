@@ -29,7 +29,10 @@
     </form>
 
     {% if maPresence and maPresence.present %}
-        <p><a href="{{ path('app_creneau_ics', {id: creneau.id, date: date|date('Y-m-d')}) }}">📅 Ajouter à mon agenda (téléphone/ordinateur)</a></p>
+        <p>
+            <a href="{{ path('app_creneau_ics', {id: creneau.id, date: date|date('Y-m-d')}) }}">📅 Ajouter à mon agenda (téléphone/ordinateur)</a>
+            · <a href="{{ path('app_creneau_google_agenda', {id: creneau.id, date: date|date('Y-m-d')}) }}" target="_blank" rel="noopener">Ajouter à Google Agenda</a>
+        </p>
     {% endif %}
 
     <h2>Viennent ({{ viennent|length }})</h2>

@@ -231,6 +231,8 @@ class CreneauController extends AbstractController
             $categorie = Creneau::CATEGORIE_ADULTE;
         }
 
+        $activite = trim((string) $request->request->get('activite')) ?: Creneau::ACTIVITE_BADMINTON;
+
         $classementMinimumRaw = (string) $request->request->get('classementMinimum');
         $classementMinimum = in_array($classementMinimumRaw, ClassementFfbad::CODES, true) ? $classementMinimumRaw : null;
 
@@ -246,6 +248,7 @@ class CreneauController extends AbstractController
             ->setEncadre($encadre)
             ->setEntraineur($entraineur)
             ->setCategorie($categorie)
+            ->setActivite($activite)
             ->setClassementMinimum($classementMinimum)
             ->setLoisir((bool) $request->request->get('loisir'))
             ->setCompetiteur((bool) $request->request->get('competiteur'))

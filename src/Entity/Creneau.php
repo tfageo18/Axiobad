@@ -14,6 +14,13 @@ class Creneau
     public const CATEGORIE_ADULTE = 'ADULTE';
     public const CATEGORIE_ENFANT = 'ENFANT';
 
+    public const ACTIVITE_BADMINTON = 'Badminton';
+
+    public const ACTIVITES = [
+        self::ACTIVITE_BADMINTON,
+        'Footing',
+        'Musculation',
+    ];
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -44,6 +51,9 @@ class Creneau
 
     #[ORM\Column(length: 10)]
     private string $categorie = self::CATEGORIE_ADULTE;
+
+    #[ORM\Column(length: 30)]
+    private string $activite = self::ACTIVITE_BADMINTON;
 
     #[ORM\Column(length: 5, nullable: true)]
     private ?string $classementMinimum = null;
@@ -202,6 +212,18 @@ class Creneau
     public function setCategorie(string $categorie): static
     {
         $this->categorie = $categorie;
+
+        return $this;
+    }
+
+    public function getActivite(): string
+    {
+        return $this->activite;
+    }
+
+    public function setActivite(string $activite): static
+    {
+        $this->activite = $activite;
 
         return $this;
     }

@@ -36,6 +36,7 @@
         <thead>
             <tr>
                 <th>Créneau</th>
+                <th>Activité</th>
                 <th>Gymnase</th>
                 <th>Jour</th>
                 <th>Horaire</th>
@@ -52,6 +53,7 @@
             {% for creneau in creneaux %}
                 <tr class="{{ creneau.actif ? '' : 'ligne-inactive' }}">
                     <td data-label="Créneau">{{ creneau.nom }}</td>
+                    <td data-label="Activité">{{ creneau.activite }}</td>
                     <td data-label="Gymnase">{{ creneau.gymnase.nom }}</td>
                     <td data-label="Jour">{{ creneau.jourSemaine }}</td>
                     <td data-label="Horaire">{{ creneau.heureDebut|date('H:i') }} - {{ creneau.heureFin|date('H:i') }}</td>
@@ -82,7 +84,7 @@
                     {% endif %}
                 </tr>
             {% else %}
-                <tr><td colspan="12">Aucun créneau.</td></tr>
+                <tr><td colspan="13">Aucun créneau.</td></tr>
             {% endfor %}
         </tbody>
     </table>

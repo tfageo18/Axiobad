@@ -8,7 +8,7 @@
     <h1>{{ creneau.nom }} — {{ creneau.jourSemaine }} {{ date|date('d/m/Y') }}</h1>
 
     <p>
-        {{ creneau.gymnase.nom }} · {{ creneau.heureDebut|date('H:i') }} - {{ creneau.heureFin|date('H:i') }}<br>
+        {{ creneau.activite }} · {{ creneau.gymnase.nom }} · {{ creneau.heureDebut|date('H:i') }} - {{ creneau.heureFin|date('H:i') }}<br>
         {{ creneau.categorie == 'ENFANT' ? 'Enfants' : 'Adultes' }} · {{ creneau.typeLabel }}
         {% if creneau.classementMinimum %} · niveau min. {{ creneau.classementMinimum }}{% endif %}<br>
         {{ creneau.encadre ? 'Encadré par ' ~ creneau.entraineur.nomComplet : 'Créneau libre' }}<br>

@@ -11,6 +11,15 @@
             <input type="text" name="nom" id="nom" value="{{ creneau ? creneau.nom : '' }}" required>
         </div>
         <div>
+            <label for="activite">Activité</label>
+            <input type="text" name="activite" id="activite" list="activites-creneau" value="{{ creneau ? creneau.activite : 'Badminton' }}" placeholder="Choisir ou saisir une activité">
+            <datalist id="activites-creneau">
+                {% for activite in constant('App\\Entity\\Creneau::ACTIVITES') %}
+                    <option value="{{ activite }}">
+                {% endfor %}
+            </datalist>
+        </div>
+        <div>
             <label for="gymnase">Gymnase</label>
             <select name="gymnase" id="gymnase" required>
                 {% for gymnase in gymnases %}

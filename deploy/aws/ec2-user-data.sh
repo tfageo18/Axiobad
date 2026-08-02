@@ -74,6 +74,30 @@ docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local e
 # Filet de sécurité : si un exec précédent (root) a laissé des fichiers de cache mal owned, on corrige.
 docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local exec -T -u root php chown -R www-data:www-data /var/www/html/var
 
+# Démarrage garanti au boot (démarrage EC2, pas seulement redémarrage à chaud) : on ne compte pas
+# uniquement sur "restart: unless-stopped" des conteneurs, qui peut ne pas se redéclencher de façon
+# fiable après un arrêt/démarrage complet de l'instance (pas un simple reboot).
+cat > /etc/systemd/system/axiobad.service <<EOF
+[Unit]
+Description=Axiobad docker compose stack
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=$APP_DIR
+ExecStart=/usr/bin/docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local up -d
+ExecStop=/usr/bin/docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local down
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl daemon-reload
+systemctl enable axiobad.service
+
 # Renouvellement automatique : une fois nginx démarré, on utilise le mode webroot
 # (pas besoin de couper le service), puis on recharge la conf nginx.
 cat > /etc/cron.d/certbot-renew <<EOF

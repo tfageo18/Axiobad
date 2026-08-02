@@ -41,3 +41,45 @@ docker compose exec php bin/console doctrine:migrations:migrate
 ```
 
 L'application est accessible sur http://localhost:8080.
+
+## Déploiement AWS (option la moins chère)
+
+La base de données PostgreSQL tourne dans un conteneur (pas de RDS), sur une **seule instance EC2**
+(`t4g.nano` ou `t4g.micro`, architecture ARM Graviton). C'est l'option la moins chère pour un usage
+24/7 léger : quelques euros par mois (instance + volume EBS de 8-10 Go), contre un coût bien plus
+élevé avec ECS Fargate ou RDS.
+
+### Mise en place
+
+1. Créer une instance EC2 (Amazon Linux 2023, `t4g.nano`/`t4g.micro`), avec :
+   - un Security Group ouvrant le port 22 (SSH, restreint à ton IP) et le port 80 (HTTP, `0.0.0.0/0`) ;
+   - le script `deploy/aws/ec2-user-data.sh` en "user data" au lancement (installe Docker et clone le dépôt dans `/opt/axiobad`).
+2. Une fois l'instance démarrée, s'y connecter en SSH et déposer les secrets de prod :
+   ```bash
+   cd /opt/axiobad
+   cp .env.prod.example .env.prod.local
+   # éditer .env.prod.local avec de vrais secrets (APP_SECRET, POSTGRES_PASSWORD, ...)
+   ```
+3. Démarrer l'application :
+   ```bash
+   docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local up -d --build
+   docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local exec php bin/console doctrine:migrations:migrate --no-interaction
+   ```
+
+Le fichier `compose.prod.yaml` est un overlay du `compose.yaml` de dev : pas de bind-mount du code,
+`APP_ENV=prod`, redémarrage automatique des conteneurs, port PostgreSQL non exposé publiquement.
+
+### Mises à jour
+
+Après un `git push`, sur le serveur :
+
+```bash
+bash deploy/aws/redeploy.sh
+```
+
+### Sauvegarde
+
+La base de données étant dans un conteneur avec un volume Docker (donc sur l'EBS de l'instance),
+il n'y a pas de sauvegarde automatique gérée par AWS. Il est recommandé de planifier :
+- un snapshot EBS régulier de l'instance (via AWS Backup, quelques centimes par Go/mois), et/ou
+- un `pg_dump` régulier (cron) vers un bucket S3 (stockage très peu coûteux).

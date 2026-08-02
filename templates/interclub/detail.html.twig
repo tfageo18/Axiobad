@@ -1,0 +1,100 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}J{{ rencontre.journee }} — {{ rencontre.adversaire }} — Axiobad{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .badge-present { background: var(--color-success-bg); color: var(--color-success); padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; }
+        .badge-absent { background: var(--color-error-bg); color: var(--color-error); padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; }
+        .badge-attente { background: var(--color-bg); color: var(--color-text-muted); padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('app_interclub_index') }}">&laquo; Retour aux interclubs</a></p>
+
+    <h1>Journée {{ rencontre.journee }} — {{ rencontre.equipe.nom }} vs {{ rencontre.adversaire }}</h1>
+    <p style="color: var(--color-text-muted);">
+        {{ rencontre.dateRencontre|date('d/m/Y H:i') }} — {{ rencontre.lieu }}
+        {% if rencontre.aUnScore %} — Score : <strong>{{ rencontre.scoreEquipe }} - {{ rencontre.scoreAdversaire }}</strong>{% endif %}
+    </p>
+
+    {% if is_granted('ROLE_BUREAU') %}
+        <p><a href="{{ path('app_interclub_edit', {id: rencontre.id}) }}">Modifier la rencontre</a></p>
+    {% endif %}
+
+    {% if maConvocation %}
+        <h2>Ma présence</h2>
+        <p>
+            Vous êtes convoqué(e) pour cette rencontre.
+            {% if maConvocation.present is null %}
+                <span class="badge-attente">Pas encore répondu</span>
+            {% elseif maConvocation.present %}
+                <span class="badge-present">Présent</span>
+            {% else %}
+                <span class="badge-absent">Absent</span>
+            {% endif %}
+        </p>
+        <form method="post" action="{{ path('app_interclub_repondre', {id: rencontre.id, convocationId: maConvocation.id}) }}" style="display:inline">
+            <button type="submit" name="present" value="1" class="btn-presence btn-presence-oui {{ maConvocation.present ? 'selectionne' : '' }}">✓ Je viens</button>
+        </form>
+        <form method="post" action="{{ path('app_interclub_repondre', {id: rencontre.id, convocationId: maConvocation.id}) }}" style="display:inline">
+            <button type="submit" name="present" value="0" class="btn-presence btn-presence-non {{ maConvocation.present is same as(false) ? 'selectionne' : '' }}">✗ Je ne viens pas</button>
+        </form>
+    {% endif %}
+
+    <h2>Convocations ({{ rencontre.convocations|length }})</h2>
+    {% if rencontre.convocations|length %}
+        <table class="table-cards">
+            <thead>
+                <tr>
+                    <th>Joueur</th>
+                    <th>Réponse</th>
+                    {% if is_granted('ROLE_BUREAU') %}<th></th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for convocation in rencontre.convocations %}
+                    <tr>
+                        <td data-label="Joueur">{{ convocation.licencie.nomComplet }}</td>
+                        <td data-label="Réponse">
+                            {% if convocation.present is null %}
+                                <span class="badge-attente">Pas encore répondu</span>
+                            {% elseif convocation.present %}
+                                <span class="badge-present">Présent</span>
+                            {% else %}
+                                <span class="badge-absent">Absent</span>
+                            {% endif %}
+                        </td>
+                        {% if is_granted('ROLE_BUREAU') %}
+                            <td class="td-actions">
+                                <form method="post" action="{{ path('app_interclub_retirer_convocation', {id: rencontre.id, convocationId: convocation.id}) }}" onsubmit="return confirm('Retirer cette convocation ?');" style="display:inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('retirer-convocation-' ~ convocation.id) }}">
+                                    <button type="submit">Retirer</button>
+                                </form>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Aucun joueur convoqué pour l'instant.</p>
+    {% endif %}
+
+    {% if is_granted('ROLE_BUREAU') and membresConvocables|length %}
+        <form method="post" action="{{ path('app_interclub_convoquer', {id: rencontre.id}) }}">
+            <div>
+                <label for="convoquer-licencie">Convoquer un joueur de l'équipe</label>
+                <select name="licencie" id="convoquer-licencie" required>
+                    <option value="">-</option>
+                    {% for licencie in membresConvocables %}
+                        <option value="{{ licencie.id }}">{{ licencie.nomComplet }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit">+ Convoquer</button>
+        </form>
+    {% endif %}
+{% endblock %}

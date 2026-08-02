@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Interclubs — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>Championnats / Interclubs</h1>
+
+    {% if is_granted('ROLE_BUREAU') %}
+        <p><a class="btn-cta" href="{{ path('app_interclub_new') }}">+ Nouvelle rencontre</a></p>
+    {% endif %}
+
+    <div class="table-scroll">
+    <table class="table-cards">
+        <thead>
+            <tr>
+                <th>Journée</th>
+                <th>Date</th>
+                <th>Équipe</th>
+                <th>Adversaire</th>
+                <th>Lieu</th>
+                <th>Score</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rencontre in rencontres %}
+                <tr>
+                    <td data-label="Journée">J{{ rencontre.journee }}</td>
+                    <td data-label="Date">{{ rencontre.dateRencontre|date('d/m/Y H:i') }}</td>
+                    <td data-label="Équipe">{{ rencontre.equipe.nom }}</td>
+                    <td data-label="Adversaire">{{ rencontre.adversaire }}</td>
+                    <td data-label="Lieu">{{ rencontre.lieu }}</td>
+                    <td data-label="Score">{{ rencontre.aUnScore ? rencontre.scoreEquipe ~ ' - ' ~ rencontre.scoreAdversaire : '-' }}</td>
+                    <td class="td-actions">
+                        <a href="{{ path('app_interclub_detail', {id: rencontre.id}) }}">Voir</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="7">Aucune rencontre.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+{% endblock %}

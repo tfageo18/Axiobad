@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ rencontre ? 'Modifier' : 'Nouvelle' }} rencontre — Axiobad{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('app_interclub_index') }}">&laquo; Retour aux interclubs</a></p>
+
+    <h1>{{ rencontre ? 'Modifier la rencontre' : 'Nouvelle rencontre' }}</h1>
+
+    <form method="post" action="{{ rencontre ? path('app_interclub_edit', {id: rencontre.id}) : path('app_interclub_new') }}">
+        <div>
+            <label for="equipe">Équipe</label>
+            <select name="equipe" id="equipe" required>
+                <option value="">-</option>
+                {% for equipe in equipes %}
+                    <option value="{{ equipe.id }}" {{ rencontre and rencontre.equipe and rencontre.equipe.id == equipe.id ? 'selected' : '' }}>{{ equipe.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="journee">Journée</label>
+            <input type="number" name="journee" id="journee" min="1" value="{{ rencontre ? rencontre.journee : '' }}" required>
+        </div>
+        <div>
+            <label for="dateRencontre">Date et heure</label>
+            <input type="datetime-local" name="dateRencontre" id="dateRencontre" value="{{ rencontre and rencontre.dateRencontre ? rencontre.dateRencontre|date('Y-m-d\\TH:i') : '' }}" required>
+        </div>
+        <div>
+            <label for="adversaire">Adversaire</label>
+            <input type="text" name="adversaire" id="adversaire" value="{{ rencontre ? rencontre.adversaire : '' }}" required>
+        </div>
+        <div>
+            <label for="lieu">Lieu</label>
+            <input type="text" name="lieu" id="lieu" value="{{ rencontre ? rencontre.lieu : '' }}" placeholder="ex: Domicile - gymnase Moulin" required>
+        </div>
+        <div>
+            <label for="scoreEquipe">Score de l'équipe (optionnel)</label>
+            <input type="number" name="scoreEquipe" id="scoreEquipe" min="0" value="{{ rencontre ? rencontre.scoreEquipe : '' }}">
+        </div>
+        <div>
+            <label for="scoreAdversaire">Score de l'adversaire (optionnel)</label>
+            <input type="number" name="scoreAdversaire" id="scoreAdversaire" min="0" value="{{ rencontre ? rencontre.scoreAdversaire : '' }}">
+        </div>
+        <button type="submit">{{ rencontre ? 'Enregistrer' : 'Créer' }}</button>
+    </form>
+
+    {% if rencontre %}
+        <form method="post" action="{{ path('app_interclub_delete', {id: rencontre.id}) }}" onsubmit="return confirm('Supprimer cette rencontre ?');" style="margin-top: 1rem;">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete-rencontre-' ~ rencontre.id) }}">
+            <button type="submit">Supprimer la rencontre</button>
+        </form>
+    {% endif %}
+{% endblock %}

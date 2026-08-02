@@ -19,6 +19,7 @@ en ligne, une fois connecté, via le menu du compte (en haut à droite) → **Do
 - [Historique des présences (bureau, entraîneurs)](#historique-des-présences-bureau-entraîneurs)
 - [Cordage (tous les licenciés, cordeurs)](#cordage-tous-les-licenciés-cordeurs)
 - [Vie du club / Évènements (tous les licenciés)](#vie-du-club--évènements-tous-les-licenciés)
+- [Championnats / Interclubs (tous les licenciés, bureau)](#championnats--interclubs-tous-les-licenciés-bureau)
 - [Mon profil](#mon-profil)
 - [Configuration email (production)](#configuration-email-production)
 
@@ -245,6 +246,17 @@ Menu **Vie du club**.
   liste d'attente, la première personne en attente est **automatiquement promue** en participant
   confirmé.
 - Le bureau voit et peut retirer n'importe quel participant ou personne en liste d'attente.
+
+## Championnats / Interclubs (tous les licenciés, bureau)
+
+Menu **Interclubs**.
+
+- Le **bureau** crée une **rencontre** pour une équipe existante (voir [Gérer les
+  équipes](#gérer-les-équipes-bureau-capitaines)) : numéro de **journée**, date/heure, adversaire,
+  lieu, et peut renseigner le **score** une fois le match joué.
+- Sur la page d'une rencontre, le bureau **convoque** les joueurs parmi les membres de l'équipe.
+- Chaque joueur convoqué peut indiquer s'il est **présent ou non** à la rencontre, comme pour un
+  créneau ; le bureau voit l'état des réponses de toute l'équipe convoquée.
 
 ## Mon profil
 

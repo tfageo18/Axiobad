@@ -21,6 +21,7 @@ en ligne, une fois connecté, via le menu du compte (en haut à droite) → **Do
 - [Vie du club / Évènements (tous les licenciés)](#vie-du-club--évènements-tous-les-licenciés)
 - [Championnats / Interclubs (tous les licenciés, bureau)](#championnats--interclubs-tous-les-licenciés-bureau)
 - [Tableau de bord (bureau)](#tableau-de-bord-bureau)
+- [Mon espace (tous les licenciés)](#mon-espace-tous-les-licenciés)
 - [Mon profil](#mon-profil)
 - [Configuration email (production)](#configuration-email-production)
 
@@ -273,6 +274,20 @@ Vue d'ensemble du club en un coup d'œil :
 - Volants consommés (sorties de stock) ce mois-ci et au total.
 - Valeur du stock, calculée à partir du **prix unitaire** optionnel renseigné sur chaque article
   de vêtement ou tube de volants (page Stock).
+
+## Mon espace (tous les licenciés)
+
+Menu **Mon espace**, votre page personnelle en un coup d'œil :
+
+- Vos **prochains créneaux** (14 jours) parmi ceux qui correspondent à votre catégorie d'âge et
+  votre classement, avec votre réponse de présence.
+- Vos **statistiques de présence** globales.
+- Le statut de votre **adhésion** (payée/en attente/exonérée) et vos paiements sur la saison en
+  cours.
+- Les **créneaux recommandés** selon votre classement (les mêmes règles que celles utilisées pour
+  filtrer le calendrier).
+- Les **évènements à venir** du club.
+- Votre historique de participation aux **tournois internes** et aux **interclubs**.
 
 ## Mon profil
 

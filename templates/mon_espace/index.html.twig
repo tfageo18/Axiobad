@@ -1,0 +1,150 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon espace — Axiobad{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .espace-section { background: var(--color-surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
+        .espace-section h2 { margin-top: 0; }
+        .badge-statut-adhesion { padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; }
+        .badge-PAYEE { background: var(--color-success-bg); color: var(--color-success); }
+        .badge-EN_ATTENTE { background: #fff7ed; color: var(--color-accent-dark); }
+        .badge-EXONEREE { background: var(--color-bg); color: var(--color-text-muted); }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <h1>Mon espace</h1>
+
+    <div class="espace-section">
+        <h2>Mon calendrier — prochains créneaux</h2>
+        {% if prochainsCreneaux|length %}
+            <table class="table-cards">
+                <thead>
+                    <tr><th>Date</th><th>Créneau</th><th>Ma réponse</th></tr>
+                </thead>
+                <tbody>
+                    {% for ligne in prochainsCreneaux %}
+                        <tr>
+                            <td data-label="Date">{{ ligne.date|date('d/m/Y') }} ({{ ligne.creneau.jourSemaine }})</td>
+                            <td data-label="Créneau">{{ ligne.creneau.nom }}</td>
+                            <td data-label="Réponse">
+                                {% if ligne.presence is null %}
+                                    <em>Pas encore répondu</em>
+                                {% elseif ligne.presence.present %}
+                                    Je viens
+                                {% else %}
+                                    Je ne viens pas
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Aucun créneau à venir correspondant à votre profil.</p>
+        {% endif %}
+        <p><a href="{{ path('app_calendrier') }}">Voir le calendrier complet</a></p>
+    </div>
+
+    <div class="espace-section">
+        <h2>Mes statistiques de présence</h2>
+        <p>
+            {% if tauxPresence is null %}
+                Aucune réponse enregistrée pour l'instant.
+            {% else %}
+                <strong>{{ tauxPresence }} %</strong> de présence ({{ totalPresent }} présence(s) sur {{ totalReponses }} réponse(s) données).
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="espace-section">
+        <h2>Mon adhésion{{ saisonEnCours ? ' — ' ~ saisonEnCours.libelle : '' }}</h2>
+        {% if not saisonEnCours %}
+            <p>Aucune saison en cours.</p>
+        {% elseif not adhesion %}
+            <p>Aucune adhésion enregistrée pour cette saison.</p>
+        {% else %}
+            <p>
+                Statut : <span class="badge-statut-adhesion badge-{{ adhesion.statut }}">{{ adhesion.statutLabel }}</span>
+            </p>
+            {% if adhesion.montantTotal is not null %}
+                <p>
+                    Montant : {{ adhesion.montantPaye|number_format(2, ',', ' ') }} € payé(s)
+                    sur {{ adhesion.montantTotal|number_format(2, ',', ' ') }} €
+                    {% if adhesion.montantRestant > 0 %}(reste {{ adhesion.montantRestant|number_format(2, ',', ' ') }} €){% endif %}
+                </p>
+            {% endif %}
+            {% if adhesion.datePaiement %}
+                <p>Dernier paiement le {{ adhesion.datePaiement|date('d/m/Y') }}.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <div class="espace-section">
+        <h2>Créneaux recommandés selon mon classement</h2>
+        {% if creneauxRecommandes|length %}
+            <ul>
+                {% for creneau in creneauxRecommandes %}
+                    <li>
+                        <a href="{{ path('app_creneau_detail', {id: creneau.id}) }}">{{ creneau.nom }}</a>
+                        — {{ creneau.jourSemaine }} {{ creneau.heureDebut|date('H:i') }}-{{ creneau.heureFin|date('H:i') }}
+                        {% if creneau.classementMinimum %}(niveau min. {{ creneau.classementMinimum }}){% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Complétez votre classement dans votre profil pour voir des créneaux recommandés.</p>
+        {% endif %}
+    </div>
+
+    <div class="espace-section">
+        <h2>Évènements à venir</h2>
+        {% if evenementsAVenir|length %}
+            <ul>
+                {% for evenement in evenementsAVenir %}
+                    <li>
+                        <a href="{{ path('app_evenement_detail', {id: evenement.id}) }}">{{ evenement.titre }}</a>
+                        — {{ evenement.dateDebut|date('d/m/Y H:i') }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Aucun évènement à venir.</p>
+        {% endif %}
+        <p><a href="{{ path('app_evenement_index') }}">Voir tous les évènements</a></p>
+    </div>
+
+    <div class="espace-section">
+        <h2>Mon historique de tournois internes</h2>
+        {% if historiqueTournois|length %}
+            <ul>
+                {% for evenement in historiqueTournois %}
+                    <li><a href="{{ path('app_evenement_detail', {id: evenement.id}) }}">{{ evenement.titre }}</a> — {{ evenement.dateDebut|date('d/m/Y') }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Aucune participation à un tournoi interne pour l'instant.</p>
+        {% endif %}
+    </div>
+
+    <div class="espace-section">
+        <h2>Mon historique d'interclubs</h2>
+        {% if historiqueInterclubs|length %}
+            <ul>
+                {% for convocation in historiqueInterclubs %}
+                    <li>
+                        <a href="{{ path('app_interclub_detail', {id: convocation.rencontre.id}) }}">
+                            J{{ convocation.rencontre.journee }} — {{ convocation.rencontre.equipe.nom }} vs {{ convocation.rencontre.adversaire }}
+                        </a>
+                        — {{ convocation.rencontre.dateRencontre|date('d/m/Y') }}
+                        ({{ convocation.present is null ? 'pas répondu' : (convocation.present ? 'présent' : 'absent') }})
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Aucune convocation en interclubs pour l'instant.</p>
+        {% endif %}
+    </div>
+{% endblock %}

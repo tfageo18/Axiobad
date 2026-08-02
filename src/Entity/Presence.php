@@ -9,6 +9,10 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\UniqueConstraint(name: 'presence_unique', columns: ['creneau_id', 'licencie_id', 'date'])]
 class Presence
 {
+    public const STATUT_CONFIRMEE = 'CONFIRMEE';
+    public const STATUT_LISTE_ATTENTE = 'LISTE_ATTENTE';
+    public const STATUT_EN_ATTENTE_CONFIRMATION = 'EN_ATTENTE_CONFIRMATION';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -33,6 +37,12 @@ class Presence
 
     #[ORM\Column]
     private ?\DateTimeImmutable $repondule = null;
+
+    #[ORM\Column(length: 30, nullable: true)]
+    private ?string $statutInscription = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $promotionExpiresAt = null;
 
     public function getId(): ?int
     {
@@ -91,5 +101,44 @@ class Presence
     public function getRepondule(): ?\DateTimeImmutable
     {
         return $this->repondule;
+    }
+
+    public function getStatutInscription(): ?string
+    {
+        return $this->statutInscription;
+    }
+
+    public function setStatutInscription(?string $statutInscription): static
+    {
+        $this->statutInscription = $statutInscription;
+
+        return $this;
+    }
+
+    public function estConfirmee(): bool
+    {
+        return $this->present && self::STATUT_CONFIRMEE === $this->statutInscription;
+    }
+
+    public function estEnListeAttente(): bool
+    {
+        return $this->present && self::STATUT_LISTE_ATTENTE === $this->statutInscription;
+    }
+
+    public function estEnAttenteConfirmation(): bool
+    {
+        return $this->present && self::STATUT_EN_ATTENTE_CONFIRMATION === $this->statutInscription;
+    }
+
+    public function getPromotionExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->promotionExpiresAt;
+    }
+
+    public function setPromotionExpiresAt(?\DateTimeImmutable $promotionExpiresAt): static
+    {
+        $this->promotionExpiresAt = $promotionExpiresAt;
+
+        return $this;
     }
 }

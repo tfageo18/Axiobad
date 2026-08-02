@@ -45,4 +45,53 @@ class PresenceRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function compterConfirmees(Creneau $creneau, \DateTimeImmutable $date, ?Licencie $exclure = null): int
+    {
+        $qb = $this->createQueryBuilder('p')
+            ->select('COUNT(p.id)')
+            ->andWhere('p.creneau = :creneau')
+            ->andWhere('p.date = :date')
+            ->andWhere('p.present = true')
+            ->andWhere('p.statutInscription = :statut')
+            ->setParameter('creneau', $creneau)
+            ->setParameter('date', $date)
+            ->setParameter('statut', Presence::STATUT_CONFIRMEE);
+
+        if ($exclure) {
+            $qb->andWhere('p.licencie != :exclure')->setParameter('exclure', $exclure);
+        }
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
+    }
+
+    public function findPremierEnListeAttente(Creneau $creneau, \DateTimeImmutable $date): ?Presence
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.creneau = :creneau')
+            ->andWhere('p.date = :date')
+            ->andWhere('p.present = true')
+            ->andWhere('p.statutInscription = :statut')
+            ->setParameter('creneau', $creneau)
+            ->setParameter('date', $date)
+            ->setParameter('statut', Presence::STATUT_LISTE_ATTENTE)
+            ->orderBy('p.repondule', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+
+    /**
+     * @return Presence[]
+     */
+    public function findPromotionsExpirees(\DateTimeImmutable $maintenant): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.statutInscription = :statut')
+            ->andWhere('p.promotionExpiresAt < :maintenant')
+            ->setParameter('statut', Presence::STATUT_EN_ATTENTE_CONFIRMATION)
+            ->setParameter('maintenant', $maintenant)
+            ->getQuery()
+            ->getResult();
+    }
 }

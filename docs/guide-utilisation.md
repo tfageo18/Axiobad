@@ -164,7 +164,8 @@ Menu **Jouer → Créneaux**.
    certain niveau (laisser vide si aucun niveau minimum).
 8. Cocher **Créneau encadré** si un entraîneur doit être associé, puis le sélectionner dans la
    liste (seuls les licenciés ayant le rôle Entraîneur apparaissent).
-9. Valider.
+9. Optionnel : **capacité maximale** et **heure limite d'annulation** (voir ci-dessous).
+10. Valider.
 
 ### Rechercher, activer/désactiver, supprimer
 
@@ -172,6 +173,24 @@ Menu **Jouer → Créneaux**.
 - **Désactiver** un créneau le fait disparaître du calendrier et de la liste vue par les licenciés
   (le bureau continue de le voir, marqué « Inactif »), sans le supprimer.
 - **Supprimer** retire définitivement le créneau.
+
+### Capacité et liste d'attente
+
+Si une **capacité maximale** est renseignée sur un créneau :
+
+- Cliquer sur « Je viens » inscrit le licencié directement s'il reste de la place, sinon il est
+  placé en **liste d'attente** (premier arrivé, premier servi).
+- Quand une personne confirmée se désinscrit, la première personne en liste d'attente est
+  **automatiquement promue** : elle a **24h pour confirmer sa place** (bouton dédié, visible sur
+  le calendrier, la page du créneau et « Mon espace »). Si elle ne confirme pas à temps, elle
+  retourne en fin de liste d'attente et la place est proposée à la personne suivante — ce
+  traitement est effectué automatiquement toutes les 10 minutes par une tâche planifiée sur le
+  serveur.
+- Si un **délai limite d'annulation** est renseigné (en heures avant le début du créneau), un
+  licencié confirmé ne peut plus se désinscrire lui-même une fois ce délai dépassé — le bureau,
+  lui, peut toujours annuler une inscription.
+- Le bureau peut **forcer une inscription** depuis la page détail d'un créneau (bouton en bas de
+  page), même si la capacité est déjà atteinte.
 
 ## Le calendrier
 

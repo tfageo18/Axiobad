@@ -116,6 +116,17 @@
                                             <button type="submit" name="present" value="0" class="btn-presence btn-presence-non {{ presence and not presence.present ? 'selectionne' : '' }}">✗ Non</button>
                                         </form>
 
+                                        {% if presence and presence.estEnListeAttente %}
+                                            <small>⏳ Liste d'attente</small><br>
+                                        {% elseif presence and presence.estEnAttenteConfirmation %}
+                                            <small>⚠ Place à confirmer avant {{ presence.promotionExpiresAt|date('d/m H:i') }}</small>
+                                            <form method="post" action="{{ path('app_creneau_confirmer_promotion', {id: creneau.id}) }}" style="display:inline">
+                                                <input type="hidden" name="date" value="{{ jour.date|date('Y-m-d') }}">
+                                                <input type="hidden" name="semaine" value="{{ premierDuMois|date('Y-m') }}">
+                                                <button type="submit">Confirmer</button>
+                                            </form><br>
+                                        {% endif %}
+
                                         {% if presence and presence.present %}
                                             <a href="{{ path('app_creneau_ics', {id: creneau.id, date: jour.date|date('Y-m-d')}) }}">📅 Mon agenda</a>
                                             · <a href="{{ path('app_creneau_google_agenda', {id: creneau.id, date: jour.date|date('Y-m-d')}) }}" target="_blank" rel="noopener">Google Agenda</a><br>
@@ -204,6 +215,17 @@
                                 <button type="submit" name="present" value="1" class="btn-presence btn-presence-oui {{ presence and presence.present ? 'selectionne' : '' }}">✓ Je viens</button>
                                 <button type="submit" name="present" value="0" class="btn-presence btn-presence-non {{ presence and not presence.present ? 'selectionne' : '' }}">✗ Non</button>
                             </form>
+
+                            {% if presence and presence.estEnListeAttente %}
+                                <p style="margin: 0 0 0.5rem;">⏳ Liste d'attente</p>
+                            {% elseif presence and presence.estEnAttenteConfirmation %}
+                                <p style="margin: 0 0 0.5rem;">⚠ Place à confirmer avant {{ presence.promotionExpiresAt|date('d/m H:i') }}</p>
+                                <form method="post" action="{{ path('app_creneau_confirmer_promotion', {id: creneau.id}) }}" style="margin-bottom: 0.5rem;">
+                                    <input type="hidden" name="date" value="{{ jour.date|date('Y-m-d') }}">
+                                    <input type="hidden" name="semaine" value="{{ premierDuMois|date('Y-m') }}">
+                                    <button type="submit">Confirmer ma place</button>
+                                </form>
+                            {% endif %}
 
                             {% if presence and presence.present %}
                                 <p style="margin: 0 0 0.5rem;">

@@ -76,6 +76,12 @@ class Creneau
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $recurrenceFin = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $capaciteMax = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $delaiAnnulationHeures = null;
+
     #[ORM\ManyToOne(targetEntity: Licencie::class)]
     #[ORM\JoinColumn(nullable: true)]
     private ?Licencie $entraineur = null;
@@ -321,6 +327,30 @@ class Creneau
     public function setRecurrenceFin(?\DateTimeImmutable $recurrenceFin): static
     {
         $this->recurrenceFin = $recurrenceFin;
+
+        return $this;
+    }
+
+    public function getCapaciteMax(): ?int
+    {
+        return $this->capaciteMax;
+    }
+
+    public function setCapaciteMax(?int $capaciteMax): static
+    {
+        $this->capaciteMax = $capaciteMax;
+
+        return $this;
+    }
+
+    public function getDelaiAnnulationHeures(): ?int
+    {
+        return $this->delaiAnnulationHeures;
+    }
+
+    public function setDelaiAnnulationHeures(?int $delaiAnnulationHeures): static
+    {
+        $this->delaiAnnulationHeures = $delaiAnnulationHeures;
 
         return $this;
     }

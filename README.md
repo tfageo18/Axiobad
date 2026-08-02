@@ -122,6 +122,12 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
 - Peut être activé/désactivé (un créneau désactivé disparaît du calendrier et de la liste pour
   les licenciés).
 - Recherche instantanée sur la liste des créneaux.
+- **Capacité maximale** optionnelle avec **liste d'attente** : promotion automatique en cas de
+  désistement (délai de confirmation de 24h pour la personne promue, sans quoi elle repasse en
+  fin de liste et la place est proposée au suivant), **heure limite d'annulation** optionnelle
+  au-delà de laquelle un licencié ne peut plus se désinscrire lui-même, et possibilité pour le
+  bureau de **forcer une inscription**. Un traitement planifié côté serveur (cron, toutes les
+  10 min, `app:creneau:expirer-promotions`) gère les promotions expirées.
 
 ### Calendrier
 

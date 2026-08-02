@@ -14,12 +14,25 @@
         {{ creneau.encadre ? 'Encadré par ' ~ creneau.entraineur.nomComplet : 'Créneau libre' }}<br>
         {{ creneau.ouvertExternes ? 'Ouvert aux personnes extérieures au club' : 'Réservé aux licenciés du club' }}
         {% if creneau.ouvertAdos %} · Ouvert aux ados{% endif %}
+        {% if creneau.capaciteMax %}<br>Capacité : {{ viennent|length }} / {{ creneau.capaciteMax }}{{ placesRestantes == 0 ? ' (complet)' : '' }}{% endif %}
+        {% if creneau.delaiAnnulationHeures %}<br>Annulation possible jusqu'à {{ creneau.delaiAnnulationHeures }}h avant le créneau{% endif %}
     </p>
 
     <p>
         Ouvre le gymnase : <strong>{{ ouverture and ouverture.licencieOuverture ? ouverture.licencieOuverture.nomComplet : 'non défini' }}</strong><br>
         Ferme le gymnase : <strong>{{ ouverture and ouverture.licencieFermeture ? ouverture.licencieFermeture.nomComplet : 'non défini' }}</strong>
     </p>
+
+    {% if maPresence and maPresence.estEnAttenteConfirmation %}
+        <p class="flash-success" style="display: inline-block;">
+            Une place s'est libérée ! Confirmez avant le {{ maPresence.promotionExpiresAt|date('d/m/Y à H:i') }}, sans quoi elle sera proposée au suivant.
+        </p>
+        <form method="post" action="{{ path('app_creneau_confirmer_promotion', {id: creneau.id}) }}" style="display:inline">
+            <input type="hidden" name="date" value="{{ date|date('Y-m-d') }}">
+            <input type="hidden" name="retour" value="{{ path('app_creneau_detail', {id: creneau.id, date: date|date('Y-m-d')}) }}">
+            <button type="submit">Confirmer ma place</button>
+        </form>
+    {% endif %}
 
     <form method="post" action="{{ path('app_creneau_presence', {id: creneau.id}) }}" class="presence-form">
         <input type="hidden" name="date" value="{{ date|date('Y-m-d') }}">
@@ -28,6 +41,10 @@
         <button type="submit" name="present" value="0" class="btn-presence btn-presence-non {{ maPresence and not maPresence.present ? 'selectionne' : '' }}">✗ Je ne viens pas</button>
     </form>
 
+    {% if maPresence and maPresence.estEnListeAttente %}
+        <p><em>Vous êtes en liste d'attente.</em></p>
+    {% endif %}
+
     {% if maPresence and maPresence.present %}
         <p>
             <a href="{{ path('app_creneau_ics', {id: creneau.id, date: date|date('Y-m-d')}) }}">📅 Ajouter à mon agenda (téléphone/ordinateur)</a>
@@ -35,7 +52,7 @@
         </p>
     {% endif %}
 
-    <h2>Viennent ({{ viennent|length }})</h2>
+    <h2>Viennent ({{ viennent|length }}{{ creneau.capaciteMax ? ' / ' ~ creneau.capaciteMax : '' }})</h2>
     <ul>
         {% for licencie in viennent %}
             <li>{{ licencie.nomComplet }}</li>
@@ -43,6 +60,26 @@
             <li><em>Personne pour l'instant.</em></li>
         {% endfor %}
     </ul>
+
+    {% if creneau.capaciteMax %}
+        <h2>En attente de confirmation ({{ enAttenteConfirmation|length }})</h2>
+        <ul>
+            {% for ligne in enAttenteConfirmation %}
+                <li>{{ ligne.licencie.nomComplet }} — à confirmer avant le {{ ligne.presence.promotionExpiresAt|date('d/m/Y à H:i') }}</li>
+            {% else %}
+                <li><em>Personne.</em></li>
+            {% endfor %}
+        </ul>
+
+        <h2>Liste d'attente ({{ listeAttente|length }})</h2>
+        <ul>
+            {% for ligne in listeAttente %}
+                <li>{{ loop.index }}. {{ ligne.licencie.nomComplet }}</li>
+            {% else %}
+                <li><em>Personne.</em></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
     <h2>Ne viennent pas ({{ neViennentPas|length }})</h2>
     <ul>
@@ -61,4 +98,24 @@
             <li><em>Tout le monde a répondu.</em></li>
         {% endfor %}
     </ul>
+
+    {% if is_granted('ROLE_BUREAU') %}
+        <h2>Forcer une inscription</h2>
+        <p style="color: var(--color-text-muted); font-size: 0.9rem;">
+            Inscrit directement le licencié en tant que confirmé, même si la capacité est déjà atteinte.
+        </p>
+        <form method="post" action="{{ path('app_creneau_forcer_inscription', {id: creneau.id}) }}">
+            <input type="hidden" name="date" value="{{ date|date('Y-m-d') }}">
+            <div>
+                <label for="forcer-licencie">Licencié</label>
+                <select name="licencie" id="forcer-licencie" required>
+                    <option value="">-</option>
+                    {% for licencie in licenciesDisponibles %}
+                        <option value="{{ licencie.id }}">{{ licencie.nomComplet }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit">Forcer l'inscription</button>
+        </form>
+    {% endif %}
 {% endblock %}

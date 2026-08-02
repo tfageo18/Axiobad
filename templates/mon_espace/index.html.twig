@@ -32,10 +32,14 @@
                             <td data-label="Réponse">
                                 {% if ligne.presence is null %}
                                     <em>Pas encore répondu</em>
-                                {% elseif ligne.presence.present %}
-                                    Je viens
-                                {% else %}
+                                {% elseif not ligne.presence.present %}
                                     Je ne viens pas
+                                {% elseif ligne.presence.estEnListeAttente %}
+                                    ⏳ Liste d'attente
+                                {% elseif ligne.presence.estEnAttenteConfirmation %}
+                                    ⚠ À confirmer avant {{ ligne.presence.promotionExpiresAt|date('d/m H:i') }}
+                                {% else %}
+                                    Je viens
                                 {% endif %}
                             </td>
                         </tr>

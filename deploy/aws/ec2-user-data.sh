@@ -103,3 +103,8 @@ systemctl enable axiobad.service
 cat > /etc/cron.d/certbot-renew <<EOF
 0 3 * * * root /usr/local/bin/certbot renew --webroot -w /var/www/certbot --quiet --deploy-hook "cd $APP_DIR && docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local exec -T nginx nginx -s reload"
 EOF
+
+# Promotions de créneau expirées (liste d'attente) : traitées toutes les 10 minutes.
+cat > /etc/cron.d/axiobad-expirer-promotions <<EOF
+*/10 * * * * root cd $APP_DIR && docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local exec -T php bin/console app:creneau:expirer-promotions >> /var/log/axiobad-expirer-promotions.log 2>&1
+EOF

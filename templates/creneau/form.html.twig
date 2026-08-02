@@ -114,6 +114,16 @@
                 {% endfor %}
             </select>
         </div>
+        <div>
+            <label for="capaciteMax">Capacité maximale (optionnel, vide = illimité)</label>
+            <input type="number" name="capaciteMax" id="capaciteMax" min="1" value="{{ creneau ? creneau.capaciteMax : '' }}">
+            <small>Au-delà de la capacité, les inscriptions passent en liste d'attente, avec promotion automatique en cas de désistement.</small>
+        </div>
+        <div>
+            <label for="delaiAnnulationHeures">Heure limite d'annulation (heures avant le créneau, optionnel)</label>
+            <input type="number" name="delaiAnnulationHeures" id="delaiAnnulationHeures" min="0" value="{{ creneau ? creneau.delaiAnnulationHeures : '' }}">
+            <small>Passé ce délai, un licencié confirmé ne peut plus se désinscrire lui-même (le bureau le peut toujours).</small>
+        </div>
         <button type="submit">{{ creneau ? 'Enregistrer' : 'Créer' }}</button>
     </form>
 {% endblock %}

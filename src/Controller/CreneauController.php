@@ -7,12 +7,12 @@ use App\Entity\Creneau;
 use App\Entity\CreneauOuverture;
 use App\Entity\Gymnase;
 use App\Entity\Licencie;
-use App\Entity\Presence;
 use App\Repository\CreneauOuvertureRepository;
 use App\Repository\CreneauRepository;
 use App\Repository\GymnaseRepository;
 use App\Repository\LicencieRepository;
 use App\Repository\PresenceRepository;
+use App\Service\GestionInscriptionCreneau;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -134,28 +134,39 @@ class CreneauController extends AbstractController
             $presencesParLicencie[$presence->getLicencie()->getId()] = $presence;
         }
 
-        $viennent = [];
+        $confirmes = [];
+        $listeAttente = [];
+        $enAttenteConfirmation = [];
         $neViennentPas = [];
         $sansReponse = [];
         foreach ($participants as $participant) {
             $presence = $presencesParLicencie[$participant->getId()] ?? null;
             if (null === $presence) {
                 $sansReponse[] = $participant;
-            } elseif ($presence->isPresent()) {
-                $viennent[] = $participant;
-            } else {
+            } elseif (!$presence->isPresent()) {
                 $neViennentPas[] = $participant;
+            } elseif ($presence->estEnListeAttente()) {
+                $listeAttente[] = ['licencie' => $participant, 'presence' => $presence];
+            } elseif ($presence->estEnAttenteConfirmation()) {
+                $enAttenteConfirmation[] = ['licencie' => $participant, 'presence' => $presence];
+            } else {
+                $confirmes[] = $participant;
             }
         }
+        usort($listeAttente, static fn (array $a, array $b) => $a['presence']->getRepondule() <=> $b['presence']->getRepondule());
 
         return $this->render('creneau/detail.html.twig', [
             'creneau' => $creneau,
             'date' => $date,
             'ouverture' => $ouvertureRepository->findOneByCreneauEtDate($creneau, $date),
-            'viennent' => $viennent,
+            'viennent' => $confirmes,
+            'listeAttente' => $listeAttente,
+            'enAttenteConfirmation' => $enAttenteConfirmation,
             'neViennentPas' => $neViennentPas,
             'sansReponse' => $sansReponse,
             'maPresence' => $presencesParLicencie[$this->getUser()->getId()] ?? null,
+            'placesRestantes' => $creneau->getCapaciteMax() !== null ? max(0, $creneau->getCapaciteMax() - count($confirmes)) : null,
+            'licenciesDisponibles' => $licencieRepository->findAll(),
         ]);
     }
 
@@ -214,27 +225,68 @@ class CreneauController extends AbstractController
     }
 
     #[Route('/{id}/presence', name: 'app_creneau_presence', methods: ['POST'])]
-    public function presence(Request $request, Creneau $creneau, EntityManagerInterface $entityManager, PresenceRepository $presenceRepository): Response
+    public function presence(Request $request, Creneau $creneau, GestionInscriptionCreneau $gestionInscriptionCreneau): Response
     {
         /** @var Licencie $licencie */
         $licencie = $this->getUser();
         $date = new \DateTimeImmutable((string) $request->request->get('date'));
+        $veutVenir = '1' === $request->request->get('present');
 
-        $presence = $presenceRepository->findOneByCreneauLicencieEtDate($creneau, $licencie, $date)
-            ?? (new Presence())->setCreneau($creneau)->setLicencie($licencie)->setDate($date);
+        $resultat = $gestionInscriptionCreneau->repondre($creneau, $licencie, $date, $veutVenir, $this->isGranted('ROLE_BUREAU'));
 
-        $presence->setPresent('1' === $request->request->get('present'));
-
-        $entityManager->persist($presence);
-        $entityManager->flush();
-
-        $this->addFlash('success', 'Réponse enregistrée.');
+        if (!$resultat['ok']) {
+            $this->addFlash('error', $resultat['erreur']);
+        } else {
+            $this->addFlash('success', 'Réponse enregistrée.');
+        }
 
         if ($retour = $request->request->get('retour')) {
             return $this->redirect($retour);
         }
 
         return $this->redirectToRoute('app_calendrier', ['semaine' => $request->request->get('semaine')]);
+    }
+
+    #[Route('/{id}/confirmer-promotion', name: 'app_creneau_confirmer_promotion', methods: ['POST'])]
+    public function confirmerPromotion(Request $request, Creneau $creneau, GestionInscriptionCreneau $gestionInscriptionCreneau, PresenceRepository $presenceRepository): Response
+    {
+        /** @var Licencie $licencie */
+        $licencie = $this->getUser();
+        $date = new \DateTimeImmutable((string) $request->request->get('date'));
+
+        $presence = $presenceRepository->findOneByCreneauLicencieEtDate($creneau, $licencie, $date);
+
+        if ($presence && $gestionInscriptionCreneau->confirmerPromotion($presence)) {
+            $this->addFlash('success', 'Inscription confirmée.');
+        } else {
+            $this->addFlash('error', 'Cette proposition de place a expiré ou n\'existe plus.');
+        }
+
+        if ($retour = $request->request->get('retour')) {
+            return $this->redirect($retour);
+        }
+
+        return $this->redirectToRoute('app_calendrier');
+    }
+
+    #[Route('/{id}/forcer-inscription', name: 'app_creneau_forcer_inscription', methods: ['POST'])]
+    #[IsGranted('ROLE_BUREAU')]
+    public function forcerInscription(Request $request, Creneau $creneau, GestionInscriptionCreneau $gestionInscriptionCreneau, LicencieRepository $licencieRepository): Response
+    {
+        $date = new \DateTimeImmutable((string) $request->request->get('date'));
+        $licencie = $licencieRepository->find($request->request->get('licencie'));
+
+        if (!$licencie instanceof Licencie) {
+            $this->addFlash('error', 'Licencié invalide.');
+
+            return $this->redirectToRoute('app_creneau_detail', ['id' => $creneau->getId(), 'date' => $date->format('Y-m-d')]);
+        }
+
+        $gestionInscriptionCreneau->forcerInscription($creneau, $licencie, $date);
+
+        $this->addFlash('success', sprintf('%s a été inscrit(e) de force.', $licencie->getNomComplet()));
+
+        return $this->redirectToRoute('app_creneau_detail', ['id' => $creneau->getId(), 'date' => $date->format('Y-m-d')]);
     }
 
     #[Route('/{id}/ouverture', name: 'app_creneau_ouverture', methods: ['POST'])]
@@ -293,6 +345,9 @@ class CreneauController extends AbstractController
         $recurrenceDebutRaw = (string) $request->request->get('recurrenceDebut');
         $recurrenceFinRaw = (string) $request->request->get('recurrenceFin');
 
+        $capaciteMaxRaw = $request->request->get('capaciteMax');
+        $delaiAnnulationRaw = $request->request->get('delaiAnnulationHeures');
+
         $creneau
             ->setNom((string) $request->request->get('nom'))
             ->setGymnase($gymnase)
@@ -309,7 +364,9 @@ class CreneauController extends AbstractController
             ->setOuvertExternes((bool) $request->request->get('ouvertExternes'))
             ->setOuvertAdos((bool) $request->request->get('ouvertAdos'))
             ->setRecurrenceDebut($recurrenceDebutRaw ? new \DateTimeImmutable($recurrenceDebutRaw) : null)
-            ->setRecurrenceFin($recurrenceFinRaw ? new \DateTimeImmutable($recurrenceFinRaw) : null);
+            ->setRecurrenceFin($recurrenceFinRaw ? new \DateTimeImmutable($recurrenceFinRaw) : null)
+            ->setCapaciteMax(null !== $capaciteMaxRaw && '' !== $capaciteMaxRaw ? (int) $capaciteMaxRaw : null)
+            ->setDelaiAnnulationHeures(null !== $delaiAnnulationRaw && '' !== $delaiAnnulationRaw ? (int) $delaiAnnulationRaw : null);
 
         return true;
     }

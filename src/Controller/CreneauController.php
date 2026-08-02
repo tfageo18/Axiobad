@@ -21,7 +21,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class CreneauController extends AbstractController
 {
     #[Route('', name: 'app_creneau_index', methods: ['GET'])]
-    public function index(Request $request, CreneauRepository $creneauRepository, PresenceRepository $presenceRepository): Response
+    public function index(Request $request, CreneauRepository $creneauRepository): Response
     {
         /** @var Licencie $licencie */
         $licencie = $this->getUser();
@@ -32,14 +32,8 @@ class CreneauController extends AbstractController
             ? $tousLesCreneaux
             : array_values(array_filter($tousLesCreneaux, static fn (Creneau $c) => $c->correspondA($licencie)));
 
-        $presencesParCreneau = [];
-        foreach ($tousLesCreneaux as $creneau) {
-            $presencesParCreneau[$creneau->getId()] = $presenceRepository->findOneByCreneauAndLicencie($creneau, $licencie);
-        }
-
         return $this->render('creneau/index.html.twig', [
             'creneaux' => $creneaux,
-            'presences' => $presencesParCreneau,
             'toutAfficher' => $toutAfficher,
         ]);
     }
@@ -110,9 +104,10 @@ class CreneauController extends AbstractController
     {
         /** @var Licencie $licencie */
         $licencie = $this->getUser();
+        $date = new \DateTimeImmutable((string) $request->request->get('date'));
 
-        $presence = $presenceRepository->findOneByCreneauAndLicencie($creneau, $licencie)
-            ?? (new Presence())->setCreneau($creneau)->setLicencie($licencie);
+        $presence = $presenceRepository->findOneByCreneauLicencieEtDate($creneau, $licencie, $date)
+            ?? (new Presence())->setCreneau($creneau)->setLicencie($licencie)->setDate($date);
 
         $presence->setPresent('1' === $request->request->get('present'));
 
@@ -121,7 +116,7 @@ class CreneauController extends AbstractController
 
         $this->addFlash('success', 'Réponse enregistrée.');
 
-        return $this->redirectToRoute('app_creneau_index');
+        return $this->redirectToRoute('app_calendrier', ['semaine' => $request->request->get('semaine')]);
     }
 
     private function remplirDepuisRequete(Creneau $creneau, Request $request, GymnaseRepository $gymnaseRepository, LicencieRepository $licencieRepository): bool

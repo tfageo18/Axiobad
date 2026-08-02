@@ -5,11 +5,29 @@
 {% block body %}
     <h1>Calendrier des créneaux</h1>
 
+    <p>
+        <a href="{{ path('app_calendrier', {semaine: semainePrecedente, tous: toutAfficher ? 1 : null}) }}">&laquo; Semaine précédente</a>
+        —
+        Semaine du {{ lundi|date('d/m/Y') }}
+        —
+        <a href="{{ path('app_calendrier', {semaine: semaineSuivante, tous: toutAfficher ? 1 : null}) }}">Semaine suivante &raquo;</a>
+    </p>
+
+    {% if not is_granted('ROLE_BUREAU') %}
+        <p>
+            {% if toutAfficher %}
+                Affichage de tous les créneaux. <a href="{{ path('app_calendrier', {semaine: lundi|date('Y-m-d')}) }}">Voir seulement les créneaux adaptés à mon niveau et mon âge</a>
+            {% else %}
+                Affichage des créneaux adaptés à votre niveau et votre âge. <a href="{{ path('app_calendrier', {semaine: lundi|date('Y-m-d'), tous: 1}) }}">Voir tous les créneaux</a>
+            {% endif %}
+        </p>
+    {% endif %}
+
     <div style="display: flex; gap: 1rem; overflow-x: auto;">
         {% for jour in jours %}
-            <div style="min-width: 200px; flex: 1;">
-                <h3>{{ jour }}</h3>
-                {% for creneau in parJour[jour] %}
+            <div style="min-width: 220px; flex: 1;">
+                <h3>{{ jour.nom }}<br><small>{{ jour.date|date('d/m') }}</small></h3>
+                {% for creneau in jour.creneaux %}
                     <div style="border: 1px solid #ccc; border-radius: 4px; padding: 0.5rem; margin-bottom: 0.5rem;">
                         <strong>{{ creneau.nom }}</strong><br>
                         {{ creneau.heureDebut|date('H:i') }} - {{ creneau.heureFin|date('H:i') }}<br>
@@ -19,6 +37,14 @@
                             {% if creneau.classementMinimum %} · niveau min. {{ creneau.classementMinimum }}{% endif %}
                         </small><br>
                         <small>{{ creneau.encadre ? 'Encadré par ' ~ creneau.entraineur.nomComplet : 'Libre' }}</small>
+
+                        {% set presence = jour.presences[creneau.id] %}
+                        <form method="post" action="{{ path('app_creneau_presence', {id: creneau.id}) }}" style="margin-top: 0.5rem;">
+                            <input type="hidden" name="date" value="{{ jour.date|date('Y-m-d') }}">
+                            <input type="hidden" name="semaine" value="{{ lundi|date('Y-m-d') }}">
+                            <button type="submit" name="present" value="1" {% if presence and presence.present %}disabled{% endif %}>Je viens</button>
+                            <button type="submit" name="present" value="0" {% if presence and not presence.present %}disabled{% endif %}>Je ne viens pas</button>
+                        </form>
                     </div>
                 {% else %}
                     <p><small>Aucun créneau.</small></p>

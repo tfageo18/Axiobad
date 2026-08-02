@@ -18,8 +18,23 @@ class PresenceRepository extends ServiceEntityRepository
         parent::__construct($registry, Presence::class);
     }
 
-    public function findOneByCreneauAndLicencie(Creneau $creneau, Licencie $licencie): ?Presence
+    public function findOneByCreneauLicencieEtDate(Creneau $creneau, Licencie $licencie, \DateTimeImmutable $date): ?Presence
     {
-        return $this->findOneBy(['creneau' => $creneau, 'licencie' => $licencie]);
+        return $this->findOneBy(['creneau' => $creneau, 'licencie' => $licencie, 'date' => $date]);
+    }
+
+    /**
+     * @return Presence[]
+     */
+    public function findPourLicencieEntre(Licencie $licencie, \DateTimeImmutable $debut, \DateTimeImmutable $fin): array
+    {
+        return $this->createQueryBuilder('p')
+            ->andWhere('p.licencie = :licencie')
+            ->andWhere('p.date BETWEEN :debut AND :fin')
+            ->setParameter('licencie', $licencie)
+            ->setParameter('debut', $debut)
+            ->setParameter('fin', $fin)
+            ->getQuery()
+            ->getResult();
     }
 }

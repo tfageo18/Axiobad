@@ -5,6 +5,8 @@
 {% block body %}
     <h1>Créneaux</h1>
 
+    <p>Pour indiquer votre présence semaine par semaine, rendez-vous sur le <a href="{{ path('app_calendrier') }}">calendrier</a>.</p>
+
     {% if is_granted('ROLE_BUREAU') %}
         <p><a href="{{ path('app_creneau_new') }}">+ Nouveau créneau</a></p>
     {% else %}
@@ -27,7 +29,6 @@
                 <th>Catégorie</th>
                 <th>Niveau min.</th>
                 <th>Encadrement</th>
-                <th>Ma présence</th>
                 {% if is_granted('ROLE_BUREAU') %}<th></th>{% endif %}
             </tr>
         </thead>
@@ -47,13 +48,6 @@
                             Libre
                         {% endif %}
                     </td>
-                    <td>
-                        {% set presence = presences[creneau.id] %}
-                        <form method="post" action="{{ path('app_creneau_presence', {id: creneau.id}) }}">
-                            <button type="submit" name="present" value="1" {% if presence and presence.present %}disabled{% endif %}>Je viens</button>
-                            <button type="submit" name="present" value="0" {% if presence and not presence.present %}disabled{% endif %}>Je ne viens pas</button>
-                        </form>
-                    </td>
                     {% if is_granted('ROLE_BUREAU') %}
                         <td>
                             <a href="{{ path('app_creneau_edit', {id: creneau.id}) }}">Modifier</a>
@@ -65,7 +59,7 @@
                     {% endif %}
                 </tr>
             {% else %}
-                <tr><td colspan="9">Aucun créneau.</td></tr>
+                <tr><td colspan="8">Aucun créneau.</td></tr>
             {% endfor %}
         </tbody>
     </table>

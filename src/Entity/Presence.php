@@ -6,7 +6,7 @@ use App\Repository\PresenceRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PresenceRepository::class)]
-#[ORM\UniqueConstraint(name: 'presence_unique', columns: ['creneau_id', 'licencie_id'])]
+#[ORM\UniqueConstraint(name: 'presence_unique', columns: ['creneau_id', 'licencie_id', 'date'])]
 class Presence
 {
     #[ORM\Id]
@@ -21,6 +21,12 @@ class Presence
     #[ORM\ManyToOne(targetEntity: Licencie::class)]
     #[ORM\JoinColumn(nullable: false)]
     private ?Licencie $licencie = null;
+
+    /**
+     * Date de l'occurrence concernée (le créneau se répète chaque semaine, la présence se déclare semaine par semaine).
+     */
+    #[ORM\Column]
+    private ?\DateTimeImmutable $date = null;
 
     #[ORM\Column]
     private bool $present = false;
@@ -53,6 +59,18 @@ class Presence
     public function setLicencie(?Licencie $licencie): static
     {
         $this->licencie = $licencie;
+
+        return $this;
+    }
+
+    public function getDate(): ?\DateTimeImmutable
+    {
+        return $this->date;
+    }
+
+    public function setDate(\DateTimeImmutable $date): static
+    {
+        $this->date = $date;
 
         return $this;
     }

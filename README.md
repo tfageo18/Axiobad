@@ -5,8 +5,9 @@ Application de gestion de club de badminton, développée en **Symfony** + **Twi
 ## Objectif
 
 Fournir aux clubs de badminton un outil pour gérer leurs licenciés, leurs adhésions, leurs créneaux
-(badminton, mais aussi d'autres activités type footing ou musculation), leurs gymnases et leur stock
-(vêtements, volants).
+(badminton, mais aussi d'autres activités type footing ou musculation), leurs gymnases, leurs
+équipes et interclubs, leur vie associative (évènements), leur cordage, leur stock (vêtements,
+volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau de bord au bureau.
 
 ## Documentation
 
@@ -31,22 +32,74 @@ Fournir aux clubs de badminton un outil pour gérer leurs licenciés, leurs adh�
   il n'existe pas d'API publique fiable pour le récupérer automatiquement.
 - La liste des licenciés propose une recherche instantanée, un tri par colonne, la désactivation/
   réactivation d'un compte (bloque la connexion sans supprimer les données), et la suppression.
+- Le lien d'activation (pour définir son mot de passe) peut être **renvoyé** par le bureau si le
+  licencié ne l'a pas reçu ou s'il a expiré (valable 7 jours).
 - Rôles cumulables :
   - **Licencié** : rôle de base, tout adhérent du club.
   - **Membre du bureau** : rôle administrateur de l'application.
-  - **Entraîneur** : peut être associé aux créneaux encadrés.
+  - **Entraîneur** : peut être associé aux créneaux encadrés, accède à l'historique des présences.
+  - **Cordeur** : gère les demandes de cordage du club.
 - Menu masqué tant que l'utilisateur n'est pas connecté.
 
 ### Saisons et adhésions
 
 - Le bureau définit des saisons (libellé, date de début, date de fin).
-- Pour chaque saison, le statut de paiement de l'adhésion de chaque licencié est suivi (payée /
-  non payée), avec un résumé et un filtre rapide « voir uniquement les impayés ». Le compte
-  administrateur par défaut n'est pas soumis à l'adhésion.
+- Pour chaque saison et chaque licencié, l'adhésion a un **statut** (payée / en attente /
+  exonérée), un montant total, et peut être réglée en **plusieurs paiements** (date, moyen —
+  CB, chèque avec numéro, espèces, virement — et montant), avec calcul automatique du montant
+  restant dû. Un résumé et un filtre rapide « voir uniquement les impayés » sont disponibles.
+  Le compte administrateur par défaut n'est pas soumis à l'adhésion.
+
+### Historique des présences
+
+- Pour chaque licencié : taux de présence, nombre de séances, et un graphique de présence sur les
+  6 derniers mois glissants. Réservé au bureau et aux entraîneurs.
+
+### Équipes
+
+- Le bureau crée des équipes (nom libre, ex. « Equipe 1 R1 », « Equipe vétérans ») et désigne un
+  **capitaine** parmi les licenciés. Un licencié peut appartenir à plusieurs équipes.
+- Le capitaine (même sans être du bureau) peut gérer le nom/la catégorie de son équipe et ses
+  membres, mais pas supprimer l'équipe ni changer le capitaine.
+
+### Championnats / Interclubs
+
+- Le bureau crée des rencontres pour une équipe : numéro de **journée**, date, adversaire, lieu,
+  et le score une fois jouée.
+- Les joueurs de l'équipe sont **convoqués** et peuvent indiquer s'ils sont présents ou non à la
+  rencontre, comme pour un créneau.
+
+### Vie du club / Évènements
+
+- Le bureau crée des évènements (tournoi interne, barbecue, assemblée générale, stage, autre) avec
+  un nombre de places optionnel.
+- Tout licencié peut s'inscrire ; si l'évènement est complet, il passe en **liste d'attente**,
+  promue automatiquement dès qu'une place se libère.
+
+### Cordage
+
+- Tout licencié peut déposer une demande de cordage (cordage souhaité choisi dans un catalogue
+  tenu par le bureau, tension souhaitée, lieu de dépose).
+- Un licencié avec le rôle **Cordeur** voit toutes les demandes et fait progresser leur statut :
+  déposée → en cours → prête (avec prix et lieu de retour) → récupérée.
+
+### Tableau de bord (bureau)
+
+- Vue d'ensemble du club : nombre de licenciés, répartition hommes/femmes, adultes/enfants,
+  répartition des classements, adhésions payées sur la saison en cours, taux de présence du mois
+  et occupation détaillée de chaque créneau, volants consommés, valeur du stock (à partir d'un
+  prix unitaire optionnel sur chaque article).
+
+### Mon espace
+
+- Chaque licencié dispose d'une page personnelle : ses prochains créneaux (calendrier
+  personnalisé), ses statistiques de présence, le statut de son adhésion, des créneaux
+  recommandés selon son classement, les évènements à venir, et son historique de participation
+  aux tournois internes et aux interclubs.
 
 ### Gymnases
 
-- Nom, adresse, téléphone.
+- Nom, adresse, téléphone, nombre de terrains.
 - **Porteurs de clés** : chaque clé associée à un gymnase a un porteur (licencié) et une référence
   libre (utile s'il existe plusieurs clés pour un même gymnase — « clé principale », « clé local
   matériel »...), visible par tous.
@@ -75,7 +128,8 @@ Fournir aux clubs de badminton un outil pour gérer leurs licenciés, leurs adh�
 - Présence/absence indiquée directement depuis le calendrier, semaine par semaine.
 - Ouverture/fermeture du gymnase (qui ouvre, qui ferme) gérée par créneau et par date, visible par
   tous.
-- Cliquer sur un créneau affiche le détail (qui vient, qui ne vient pas, qui n'a pas répondu).
+- Cliquer sur un créneau affiche le détail (qui vient, qui ne vient pas, qui n'a pas répondu), avec
+  un export **.ics** (agenda téléphone/ordinateur) et un lien direct **Google Agenda**.
 
 ### Stock (mini-WMS)
 

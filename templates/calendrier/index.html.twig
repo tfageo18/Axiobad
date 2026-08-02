@@ -12,18 +12,59 @@
         .calendrier .jour-numero { font-weight: bold; }
         .creneau-cal { border: 1px solid #ccc; border-radius: 4px; padding: 0.25rem; margin-top: 0.25rem; font-size: 0.8rem; }
         .creneau-cal button { font-size: 0.75rem; padding: 0.1rem 0.3rem; }
+
+        .agenda-mobile { display: none; }
+
+        .nav-mois { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+
+        @media (max-width: 768px) {
+            .calendrier-desktop { display: none; }
+            .agenda-mobile { display: block; }
+
+            .nav-mois a { flex: 0 0 auto; font-size: 0.85rem; }
+            .nav-mois strong { font-size: 1rem; text-align: center; }
+
+            .agenda-jour {
+                background: var(--color-surface);
+                border-radius: var(--radius);
+                box-shadow: var(--shadow);
+                padding: 0.85rem 1rem;
+                margin-bottom: 0.85rem;
+            }
+            .agenda-jour.hors-mois { opacity: 0.5; }
+            .agenda-jour-titre {
+                font-weight: 700;
+                color: var(--color-primary-dark);
+                margin-bottom: 0.5rem;
+                text-transform: capitalize;
+            }
+            .agenda-creneau {
+                border: 1px solid var(--color-border);
+                border-radius: 8px;
+                padding: 0.65rem 0.75rem;
+                margin-top: 0.6rem;
+            }
+            .agenda-creneau a { font-size: 1rem; font-weight: 700; text-decoration: none; }
+            .agenda-creneau .lieu { color: var(--color-text-muted); font-size: 0.85rem; margin: 0.15rem 0 0.5rem; }
+            .agenda-creneau form { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+            .agenda-creneau form button { flex: 1; padding: 0.6rem; font-size: 0.9rem; }
+            .agenda-creneau .ouv-ferm { font-size: 0.82rem; color: var(--color-text-muted); }
+            .agenda-creneau details { margin-top: 0.5rem; }
+            .agenda-creneau details summary { cursor: pointer; font-size: 0.85rem; color: var(--color-primary); font-weight: 600; }
+            .agenda-creneau details form { flex-direction: column; margin-top: 0.5rem; }
+            .agenda-creneau details label { width: 100%; }
+            .agenda-vide { color: var(--color-text-muted); font-size: 0.9rem; }
+        }
     </style>
 {% endblock %}
 
 {% block body %}
     <h1>Calendrier des créneaux</h1>
 
-    <p>
-        <a href="{{ path('app_calendrier', {mois: moisPrecedent, tous: toutAfficher ? 1 : null}) }}">&laquo; Mois précédent</a>
-        —
+    <p class="nav-mois">
+        <a href="{{ path('app_calendrier', {mois: moisPrecedent, tous: toutAfficher ? 1 : null}) }}">&laquo; Précédent</a>
         <strong>{{ nomMois }}</strong>
-        —
-        <a href="{{ path('app_calendrier', {mois: moisSuivant, tous: toutAfficher ? 1 : null}) }}">Mois suivant &raquo;</a>
+        <a href="{{ path('app_calendrier', {mois: moisSuivant, tous: toutAfficher ? 1 : null}) }}">Suivant &raquo;</a>
     </p>
 
     {% if not is_granted('ROLE_BUREAU') %}
@@ -36,7 +77,7 @@
         </p>
     {% endif %}
 
-    <div style="overflow-x: auto;">
+    <div class="calendrier-desktop" style="overflow-x: auto;">
         <table class="calendrier">
             <thead>
                 <tr>
@@ -112,5 +153,67 @@
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+
+    <div class="agenda-mobile">
+        {% for semaine in semaines %}
+            {% for jour in semaine %}
+                <div class="agenda-jour {{ jour.dansLeMois ? '' : 'hors-mois' }}">
+                    <div class="agenda-jour-titre">{{ jour.date|date('d/m') }} — {{ jour.date|date('N') == '1' ? 'Lundi' : jour.date|date('N') == '2' ? 'Mardi' : jour.date|date('N') == '3' ? 'Mercredi' : jour.date|date('N') == '4' ? 'Jeudi' : jour.date|date('N') == '5' ? 'Vendredi' : jour.date|date('N') == '6' ? 'Samedi' : 'Dimanche' }}</div>
+
+                    {% if jour.creneaux is empty %}
+                        <p class="agenda-vide">Aucun créneau.</p>
+                    {% endif %}
+
+                    {% for creneau in jour.creneaux %}
+                        {% set ouverture = jour.ouvertures[creneau.id] %}
+                        {% set presence = jour.presences[creneau.id] %}
+                        <div class="agenda-creneau">
+                            <a href="{{ path('app_creneau_detail', {id: creneau.id, date: jour.date|date('Y-m-d')}) }}">{{ creneau.nom }} — {{ creneau.heureDebut|date('H:i') }}</a>
+                            <div class="lieu">{{ creneau.gymnase.nom }}</div>
+
+                            <form method="post" action="{{ path('app_creneau_presence', {id: creneau.id}) }}">
+                                <input type="hidden" name="date" value="{{ jour.date|date('Y-m-d') }}">
+                                <input type="hidden" name="semaine" value="{{ premierDuMois|date('Y-m') }}">
+                                <button type="submit" name="present" value="1" {% if presence and presence.present %}disabled{% endif %}>Je viens</button>
+                                <button type="submit" name="present" value="0" {% if presence and not presence.present %}disabled{% endif %}>Non</button>
+                            </form>
+
+                            <div class="ouv-ferm">
+                                Ouvre : {{ ouverture and ouverture.licencieOuverture ? ouverture.licencieOuverture.nomComplet : '—' }}<br>
+                                Ferme : {{ ouverture and ouverture.licencieFermeture ? ouverture.licencieFermeture.nomComplet : '—' }}
+                            </div>
+
+                            {% if is_granted('ROLE_BUREAU') %}
+                                <details>
+                                    <summary>Ouverture/fermeture</summary>
+                                    <form method="post" action="{{ path('app_creneau_ouverture', {id: creneau.id}) }}">
+                                        <input type="hidden" name="date" value="{{ jour.date|date('Y-m-d') }}">
+                                        <input type="hidden" name="mois" value="{{ premierDuMois|date('Y-m') }}">
+                                        <label>Ouvre
+                                            <select name="licencieOuverture">
+                                                <option value="">—</option>
+                                                {% for l in licenciesDisponibles %}
+                                                    <option value="{{ l.id }}" {{ ouverture and ouverture.licencieOuverture and ouverture.licencieOuverture.id == l.id ? 'selected' : '' }}>{{ l.nomComplet }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </label>
+                                        <label>Ferme
+                                            <select name="licencieFermeture">
+                                                <option value="">—</option>
+                                                {% for l in licenciesDisponibles %}
+                                                    <option value="{{ l.id }}" {{ ouverture and ouverture.licencieFermeture and ouverture.licencieFermeture.id == l.id ? 'selected' : '' }}>{{ l.nomComplet }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </label>
+                                        <button type="submit">Valider</button>
+                                    </form>
+                                </details>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        {% endfor %}
     </div>
 {% endblock %}

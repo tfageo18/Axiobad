@@ -226,20 +226,44 @@
             td a:last-child { margin-right: 0; }
 
             @media (max-width: 768px) {
-                nav { padding: 0.6rem 0.85rem; gap: 0.15rem; }
+                nav { padding: 0.6rem 0.85rem; gap: 0.3rem; }
                 nav .brand { margin-right: 0.4rem; }
                 nav .brand span { font-size: 1rem; }
-                nav a.nav-link { padding: 0.35rem 0.6rem; font-size: 0.82rem; }
-                nav .spacer { width: 100%; justify-content: space-between; margin-left: 0; order: 10; }
+                nav a.nav-link {
+                    padding: 0.45rem 0.7rem;
+                    font-size: 0.82rem;
+                    background: rgba(255,255,255,0.08);
+                }
+                nav .spacer { width: 100%; justify-content: space-between; margin-left: 0; order: 10; margin-top: 0.35rem; }
 
-                main { padding: 1rem; }
-                h1 { font-size: 1.35rem; }
-                h2 { font-size: 1.1rem; }
+                main { padding: 0.85rem; }
+                h1 { font-size: 1.3rem; margin-bottom: 1rem; }
+                h2 { font-size: 1.05rem; }
 
                 table:not(.calendrier) { min-width: 560px; }
 
-                form > div { margin-bottom: 0.75rem; }
-                input, select, textarea { max-width: 100%; }
+                form > div { margin-bottom: 0.85rem; }
+
+                /* Empêche le zoom automatique iOS Safari sur les champs (déclenché en-dessous de 16px). */
+                input[type="text"], input[type="email"], input[type="password"], input[type="tel"],
+                input[type="number"], input[type="date"], input[type="time"], input[type="search"],
+                select, textarea {
+                    font-size: 16px;
+                    max-width: 100%;
+                    padding: 0.65rem 0.75rem;
+                }
+
+                button, input[type="submit"] {
+                    padding: 0.65rem 1rem;
+                    font-size: 0.92rem;
+                }
+
+                td a, td form { display: block; margin: 0 0 0.4rem 0; }
+                td a:last-child, td form:last-child { margin-bottom: 0; }
+                a[href*="/modifier"], a[href*="supprimer"], form[action*="supprimer"] button {
+                    text-align: center;
+                    padding: 0.55rem 0.8rem;
+                }
 
                 .mouvement-form { flex-direction: column; align-items: stretch; }
                 .mouvement-form input, .mouvement-form button { width: 100%; max-width: 100%; }

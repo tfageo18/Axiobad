@@ -1,0 +1,101 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord — Axiobad{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .dashboard-grille { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; margin: 1rem 0 2rem; }
+        .dashboard-carte { background: var(--color-surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1rem 1.25rem; }
+        .dashboard-carte h3 { margin: 0 0 0.5rem; font-size: 0.85rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.02em; }
+        .dashboard-carte strong { display: block; font-size: 1.7rem; color: var(--color-primary-dark); }
+        .dashboard-carte small { color: var(--color-text-muted); }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <h1>Tableau de bord</h1>
+
+    <div class="dashboard-grille">
+        <div class="dashboard-carte">
+            <h3>Licenciés</h3>
+            <strong>{{ nombreLicencies }}</strong>
+        </div>
+        <div class="dashboard-carte">
+            <h3>Répartition H/F</h3>
+            <strong>{{ repartitionGenre.HOMME }} H / {{ repartitionGenre.FEMME }} F</strong>
+            {% if repartitionGenre.NON_PRECISE %}<small>{{ repartitionGenre.NON_PRECISE }} non précisé(s)</small>{% endif %}
+        </div>
+        <div class="dashboard-carte">
+            <h3>Adultes / enfants</h3>
+            <strong>{{ repartitionAge.ADULTE }} / {{ repartitionAge.ENFANT }}</strong>
+            {% if repartitionAge.INCONNU %}<small>{{ repartitionAge.INCONNU }} âge inconnu</small>{% endif %}
+        </div>
+        <div class="dashboard-carte">
+            <h3>Adhésions payées{{ saisonEnCours ? ' (' ~ saisonEnCours.libelle ~ ')' : '' }}</h3>
+            {% if saisonEnCours %}
+                <strong>{{ adhesionsPayees }} / {{ adhesionsTotal }}</strong>
+            {% else %}
+                <strong>-</strong>
+                <small>Aucune saison en cours</small>
+            {% endif %}
+        </div>
+        <div class="dashboard-carte">
+            <h3>Présences du mois</h3>
+            <strong>{{ reponsesDuMois > 0 ? (presentsDuMois / reponsesDuMois * 100)|round : '-' }}{{ reponsesDuMois > 0 ? ' %' : '' }}</strong>
+            <small>{{ presentsDuMois }} présent(s) sur {{ reponsesDuMois }} réponse(s)</small>
+        </div>
+        <div class="dashboard-carte">
+            <h3>Volants consommés</h3>
+            <strong>{{ volantsConsommesMois }} ce mois</strong>
+            <small>{{ volantsConsommesTotal }} au total</small>
+        </div>
+        <div class="dashboard-carte">
+            <h3>Valeur du stock</h3>
+            <strong>{{ valeurStock|number_format(2, ',', ' ') }} €</strong>
+        </div>
+    </div>
+
+    <h2>Classements des licenciés</h2>
+    {% if repartitionClassement|length %}
+        <div class="table-scroll">
+        <table class="table-cards">
+            <thead>
+                <tr><th>Classement</th><th>Nombre de licenciés</th></tr>
+            </thead>
+            <tbody>
+                {% for classement, nombre in repartitionClassement %}
+                    <tr>
+                        <td data-label="Classement">{{ classement }}</td>
+                        <td data-label="Nombre">{{ nombre }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    {% else %}
+        <p>Aucun classement renseigné.</p>
+    {% endif %}
+
+    <h2>Occupation des créneaux ce mois-ci</h2>
+    {% if occupationParCreneau|length %}
+        <div class="table-scroll">
+        <table class="table-cards">
+            <thead>
+                <tr><th>Créneau</th><th>Présents / réponses</th><th>Taux</th></tr>
+            </thead>
+            <tbody>
+                {% for ligne in occupationParCreneau %}
+                    <tr>
+                        <td data-label="Créneau">{{ ligne.creneau.nom }}</td>
+                        <td data-label="Présents/réponses">{{ ligne.presents }} / {{ ligne.total }}</td>
+                        <td data-label="Taux">{{ ligne.taux }} %</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    {% else %}
+        <p>Aucune réponse de présence ce mois-ci.</p>
+    {% endif %}
+{% endblock %}

@@ -35,6 +35,10 @@
             </datalist>
         </div>
         <div>
+            <label for="prixUnitaire">Prix unitaire € (optionnel)</label>
+            <input type="number" step="0.01" min="0" name="prixUnitaire" id="prixUnitaire" value="{{ vetement ? vetement.prixUnitaire : '' }}">
+        </div>
+        <div>
             <label for="commentaire">Commentaire</label>
             <textarea name="commentaire" id="commentaire">{{ vetement ? vetement.commentaire : '' }}</textarea>
         </div>

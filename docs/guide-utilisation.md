@@ -20,6 +20,7 @@ en ligne, une fois connecté, via le menu du compte (en haut à droite) → **Do
 - [Cordage (tous les licenciés, cordeurs)](#cordage-tous-les-licenciés-cordeurs)
 - [Vie du club / Évènements (tous les licenciés)](#vie-du-club--évènements-tous-les-licenciés)
 - [Championnats / Interclubs (tous les licenciés, bureau)](#championnats--interclubs-tous-les-licenciés-bureau)
+- [Tableau de bord (bureau)](#tableau-de-bord-bureau)
 - [Mon profil](#mon-profil)
 - [Configuration email (production)](#configuration-email-production)
 
@@ -257,6 +258,21 @@ Menu **Interclubs**.
 - Sur la page d'une rencontre, le bureau **convoque** les joueurs parmi les membres de l'équipe.
 - Chaque joueur convoqué peut indiquer s'il est **présent ou non** à la rencontre, comme pour un
   créneau ; le bureau voit l'état des réponses de toute l'équipe convoquée.
+
+## Tableau de bord (bureau)
+
+Menu **Tableau de bord**, réservé au bureau.
+
+Vue d'ensemble du club en un coup d'œil :
+- Nombre de licenciés, répartition hommes/femmes (basée sur le genre renseigné par chacun dans
+  son profil, optionnel), répartition adultes/enfants.
+- Classements des licenciés (répartition par niveau FFBaD).
+- Adhésions payées sur la saison en cours.
+- Présences du mois (taux global, tous créneaux confondus) et occupation détaillée de chaque
+  créneau sur le mois en cours.
+- Volants consommés (sorties de stock) ce mois-ci et au total.
+- Valeur du stock, calculée à partir du **prix unitaire** optionnel renseigné sur chaque article
+  de vêtement ou tube de volants (page Stock).
 
 ## Mon profil
 

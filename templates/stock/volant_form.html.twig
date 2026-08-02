@@ -47,6 +47,10 @@
             <input type="text" name="modele" id="modele" value="{{ volant ? volant.modele : '' }}" placeholder="ex: Aerosensa 50, Thunder Ace">
         </div>
         <div>
+            <label for="prixUnitaire">Prix unitaire € (optionnel, par tube)</label>
+            <input type="number" step="0.01" min="0" name="prixUnitaire" id="prixUnitaire" value="{{ volant ? volant.prixUnitaire : '' }}">
+        </div>
+        <div>
             <label for="commentaire">Commentaire</label>
             <textarea name="commentaire" id="commentaire">{{ volant ? volant.commentaire : '' }}</textarea>
         </div>

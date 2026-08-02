@@ -51,6 +51,9 @@ class StockVetement
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $commentaire = null;
 
+    #[ORM\Column(precision: 6, scale: 2, nullable: true)]
+    private ?string $prixUnitaire = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -129,5 +132,22 @@ class StockVetement
         $this->commentaire = $commentaire;
 
         return $this;
+    }
+
+    public function getPrixUnitaire(): ?float
+    {
+        return null !== $this->prixUnitaire ? (float) $this->prixUnitaire : null;
+    }
+
+    public function setPrixUnitaire(?float $prixUnitaire): static
+    {
+        $this->prixUnitaire = null !== $prixUnitaire ? number_format($prixUnitaire, 2, '.', '') : null;
+
+        return $this;
+    }
+
+    public function getValeurStock(): float
+    {
+        return $this->quantite * ($this->getPrixUnitaire() ?? 0.0);
     }
 }

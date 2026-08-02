@@ -19,6 +19,14 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
 
     public const EMAIL_ADMIN_DEFAUT = 'admin@axiobad.local';
 
+    public const GENRE_HOMME = 'HOMME';
+    public const GENRE_FEMME = 'FEMME';
+
+    public const GENRES = [
+        self::GENRE_HOMME => 'Homme',
+        self::GENRE_FEMME => 'Femme',
+    ];
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -44,6 +52,9 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 30, nullable: true)]
     private ?string $telephone = null;
+
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $genre = null;
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $dateNaissance = null;
@@ -197,6 +208,23 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     public function setTelephone(?string $telephone): static
     {
         $this->telephone = $telephone;
+
+        return $this;
+    }
+
+    public function getGenre(): ?string
+    {
+        return $this->genre;
+    }
+
+    public function getGenreLabel(): ?string
+    {
+        return self::GENRES[$this->genre] ?? null;
+    }
+
+    public function setGenre(?string $genre): static
+    {
+        $this->genre = in_array($genre, [self::GENRE_HOMME, self::GENRE_FEMME], true) ? $genre : null;
 
         return $this;
     }

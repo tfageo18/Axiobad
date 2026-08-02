@@ -406,6 +406,7 @@
                 <a class="nav-link" href="{{ path('app_evenement_index') }}">Vie du club</a>
                 <a class="nav-link" href="{{ path('app_interclub_index') }}">Interclubs</a>
                 {% if is_granted('ROLE_BUREAU') %}
+                    <a class="nav-link" href="{{ path('app_dashboard') }}">Tableau de bord</a>
                     <a class="nav-link" href="{{ path('app_licencie_index') }}">Licenciés</a>
                     <a class="nav-link" href="{{ path('app_stock_index') }}">Stock</a>
                 {% endif %}

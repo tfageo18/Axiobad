@@ -4,10 +4,12 @@ namespace App\Controller;
 
 use App\Entity\Creneau;
 use App\Entity\Licencie;
+use App\Entity\RencontreInterclub;
 use App\Repository\CreneauOuvertureRepository;
 use App\Repository\CreneauRepository;
 use App\Repository\LicencieRepository;
 use App\Repository\PresenceRepository;
+use App\Repository\RencontreInterclubRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,10 +31,16 @@ class CalendrierController extends AbstractController
         PresenceRepository $presenceRepository,
         CreneauOuvertureRepository $ouvertureRepository,
         LicencieRepository $licencieRepository,
+        RencontreInterclubRepository $rencontreInterclubRepository,
     ): Response {
         /** @var Licencie $licencie */
         $licencie = $this->getUser();
         $toutAfficher = $request->query->getBoolean('tous') || $this->isGranted('ROLE_BUREAU');
+
+        $rencontresVisibles = array_values(array_filter(
+            $rencontreInterclubRepository->findAll(),
+            static fn (RencontreInterclub $r) => $toutAfficher || $r->getEquipe()->getMembres()->contains($licencie) || $r->getEquipe()->estCapitaine($licencie)
+        ));
 
         $moisParam = $request->query->get('mois');
         $premierDuMois = $moisParam
@@ -74,6 +82,11 @@ class CalendrierController extends AbstractController
                 $ouvertures[$creneau->getId()] = $ouvertureRepository->findOneByCreneauEtDate($creneau, $date);
             }
 
+            $rencontresDuJour = array_values(array_filter(
+                $rencontresVisibles,
+                static fn (RencontreInterclub $r) => $r->getDateRencontre()->format('Y-m-d') === $date->format('Y-m-d')
+            ));
+
             $semaineCourante[] = [
                 'date' => $date,
                 'nom' => $nomJour,
@@ -81,6 +94,7 @@ class CalendrierController extends AbstractController
                 'creneaux' => $creneauxDuJour,
                 'presences' => $presences,
                 'ouvertures' => $ouvertures,
+                'rencontres' => $rencontresDuJour,
             ];
 
             if (7 === count($semaineCourante)) {

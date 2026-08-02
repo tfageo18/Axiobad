@@ -64,6 +64,22 @@ class DashboardController extends AbstractController
             $adhesionsPayees = count(array_filter($adhesions, static fn (Adhesion $a) => $a->isPayee()));
         }
 
+        $comparaisonSaisons = [];
+        foreach ($saisonRepository->findAllTrieesParDate() as $saison) {
+            $adhesionsSaison = $adhesionRepository->findBy(['saison' => $saison]);
+            $montantCollecte = 0.0;
+            foreach ($adhesionsSaison as $adhesion) {
+                $montantCollecte += $adhesion->getMontantPaye();
+            }
+
+            $comparaisonSaisons[] = [
+                'saison' => $saison,
+                'adhesionsTotal' => count($adhesionsSaison),
+                'adhesionsPayees' => count(array_filter($adhesionsSaison, static fn (Adhesion $a) => $a->isPayee())),
+                'montantCollecte' => $montantCollecte,
+            ];
+        }
+
         $debutMois = new \DateTimeImmutable('first day of this month');
         $finMois = new \DateTimeImmutable('first day of next month');
 
@@ -133,6 +149,7 @@ class DashboardController extends AbstractController
             'volantsConsommesMois' => $volantsConsommesMois,
             'volantsConsommesTotal' => $volantsConsommesTotal,
             'valeurStock' => $valeurStock,
+            'comparaisonSaisons' => $comparaisonSaisons,
         ]);
     }
 }

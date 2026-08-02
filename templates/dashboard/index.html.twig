@@ -98,4 +98,29 @@
     {% else %}
         <p>Aucune réponse de présence ce mois-ci.</p>
     {% endif %}
+
+    <h2>Comparaison des saisons</h2>
+    {% if comparaisonSaisons|length %}
+        <div class="table-scroll">
+        <table class="table-cards">
+            <thead>
+                <tr><th>Saison</th><th>Adhésions payées</th><th>Montant collecté</th></tr>
+            </thead>
+            <tbody>
+                {% for ligne in comparaisonSaisons %}
+                    <tr>
+                        <td data-label="Saison">{{ ligne.saison.libelle }}{{ ligne.saison.estEnCours ? ' (en cours)' : '' }}</td>
+                        <td data-label="Adhésions payées">
+                            {{ ligne.adhesionsPayees }} / {{ ligne.adhesionsTotal }}
+                            {% if ligne.adhesionsTotal > 0 %}<small>({{ (ligne.adhesionsPayees / ligne.adhesionsTotal * 100)|round }} %)</small>{% endif %}
+                        </td>
+                        <td data-label="Montant collecté">{{ ligne.montantCollecte|number_format(2, ',', ' ') }} €</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    {% else %}
+        <p>Aucune saison configurée.</p>
+    {% endif %}
 {% endblock %}

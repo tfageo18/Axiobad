@@ -216,7 +216,8 @@ présence sur les 6 derniers mois glissants, et historique complet des réponses
 présent ou absent).
 
 Les **entraîneurs** qui ne sont pas du bureau n'ont pas accès à la liste des licenciés : ils
-retrouvent ce même classement des présences via le menu **Présences**, qui n'apparaît que pour eux.
+retrouvent ce même classement des présences via le menu **Présences**, qui n'apparaît que pour
+eux, avec une **recherche instantanée** par nom de licencié.
 
 ## Cordage (tous les licenciés, cordeurs)
 
@@ -259,6 +260,8 @@ Menu **Interclubs**.
 - Sur la page d'une rencontre, le bureau **convoque** les joueurs parmi les membres de l'équipe.
 - Chaque joueur convoqué peut indiquer s'il est **présent ou non** à la rencontre, comme pour un
   créneau ; le bureau voit l'état des réponses de toute l'équipe convoquée.
+- Chaque rencontre (journée) apparaît aussi dans le [calendrier](#le-calendrier), visible par le
+  bureau et par les membres de l'équipe concernée.
 
 ## Tableau de bord (bureau)
 
@@ -274,6 +277,8 @@ Vue d'ensemble du club en un coup d'œil :
 - Volants consommés (sorties de stock) ce mois-ci et au total.
 - Valeur du stock, calculée à partir du **prix unitaire** optionnel renseigné sur chaque article
   de vêtement ou tube de volants (page Stock).
+- Une **comparaison des saisons** : pour chaque saison configurée, adhésions payées et montant
+  total collecté, pour suivre l'évolution d'une saison à l'autre.
 
 ## Mon espace (tous les licenciés)
 

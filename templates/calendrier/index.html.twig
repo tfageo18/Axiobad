@@ -12,6 +12,10 @@
         .calendrier .jour-numero { font-weight: bold; }
         .creneau-cal { border: 1px solid #ccc; border-radius: 4px; padding: 0.25rem; margin-top: 0.25rem; font-size: 0.8rem; }
         .creneau-cal button { font-size: 0.75rem; padding: 0.1rem 0.3rem; }
+        .rencontre-cal { border: 1px solid var(--color-accent); background: #fff7ed; border-radius: 4px; padding: 0.25rem; margin-top: 0.25rem; font-size: 0.8rem; }
+        .rencontre-cal a { color: var(--color-accent-dark); font-weight: 700; text-decoration: none; }
+        .agenda-rencontre { border: 1px solid var(--color-accent); background: #fff7ed; border-radius: 8px; padding: 0.65rem 0.75rem; margin-top: 0.6rem; }
+        .agenda-rencontre a { font-size: 1rem; font-weight: 700; text-decoration: none; color: var(--color-accent-dark); }
 
         .agenda-mobile { display: none; }
 
@@ -152,6 +156,14 @@
                                         {% endif %}
                                     </div>
                                 {% endfor %}
+                                {% for rencontre in jour.rencontres %}
+                                    <div class="rencontre-cal">
+                                        <a href="{{ path('app_interclub_detail', {id: rencontre.id}) }}">
+                                            🏆 J{{ rencontre.journee }} {{ rencontre.equipe.nom }} vs {{ rencontre.adversaire }}
+                                        </a><br>
+                                        <small>{{ rencontre.dateRencontre|date('H:i') }} · {{ rencontre.lieu }}</small>
+                                    </div>
+                                {% endfor %}
                             </td>
                         {% endfor %}
                     </tr>
@@ -168,9 +180,16 @@
                 <div class="agenda-jour {{ jour.dansLeMois ? '' : 'hors-mois' }}">
                     <div class="agenda-jour-titre">{{ jour.date|date('d/m') }} — {{ jour.date|date('N') == '1' ? 'Lundi' : jour.date|date('N') == '2' ? 'Mardi' : jour.date|date('N') == '3' ? 'Mercredi' : jour.date|date('N') == '4' ? 'Jeudi' : jour.date|date('N') == '5' ? 'Vendredi' : jour.date|date('N') == '6' ? 'Samedi' : 'Dimanche' }}</div>
 
-                    {% if jour.creneaux is empty %}
+                    {% if jour.creneaux is empty and jour.rencontres is empty %}
                         <p class="agenda-vide">Aucun créneau.</p>
                     {% endif %}
+
+                    {% for rencontre in jour.rencontres %}
+                        <div class="agenda-rencontre">
+                            <a href="{{ path('app_interclub_detail', {id: rencontre.id}) }}">🏆 J{{ rencontre.journee }} — {{ rencontre.equipe.nom }} vs {{ rencontre.adversaire }}</a>
+                            <div class="lieu">{{ rencontre.dateRencontre|date('H:i') }} · {{ rencontre.lieu }}</div>
+                        </div>
+                    {% endfor %}
 
                     {% for creneau in jour.creneaux %}
                         {% set ouverture = jour.ouvertures[creneau.id] %}

@@ -18,8 +18,8 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
 
 ### Gestion des licenciés
 
-- Chaque licencié dispose d'un compte (nom, prénom, email, téléphone, photo, date de naissance,
-  numéro de licence FFBaD, classement simple/double/mixte).
+- Chaque licencié dispose d'un compte (nom, prénom, email, téléphone, genre optionnel, photo, date
+  de naissance, numéro de licence FFBaD, classement simple/double/mixte).
 - Un compte administrateur par défaut est créé automatiquement (`admin@axiobad.local` / `admin`),
   avec changement de mot de passe obligatoire à la première connexion. Ce compte est protégé :
   il ne peut pas être désactivé ni supprimé.
@@ -53,7 +53,8 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
 ### Historique des présences
 
 - Pour chaque licencié : taux de présence, nombre de séances, et un graphique de présence sur les
-  6 derniers mois glissants. Réservé au bureau et aux entraîneurs.
+  6 derniers mois glissants. Visible directement dans la fiche/liste des licenciés pour le bureau ;
+  les entraîneurs qui ne sont pas du bureau y accèdent via un menu dédié, avec recherche instantanée.
 
 ### Équipes
 
@@ -68,6 +69,8 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
   et le score une fois jouée.
 - Les joueurs de l'équipe sont **convoqués** et peuvent indiquer s'ils sont présents ou non à la
   rencontre, comme pour un créneau.
+- Chaque rencontre apparaît aussi dans le calendrier, visible par le bureau et les membres de
+  l'équipe concernée.
 
 ### Vie du club / Évènements
 
@@ -88,7 +91,8 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
 - Vue d'ensemble du club : nombre de licenciés, répartition hommes/femmes, adultes/enfants,
   répartition des classements, adhésions payées sur la saison en cours, taux de présence du mois
   et occupation détaillée de chaque créneau, volants consommés, valeur du stock (à partir d'un
-  prix unitaire optionnel sur chaque article).
+  prix unitaire optionnel sur chaque article), et une **comparaison des saisons** (adhésions
+  payées, montant collecté).
 
 ### Mon espace
 

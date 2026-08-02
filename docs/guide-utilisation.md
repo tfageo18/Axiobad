@@ -56,7 +56,7 @@ bureau uniquement).
 
 ## Gérer les licenciés (bureau)
 
-Menu **Licenciés** (visible uniquement par les membres du bureau).
+Menu **Bureau → Licenciés** (visible uniquement par les membres du bureau).
 
 ### Créer un licencié
 
@@ -103,7 +103,8 @@ Depuis la page **Licenciés**, lien **Importer en masse (CSV)** :
 
 ## Saisons et adhésions (bureau)
 
-Menu **Licenciés** → lien **Gérer les saisons**.
+Menu **Bureau → Licenciés** (ou **Bureau → Adhésions et paiements**, qui pointe vers la même
+page) → lien **Gérer les saisons**.
 
 - Créer une saison avec un libellé, une date de début et une date de fin. Une saison est
   « en cours » si la date du jour est comprise entre ces deux dates.
@@ -121,7 +122,7 @@ Menu **Licenciés** → lien **Gérer les saisons**.
 
 ## Gérer les gymnases (bureau)
 
-Menu **Gymnases** (liste visible par tous, actions réservées au bureau).
+Menu **Jouer → Gymnases** (liste visible par tous, actions réservées au bureau).
 
 - **+ Nouveau gymnase** : nom, adresse, téléphone.
 - **Clés du gymnase** : depuis la fiche de modification d'un gymnase, ajouter une clé associe un
@@ -133,7 +134,7 @@ Menu **Gymnases** (liste visible par tous, actions réservées au bureau).
 
 ## Gérer les équipes (bureau, capitaines)
 
-Menu **Équipes**, visible par tous les connectés.
+Menu **Club → Équipes**, visible par tous les connectés.
 
 - Le **bureau** crée les équipes (nom, ex. « Equipe 1 R1 », « Equipe vétérans », et une catégorie
   libre), et désigne un **capitaine** parmi les licenciés — seul le bureau peut nommer ou changer
@@ -145,7 +146,7 @@ Menu **Équipes**, visible par tous les connectés.
 
 ## Gérer les créneaux (bureau)
 
-Menu **Créneaux**.
+Menu **Jouer → Créneaux**.
 
 ### Créer un créneau
 
@@ -174,7 +175,7 @@ Menu **Créneaux**.
 
 ## Le calendrier
 
-Menu **Calendrier** : vue du mois en cours (mois précédent/suivant navigable).
+Menu **Jouer → Calendrier** : vue du mois en cours (mois précédent/suivant navigable).
 
 - Sur ordinateur : grille mensuelle classique.
 - Sur mobile : vue agenda, jour par jour, qui **masque les jours déjà passés** (le premier jour
@@ -197,7 +198,7 @@ le créneau.
 
 ## Gérer le stock (bureau)
 
-Menu **Stock** (réservé au bureau).
+Menu **Bureau → Stock** (réservé au bureau).
 
 - **Vêtements** : type, taille, marque (suggestions de marques sport courantes).
 - **Volants** : type, vitesse, destination, marque, modèle (suggestions de marques courantes).
@@ -221,7 +222,7 @@ eux, avec une **recherche instantanée** par nom de licencié.
 
 ## Cordage (tous les licenciés, cordeurs)
 
-Menu **Cordage**.
+Menu **Club → Cordage**.
 
 - Tout licencié peut déposer une **demande de cordage** : cordage souhaité (choisi dans le
   catalogue tenu par le bureau), tension souhaitée, et lieu de dépose de la raquette. Il ne voit
@@ -238,7 +239,7 @@ Menu **Cordage**.
 
 ## Vie du club / Évènements (tous les licenciés)
 
-Menu **Vie du club**.
+Menu **Club → Vie du club**.
 
 - Le **bureau** crée les événements : type (tournoi interne, barbecue, assemblée générale, stage,
   autre), titre, description, lieu, date/heure de début (et de fin optionnelle), et un nombre de
@@ -252,7 +253,7 @@ Menu **Vie du club**.
 
 ## Championnats / Interclubs (tous les licenciés, bureau)
 
-Menu **Interclubs**.
+Menu **Club → Interclubs**.
 
 - Le **bureau** crée une **rencontre** pour une équipe existante (voir [Gérer les
   équipes](#gérer-les-équipes-bureau-capitaines)) : numéro de **journée**, date/heure, adversaire,
@@ -265,7 +266,7 @@ Menu **Interclubs**.
 
 ## Tableau de bord (bureau)
 
-Menu **Tableau de bord**, réservé au bureau.
+Menu **Bureau → Tableau de bord**, réservé au bureau.
 
 Vue d'ensemble du club en un coup d'œil :
 - Nombre de licenciés, répartition hommes/femmes (basée sur le genre renseigné par chacun dans

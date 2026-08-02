@@ -39,7 +39,30 @@ class GymnaseController extends AbstractController
             return $this->redirectToRoute('app_gymnase_index');
         }
 
-        return $this->render('gymnase/new.html.twig');
+        return $this->render('gymnase/form.html.twig', [
+            'gymnase' => null,
+        ]);
+    }
+
+    #[Route('/{id}/modifier', name: 'app_gymnase_edit', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_BUREAU')]
+    public function edit(Request $request, Gymnase $gymnase, EntityManagerInterface $entityManager): Response
+    {
+        if ($request->isMethod('POST')) {
+            $gymnase
+                ->setNom((string) $request->request->get('nom'))
+                ->setAdresse((string) $request->request->get('adresse'));
+
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Gymnase modifié.');
+
+            return $this->redirectToRoute('app_gymnase_index');
+        }
+
+        return $this->render('gymnase/form.html.twig', [
+            'gymnase' => $gymnase,
+        ]);
     }
 
     #[Route('/{id}/supprimer', name: 'app_gymnase_delete', methods: ['POST'])]

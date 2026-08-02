@@ -24,7 +24,8 @@
                     <td>{{ gymnase.adresse }}</td>
                     {% if is_granted('ROLE_BUREAU') %}
                         <td>
-                            <form method="post" action="{{ path('app_gymnase_delete', {id: gymnase.id}) }}" onsubmit="return confirm('Supprimer ce gymnase ?');">
+                            <a href="{{ path('app_gymnase_edit', {id: gymnase.id}) }}">Modifier</a>
+                            <form method="post" action="{{ path('app_gymnase_delete', {id: gymnase.id}) }}" onsubmit="return confirm('Supprimer ce gymnase ?');" style="display:inline">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete-gymnase-' ~ gymnase.id) }}">
                                 <button type="submit">Supprimer</button>
                             </form>

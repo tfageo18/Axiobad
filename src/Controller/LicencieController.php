@@ -61,7 +61,33 @@ class LicencieController extends AbstractController
             return $this->redirectToRoute('app_licencie_index');
         }
 
-        return $this->render('licencie/new.html.twig');
+        return $this->render('licencie/form.html.twig', [
+            'licencie' => null,
+        ]);
+    }
+
+    #[Route('/{id}/modifier', name: 'app_licencie_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, Licencie $licencie, EntityManagerInterface $entityManager): Response
+    {
+        if ($request->isMethod('POST')) {
+            $roles = $request->request->all('roles');
+
+            $licencie
+                ->setEmail((string) $request->request->get('email'))
+                ->setPrenom((string) $request->request->get('prenom'))
+                ->setNom((string) $request->request->get('nom'))
+                ->setRoles(array_values(array_intersect($roles, [Licencie::ROLE_BUREAU, Licencie::ROLE_ENTRAINEUR])));
+
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Licencié modifié.');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        return $this->render('licencie/form.html.twig', [
+            'licencie' => $licencie,
+        ]);
     }
 
     #[Route('/{id}/classement', name: 'app_licencie_classement', methods: ['POST'])]

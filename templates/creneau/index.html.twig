@@ -56,7 +56,8 @@
                     </td>
                     {% if is_granted('ROLE_BUREAU') %}
                         <td>
-                            <form method="post" action="{{ path('app_creneau_delete', {id: creneau.id}) }}" onsubmit="return confirm('Supprimer ce créneau ?');">
+                            <a href="{{ path('app_creneau_edit', {id: creneau.id}) }}">Modifier</a>
+                            <form method="post" action="{{ path('app_creneau_delete', {id: creneau.id}) }}" onsubmit="return confirm('Supprimer ce créneau ?');" style="display:inline">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete-creneau-' ~ creneau.id) }}">
                                 <button type="submit">Supprimer</button>
                             </form>

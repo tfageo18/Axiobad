@@ -27,7 +27,8 @@
                     <td>{{ licencie.activationTokenValid ? 'En attente d\'activation' : 'Actif' }}</td>
                     <td>{{ licencie.classementSimple ?? '-' }} / {{ licencie.classementDouble ?? '-' }} / {{ licencie.classementMixte ?? '-' }}</td>
                     <td>
-                        <form method="post" action="{{ path('app_licencie_classement', {id: licencie.id}) }}">
+                        <a href="{{ path('app_licencie_edit', {id: licencie.id}) }}">Modifier</a>
+                        <form method="post" action="{{ path('app_licencie_classement', {id: licencie.id}) }}" style="display:inline">
                             <button type="submit">Rafraîchir le classement</button>
                         </form>
                     </td>

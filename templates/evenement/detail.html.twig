@@ -1,0 +1,100 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ evenement.titre }} — Axiobad{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('app_evenement_index') }}">&laquo; Retour à la vie du club</a></p>
+
+    <h1>{{ evenement.titre }}</h1>
+    <p style="color: var(--color-text-muted);">
+        {{ evenement.typeLabel }} — {{ evenement.dateDebut|date('d/m/Y H:i') }}{{ evenement.dateFin ? ' → ' ~ evenement.dateFin|date('d/m/Y H:i') : '' }}
+        {% if evenement.lieu %} — {{ evenement.lieu }}{% endif %}
+    </p>
+
+    {% if evenement.description %}
+        <p>{{ evenement.description|nl2br }}</p>
+    {% endif %}
+
+    {% if is_granted('ROLE_BUREAU') %}
+        <p><a href="{{ path('app_evenement_edit', {id: evenement.id}) }}">Modifier l'événement</a></p>
+    {% endif %}
+
+    <h2>Inscription</h2>
+    {% if monInscription %}
+        <p>
+            {% if monInscription.statut == 'CONFIRMEE' %}
+                Vous êtes <strong>inscrit(e)</strong> à cet événement.
+            {% else %}
+                Vous êtes en <strong>liste d'attente</strong>.
+            {% endif %}
+        </p>
+        <form method="post" action="{{ path('app_evenement_desinscription', {id: evenement.id, inscriptionId: monInscription.id}) }}" onsubmit="return confirm('Vous désinscrire de cet événement ?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('desinscription-' ~ monInscription.id) }}">
+            <button type="submit">Me désinscrire</button>
+        </form>
+    {% else %}
+        <form method="post" action="{{ path('app_evenement_inscription', {id: evenement.id}) }}">
+            <button type="submit">{{ evenement.aDesPlacesDisponibles ? 'M\'inscrire' : 'M\'inscrire (liste d\'attente)' }}</button>
+        </form>
+    {% endif %}
+
+    <h2>Participants ({{ evenement.participants|length }}{{ evenement.nombrePlaces ? ' / ' ~ evenement.nombrePlaces : '' }})</h2>
+    {% if evenement.participants|length %}
+        <table class="table-cards">
+            <thead>
+                <tr>
+                    <th>Licencié</th>
+                    <th>Inscrit(e) le</th>
+                    {% if is_granted('ROLE_BUREAU') %}<th></th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for inscription in evenement.participants %}
+                    <tr>
+                        <td data-label="Licencié">{{ inscription.licencie.nomComplet }}</td>
+                        <td data-label="Inscrit le">{{ inscription.dateInscription|date('d/m/Y H:i') }}</td>
+                        {% if is_granted('ROLE_BUREAU') %}
+                            <td class="td-actions">
+                                <form method="post" action="{{ path('app_evenement_desinscription', {id: evenement.id, inscriptionId: inscription.id}) }}" onsubmit="return confirm('Retirer ce participant ?');" style="display:inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('desinscription-' ~ inscription.id) }}">
+                                    <button type="submit">Retirer</button>
+                                </form>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Aucun participant pour l'instant.</p>
+    {% endif %}
+
+    {% if evenement.listeAttente|length %}
+        <h2>Liste d'attente ({{ evenement.listeAttente|length }})</h2>
+        <table class="table-cards">
+            <thead>
+                <tr>
+                    <th>Licencié</th>
+                    <th>Inscrit(e) le</th>
+                    {% if is_granted('ROLE_BUREAU') %}<th></th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for inscription in evenement.listeAttente %}
+                    <tr>
+                        <td data-label="Licencié">{{ inscription.licencie.nomComplet }}</td>
+                        <td data-label="Inscrit le">{{ inscription.dateInscription|date('d/m/Y H:i') }}</td>
+                        {% if is_granted('ROLE_BUREAU') %}
+                            <td class="td-actions">
+                                <form method="post" action="{{ path('app_evenement_desinscription', {id: evenement.id, inscriptionId: inscription.id}) }}" onsubmit="return confirm('Retirer cette personne de la liste d\'attente ?');" style="display:inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('desinscription-' ~ inscription.id) }}">
+                                    <button type="submit">Retirer</button>
+                                </form>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

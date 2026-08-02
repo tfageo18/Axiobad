@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vie du club — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>Vie du club</h1>
+
+    {% if is_granted('ROLE_BUREAU') %}
+        <p><a class="btn-cta" href="{{ path('app_evenement_new') }}">+ Nouvel événement</a></p>
+    {% endif %}
+
+    <div class="table-scroll">
+    <table class="table-cards">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Titre</th>
+                <th>Type</th>
+                <th>Lieu</th>
+                <th>Places</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for evenement in evenements %}
+                <tr>
+                    <td data-label="Date">{{ evenement.dateDebut|date('d/m/Y H:i') }}</td>
+                    <td data-label="Titre">{{ evenement.titre }}</td>
+                    <td data-label="Type">{{ evenement.typeLabel }}</td>
+                    <td data-label="Lieu">{{ evenement.lieu ?? '-' }}</td>
+                    <td data-label="Places">
+                        {{ evenement.participants|length }}{{ evenement.nombrePlaces ? ' / ' ~ evenement.nombrePlaces : '' }}
+                        {% if evenement.listeAttente|length %}<br><small>({{ evenement.listeAttente|length }} en attente)</small>{% endif %}
+                    </td>
+                    <td class="td-actions">
+                        <a href="{{ path('app_evenement_detail', {id: evenement.id}) }}">Voir</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="6">Aucun événement.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+{% endblock %}

@@ -18,6 +18,7 @@ en ligne, une fois connecté, via le menu du compte (en haut à droite) → **Do
 - [Gérer le stock (bureau)](#gérer-le-stock-bureau)
 - [Historique des présences (bureau, entraîneurs)](#historique-des-présences-bureau-entraîneurs)
 - [Cordage (tous les licenciés, cordeurs)](#cordage-tous-les-licenciés-cordeurs)
+- [Vie du club / Évènements (tous les licenciés)](#vie-du-club--évènements-tous-les-licenciés)
 - [Mon profil](#mon-profil)
 - [Configuration email (production)](#configuration-email-production)
 
@@ -230,6 +231,20 @@ Menu **Cordage**.
   2. **En cours** — le cordeur la prend en charge (« Prendre en charge »).
   3. **Prête** — le cordeur indique le lieu de retour et le prix, ce qui marque la raquette prête.
   4. **Récupérée** — une fois rendue au licencié.
+
+## Vie du club / Évènements (tous les licenciés)
+
+Menu **Vie du club**.
+
+- Le **bureau** crée les événements : type (tournoi interne, barbecue, assemblée générale, stage,
+  autre), titre, description, lieu, date/heure de début (et de fin optionnelle), et un nombre de
+  places optionnel (laissé vide = illimité).
+- Tout licencié peut s'**inscrire** à un événement depuis sa page. Si l'événement est complet, il
+  est automatiquement placé en **liste d'attente**.
+- Un licencié peut se **désinscrire** à tout moment ; si une place se libère et qu'il y a une
+  liste d'attente, la première personne en attente est **automatiquement promue** en participant
+  confirmé.
+- Le bureau voit et peut retirer n'importe quel participant ou personne en liste d'attente.
 
 ## Mon profil
 

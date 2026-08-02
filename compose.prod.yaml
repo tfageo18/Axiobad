@@ -25,7 +25,7 @@ services:
       - "80:80"
       - "443:443"
     volumes: !override
-      - ./public:/var/www/html/public:ro
+      - ./public:/var/www/html/public
       - uploads_data:/var/www/html/public/uploads:ro
       - ./docker/nginx/prod.conf:/etc/nginx/conf.d/default.conf:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro

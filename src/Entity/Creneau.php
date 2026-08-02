@@ -14,13 +14,6 @@ class Creneau
     public const CATEGORIE_ADULTE = 'ADULTE';
     public const CATEGORIE_ENFANT = 'ENFANT';
 
-    public const TYPE_LOISIR = 'LOISIR';
-    public const TYPE_COMPETITEUR = 'COMPETITEUR';
-
-    public const TYPES = [
-        self::TYPE_LOISIR => 'Loisir',
-        self::TYPE_COMPETITEUR => 'Compétiteur',
-    ];
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -55,8 +48,11 @@ class Creneau
     #[ORM\Column(length: 5, nullable: true)]
     private ?string $classementMinimum = null;
 
-    #[ORM\Column(length: 15)]
-    private string $type = self::TYPE_LOISIR;
+    #[ORM\Column]
+    private bool $loisir = true;
+
+    #[ORM\Column]
+    private bool $competiteur = false;
 
     #[ORM\Column]
     private bool $ouvertExternes = false;
@@ -222,21 +218,41 @@ class Creneau
         return $this;
     }
 
-    public function getType(): string
+    public function isLoisir(): bool
     {
-        return $this->type;
+        return $this->loisir;
     }
 
-    public function setType(string $type): static
+    public function setLoisir(bool $loisir): static
     {
-        $this->type = $type;
+        $this->loisir = $loisir;
+
+        return $this;
+    }
+
+    public function isCompetiteur(): bool
+    {
+        return $this->competiteur;
+    }
+
+    public function setCompetiteur(bool $competiteur): static
+    {
+        $this->competiteur = $competiteur;
 
         return $this;
     }
 
     public function getTypeLabel(): string
     {
-        return self::TYPES[$this->type] ?? $this->type;
+        $labels = [];
+        if ($this->loisir) {
+            $labels[] = 'Loisir';
+        }
+        if ($this->competiteur) {
+            $labels[] = 'Compétiteur';
+        }
+
+        return $labels ? implode(', ', $labels) : '-';
     }
 
     public function isOuvertExternes(): bool

@@ -36,11 +36,17 @@
         </div>
         <div>
             <label for="recurrenceDebut">Le créneau se répète du</label>
-            <input type="date" name="recurrenceDebut" id="recurrenceDebut" value="{{ creneau and creneau.recurrenceDebut ? creneau.recurrenceDebut|date('Y-m-d') : '' }}">
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="date" name="recurrenceDebut" id="recurrenceDebut" value="{{ creneau and creneau.recurrenceDebut ? creneau.recurrenceDebut|date('Y-m-d') : '' }}">
+                <button type="button" onclick="document.getElementById('recurrenceDebut').value = '';">Effacer</button>
+            </div>
         </div>
         <div>
             <label for="recurrenceFin">au</label>
-            <input type="date" name="recurrenceFin" id="recurrenceFin" value="{{ creneau and creneau.recurrenceFin ? creneau.recurrenceFin|date('Y-m-d') : '' }}">
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="date" name="recurrenceFin" id="recurrenceFin" value="{{ creneau and creneau.recurrenceFin ? creneau.recurrenceFin|date('Y-m-d') : '' }}">
+                <button type="button" onclick="document.getElementById('recurrenceFin').value = '';">Effacer</button>
+            </div>
             <small>Laisser vide si le créneau n'a pas de date de fin.</small>
         </div>
         <div>
@@ -51,12 +57,15 @@
             </select>
         </div>
         <div>
-            <label for="type">Type</label>
-            <select name="type" id="type" required>
-                {% for valeur, libelle in constant('App\\Entity\\Creneau::TYPES') %}
-                    <option value="{{ valeur }}" {{ (creneau and creneau.type == valeur) or (not creneau and valeur == 'LOISIR') ? 'selected' : '' }}>{{ libelle }}</option>
-                {% endfor %}
-            </select>
+            <label>Type</label>
+            <label>
+                <input type="checkbox" name="loisir" value="1" {{ (not creneau) or (creneau and creneau.loisir) ? 'checked' : '' }}>
+                Loisir
+            </label>
+            <label>
+                <input type="checkbox" name="competiteur" value="1" {{ creneau and creneau.competiteur ? 'checked' : '' }}>
+                Compétiteur
+            </label>
         </div>
         <div>
             <label>

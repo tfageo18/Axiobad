@@ -58,7 +58,9 @@
                                 {% for creneau in jour.creneaux %}
                                     {% set ouverture = jour.ouvertures[creneau.id] %}
                                     <div class="creneau-cal">
-                                        <strong>{{ creneau.nom }}</strong> {{ creneau.heureDebut|date('H:i') }}<br>
+                                        <a href="{{ path('app_creneau_detail', {id: creneau.id, date: jour.date|date('Y-m-d')}) }}">
+                                            <strong>{{ creneau.nom }}</strong> {{ creneau.heureDebut|date('H:i') }}
+                                        </a><br>
                                         <small>{{ creneau.gymnase.nom }}</small><br>
 
                                         {% set presence = jour.presences[creneau.id] %}

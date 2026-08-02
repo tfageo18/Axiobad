@@ -6,9 +6,10 @@
     <h1>Gymnases</h1>
 
     {% if is_granted('ROLE_BUREAU') %}
-        <p><a href="{{ path('app_gymnase_new') }}">+ Nouveau gymnase</a></p>
+        <p><a class="btn-cta" href="{{ path('app_gymnase_new') }}">+ Nouveau gymnase</a></p>
     {% endif %}
 
+    <div class="table-scroll">
     <table>
         <thead>
             <tr>
@@ -37,4 +38,5 @@
             {% endfor %}
         </tbody>
     </table>
+    </div>
 {% endblock %}

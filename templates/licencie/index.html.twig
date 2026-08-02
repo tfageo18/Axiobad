@@ -5,8 +5,9 @@
 {% block body %}
     <h1>Licenciés</h1>
 
-    <p><a href="{{ path('app_licencie_new') }}">+ Nouveau licencié</a></p>
+    <p><a class="btn-cta" href="{{ path('app_licencie_new') }}">+ Nouveau licencié</a></p>
 
+    <div class="table-scroll">
     <table>
         <thead>
             <tr>
@@ -38,4 +39,5 @@
             {% endfor %}
         </tbody>
     </table>
+    </div>
 {% endblock %}

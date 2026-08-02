@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ creneau.nom }} — {{ date|date('d/m/Y') }} — Axiobad{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('app_calendrier', {mois: date|date('Y-m')}) }}">&laquo; Retour au calendrier</a></p>
+
+    <h1>{{ creneau.nom }} — {{ creneau.jourSemaine }} {{ date|date('d/m/Y') }}</h1>
+
+    <p>
+        {{ creneau.gymnase.nom }} · {{ creneau.heureDebut|date('H:i') }} - {{ creneau.heureFin|date('H:i') }}<br>
+        {{ creneau.categorie == 'ENFANT' ? 'Enfants' : 'Adultes' }}
+        {% if creneau.classementMinimum %} · niveau min. {{ creneau.classementMinimum }}{% endif %}<br>
+        {{ creneau.encadre ? 'Encadré par ' ~ creneau.entraineur.nomComplet : 'Créneau libre' }}
+    </p>
+
+    <p>
+        Ouvre le gymnase : <strong>{{ ouverture and ouverture.licencieOuverture ? ouverture.licencieOuverture.nomComplet : 'non défini' }}</strong><br>
+        Ferme le gymnase : <strong>{{ ouverture and ouverture.licencieFermeture ? ouverture.licencieFermeture.nomComplet : 'non défini' }}</strong>
+    </p>
+
+    <form method="post" action="{{ path('app_creneau_presence', {id: creneau.id}) }}">
+        <input type="hidden" name="date" value="{{ date|date('Y-m-d') }}">
+        <input type="hidden" name="retour" value="{{ path('app_creneau_detail', {id: creneau.id, date: date|date('Y-m-d')}) }}">
+        <button type="submit" name="present" value="1" {% if maPresence and maPresence.present %}disabled{% endif %}>Je viens</button>
+        <button type="submit" name="present" value="0" {% if maPresence and not maPresence.present %}disabled{% endif %}>Je ne viens pas</button>
+    </form>
+
+    <h2>Viennent ({{ viennent|length }})</h2>
+    <ul>
+        {% for licencie in viennent %}
+            <li>{{ licencie.nomComplet }}</li>
+        {% else %}
+            <li><em>Personne pour l'instant.</em></li>
+        {% endfor %}
+    </ul>
+
+    <h2>Ne viennent pas ({{ neViennentPas|length }})</h2>
+    <ul>
+        {% for licencie in neViennentPas %}
+            <li>{{ licencie.nomComplet }}</li>
+        {% else %}
+            <li><em>Personne.</em></li>
+        {% endfor %}
+    </ul>
+
+    <h2>Sans réponse ({{ sansReponse|length }})</h2>
+    <ul>
+        {% for licencie in sansReponse %}
+            <li>{{ licencie.nomComplet }}</li>
+        {% else %}
+            <li><em>Tout le monde a répondu.</em></li>
+        {% endfor %}
+    </ul>
+{% endblock %}

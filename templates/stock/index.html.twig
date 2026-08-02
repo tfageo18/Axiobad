@@ -29,7 +29,8 @@
     <h1>Gestion du stock</h1>
 
     <h2>Vêtements</h2>
-    <p><a href="{{ path('app_stock_vetement_new') }}">+ Nouvel article</a></p>
+    <p><a class="btn-cta" href="{{ path('app_stock_vetement_new') }}">+ Nouvel article</a></p>
+    <div class="table-scroll">
     <table>
         <thead>
             <tr>
@@ -70,9 +71,11 @@
             {% endfor %}
         </tbody>
     </table>
+    </div>
 
     <h2>Volants</h2>
-    <p><a href="{{ path('app_stock_volant_new') }}">+ Nouveau tube</a></p>
+    <p><a class="btn-cta" href="{{ path('app_stock_volant_new') }}">+ Nouveau tube</a></p>
+    <div class="table-scroll">
     <table>
         <thead>
             <tr>
@@ -115,4 +118,5 @@
             {% endfor %}
         </tbody>
     </table>
+    </div>
 {% endblock %}

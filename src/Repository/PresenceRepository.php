@@ -26,6 +26,14 @@ class PresenceRepository extends ServiceEntityRepository
     /**
      * @return Presence[]
      */
+    public function findPourCreneauEtDate(Creneau $creneau, \DateTimeImmutable $date): array
+    {
+        return $this->findBy(['creneau' => $creneau, 'date' => $date]);
+    }
+
+    /**
+     * @return Presence[]
+     */
     public function findPourLicencieEntre(Licencie $licencie, \DateTimeImmutable $debut, \DateTimeImmutable $fin): array
     {
         return $this->createQueryBuilder('p')

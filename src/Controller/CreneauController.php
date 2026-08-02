@@ -101,6 +101,48 @@ class CreneauController extends AbstractController
         return $this->redirectToRoute('app_creneau_index');
     }
 
+    #[Route('/{id}/detail', name: 'app_creneau_detail', methods: ['GET'])]
+    public function detail(
+        Request $request,
+        Creneau $creneau,
+        LicencieRepository $licencieRepository,
+        PresenceRepository $presenceRepository,
+        CreneauOuvertureRepository $ouvertureRepository,
+    ): Response {
+        $date = new \DateTimeImmutable((string) $request->query->get('date', 'today'));
+
+        $participants = array_values(array_filter($licencieRepository->findAll(), static fn (Licencie $l) => $creneau->correspondA($l)));
+
+        $presencesParLicencie = [];
+        foreach ($presenceRepository->findPourCreneauEtDate($creneau, $date) as $presence) {
+            $presencesParLicencie[$presence->getLicencie()->getId()] = $presence;
+        }
+
+        $viennent = [];
+        $neViennentPas = [];
+        $sansReponse = [];
+        foreach ($participants as $participant) {
+            $presence = $presencesParLicencie[$participant->getId()] ?? null;
+            if (null === $presence) {
+                $sansReponse[] = $participant;
+            } elseif ($presence->isPresent()) {
+                $viennent[] = $participant;
+            } else {
+                $neViennentPas[] = $participant;
+            }
+        }
+
+        return $this->render('creneau/detail.html.twig', [
+            'creneau' => $creneau,
+            'date' => $date,
+            'ouverture' => $ouvertureRepository->findOneByCreneauEtDate($creneau, $date),
+            'viennent' => $viennent,
+            'neViennentPas' => $neViennentPas,
+            'sansReponse' => $sansReponse,
+            'maPresence' => $presencesParLicencie[$this->getUser()->getId()] ?? null,
+        ]);
+    }
+
     #[Route('/{id}/presence', name: 'app_creneau_presence', methods: ['POST'])]
     public function presence(Request $request, Creneau $creneau, EntityManagerInterface $entityManager, PresenceRepository $presenceRepository): Response
     {
@@ -117,6 +159,10 @@ class CreneauController extends AbstractController
         $entityManager->flush();
 
         $this->addFlash('success', 'Réponse enregistrée.');
+
+        if ($retour = $request->request->get('retour')) {
+            return $this->redirect($retour);
+        }
 
         return $this->redirectToRoute('app_calendrier', ['semaine' => $request->request->get('semaine')]);
     }

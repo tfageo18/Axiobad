@@ -293,7 +293,7 @@ class LicencieController extends AbstractController
                 ->setEmail($email)
                 ->setPrenom($prenom)
                 ->setNom($nom)
-                ->setRoles(array_values(array_intersect($roles, [Licencie::ROLE_BUREAU, Licencie::ROLE_ENTRAINEUR])))
+                ->setRoles(array_values(array_intersect($roles, [Licencie::ROLE_BUREAU, Licencie::ROLE_ENTRAINEUR, Licencie::ROLE_CORDEUR])))
                 ->setMustChangePassword(true);
 
             // Mot de passe temporaire inutilisable : le licencié le définit lui-même via le lien d'activation.
@@ -333,7 +333,7 @@ class LicencieController extends AbstractController
                 ->setEmail((string) $request->request->get('email'))
                 ->setPrenom((string) $request->request->get('prenom'))
                 ->setNom((string) $request->request->get('nom'))
-                ->setRoles(array_values(array_intersect($roles, [Licencie::ROLE_BUREAU, Licencie::ROLE_ENTRAINEUR])))
+                ->setRoles(array_values(array_intersect($roles, [Licencie::ROLE_BUREAU, Licencie::ROLE_ENTRAINEUR, Licencie::ROLE_CORDEUR])))
                 ->setDateNaissance($dateNaissance ? new \DateTimeImmutable($dateNaissance) : null)
                 ->setNumeroLicence($numeroLicence ?: null)
                 ->setClassementSimple($classementSimple)

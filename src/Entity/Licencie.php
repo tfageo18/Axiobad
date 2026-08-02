@@ -15,6 +15,7 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     public const ROLE_LICENCIE = 'ROLE_LICENCIE';
     public const ROLE_BUREAU = 'ROLE_BUREAU';
     public const ROLE_ENTRAINEUR = 'ROLE_ENTRAINEUR';
+    public const ROLE_CORDEUR = 'ROLE_CORDEUR';
 
     public const EMAIL_ADMIN_DEFAUT = 'admin@axiobad.local';
 
@@ -128,6 +129,11 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     public function isEntraineur(): bool
     {
         return in_array(self::ROLE_ENTRAINEUR, $this->roles, true);
+    }
+
+    public function isCordeur(): bool
+    {
+        return in_array(self::ROLE_CORDEUR, $this->roles, true);
     }
 
     public function getPassword(): ?string

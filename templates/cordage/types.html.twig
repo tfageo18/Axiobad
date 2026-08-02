@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Catalogue de cordages — Axiobad{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('app_cordage_index') }}">&laquo; Retour au cordage</a></p>
+
+    <h1>Catalogue de cordages</h1>
+
+    <table class="table-cards">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Statut</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for type in types %}
+                <tr class="{{ type.actif ? '' : 'ligne-inactive' }}">
+                    <td data-label="Nom">{{ type.nom }}</td>
+                    <td data-label="Statut">{{ (type.actif ? '<span class="badge-actif">Actif</span>' : '<span class="badge-inactif">Inactif</span>')|raw }}</td>
+                    <td class="td-actions">
+                        <form method="post" action="{{ path('app_cordage_type_toggle_actif', {id: type.id}) }}" style="display:inline">
+                            <button type="submit">{{ type.actif ? 'Désactiver' : 'Réactiver' }}</button>
+                        </form>
+                        <form method="post" action="{{ path('app_cordage_type_delete', {id: type.id}) }}" onsubmit="return confirm('Supprimer ce cordage du catalogue ?');" style="display:inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete-type-cordage-' ~ type.id) }}">
+                            <button type="submit">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="3">Aucun cordage dans le catalogue.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Ajouter un cordage</h2>
+    <form method="post" action="{{ path('app_cordage_type_new') }}">
+        <div>
+            <label for="nom">Nom</label>
+            <input type="text" name="nom" id="nom" placeholder="ex: Yonex BG65" required>
+        </div>
+        <button type="submit">+ Ajouter</button>
+    </form>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Cordage — Axiobad{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .badge-statut { padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; }
+        .badge-DEPOSEE { background: #fff7ed; color: var(--color-accent-dark); }
+        .badge-EN_COURS { background: #eff6ff; color: #1d4ed8; }
+        .badge-PRETE { background: var(--color-success-bg); color: var(--color-success); }
+        .badge-RECUPEREE { background: var(--color-bg); color: var(--color-text-muted); }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <h1>Cordage</h1>
+
+    <p>
+        <a class="btn-cta" href="{{ path('app_cordage_new') }}">+ Nouvelle demande de cordage</a>
+        {% if is_granted('ROLE_BUREAU') %}
+            <a href="{{ path('app_cordage_type_index') }}">Gérer le catalogue de cordages</a>
+        {% endif %}
+    </p>
+
+    <div class="table-scroll">
+    <table class="table-cards">
+        <thead>
+            <tr>
+                {% if peutGererToutes %}<th>Licencié</th>{% endif %}
+                <th>Cordage</th>
+                <th>Tension</th>
+                <th>Lieu de dépose</th>
+                <th>Statut</th>
+                <th>Cordeur</th>
+                <th>Lieu de retour</th>
+                <th>Prix</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for demande in demandes %}
+                <tr>
+                    {% if peutGererToutes %}<td data-label="Licencié">{{ demande.licencie.nomComplet }}</td>{% endif %}
+                    <td data-label="Cordage">{{ demande.typeCordage ? demande.typeCordage.nom : '-' }}</td>
+                    <td data-label="Tension">{{ demande.tension ?? '-' }}</td>
+                    <td data-label="Dépose">{{ demande.lieuDepose }}</td>
+                    <td data-label="Statut"><span class="badge-statut badge-{{ demande.statut }}">{{ demande.statutLabel }}</span></td>
+                    <td data-label="Cordeur">{{ demande.cordeur ? demande.cordeur.nomComplet : '-' }}</td>
+                    <td data-label="Retour">{{ demande.lieuRetour ?? '-' }}</td>
+                    <td data-label="Prix">{{ demande.prix is not null ? demande.prix|number_format(2, ',', ' ') ~ ' €' : '-' }}</td>
+                    <td class="td-actions">
+                        {% if peutGererToutes %}
+                            {% if demande.statut == 'DEPOSEE' %}
+                                <form method="post" action="{{ path('app_cordage_prendre_en_charge', {id: demande.id}) }}" style="display:inline">
+                                    <button type="submit">Prendre en charge</button>
+                                </form>
+                            {% endif %}
+                            {% if demande.statut in ['DEPOSEE', 'EN_COURS'] %}
+                                <form method="post" action="{{ path('app_cordage_marquer_prete', {id: demande.id}) }}" style="display:inline; margin-left: 0.35rem;">
+                                    <input type="text" name="lieuRetour" placeholder="Lieu de retour" style="width: 8rem;">
+                                    <input type="number" step="0.01" min="0" name="prix" placeholder="Prix €" style="width: 5rem;">
+                                    <button type="submit">Marquer prête</button>
+                                </form>
+                            {% endif %}
+                            {% if demande.statut == 'PRETE' %}
+                                <form method="post" action="{{ path('app_cordage_marquer_recuperee', {id: demande.id}) }}" style="display:inline">
+                                    <button type="submit">Marquer récupérée</button>
+                                </form>
+                            {% endif %}
+                        {% endif %}
+                        {% if demande.statut == 'DEPOSEE' and (demande.licencie == app.user or is_granted('ROLE_BUREAU')) %}
+                            <form method="post" action="{{ path('app_cordage_delete', {id: demande.id}) }}" onsubmit="return confirm('Annuler cette demande ?');" style="display:inline; margin-left: 0.35rem;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('annuler-cordage-' ~ demande.id) }}">
+                                <button type="submit">Annuler</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="{{ peutGererToutes ? 9 : 8 }}">Aucune demande de cordage.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+{% endblock %}

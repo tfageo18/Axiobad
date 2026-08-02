@@ -33,6 +33,12 @@
                 Entraîneur
             </label>
         </div>
+        <div>
+            <label>
+                <input type="checkbox" name="roles[]" value="ROLE_CORDEUR" {{ licencie and licencie.isCordeur ? 'checked' : '' }}>
+                Cordeur
+            </label>
+        </div>
         {% if licencie %}
             <div>
                 <label for="dateNaissance">Date de naissance</label>

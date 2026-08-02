@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle demande de cordage — Axiobad{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('app_cordage_index') }}">&laquo; Retour au cordage</a></p>
+
+    <h1>Nouvelle demande de cordage</h1>
+
+    <form method="post" action="{{ path('app_cordage_new') }}">
+        <div>
+            <label for="typeCordage">Cordage souhaité</label>
+            <select name="typeCordage" id="typeCordage">
+                <option value="">-</option>
+                {% for type in typesCordage %}
+                    <option value="{{ type.id }}">{{ type.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="tension">Tension souhaitée</label>
+            <input type="text" name="tension" id="tension" placeholder="ex: 24 lbs">
+        </div>
+        <div>
+            <label for="lieuDepose">Lieu de dépose</label>
+            <input type="text" name="lieuDepose" id="lieuDepose" placeholder="ex: Gymnase Jean Moulin, casier 3" required>
+        </div>
+        <button type="submit">Envoyer la demande</button>
+    </form>
+{% endblock %}

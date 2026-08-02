@@ -17,6 +17,7 @@ en ligne, une fois connecté, via le menu du compte (en haut à droite) → **Do
 - [Indiquer sa présence à un créneau (tous les licenciés)](#indiquer-sa-présence-à-un-créneau-tous-les-licenciés)
 - [Gérer le stock (bureau)](#gérer-le-stock-bureau)
 - [Historique des présences (bureau, entraîneurs)](#historique-des-présences-bureau-entraîneurs)
+- [Cordage (tous les licenciés, cordeurs)](#cordage-tous-les-licenciés-cordeurs)
 - [Mon profil](#mon-profil)
 - [Configuration email (production)](#configuration-email-production)
 
@@ -43,7 +44,8 @@ Chaque licencié peut cumuler plusieurs rôles :
 |---|---|---|
 | **Licencié** | Rôle de base, attribué automatiquement à tout le monde | Consulter le calendrier et les créneaux, indiquer sa présence, gérer son profil |
 | **Membre du bureau** | Rôle administrateur | Tout ce que peut faire un licencié + gestion des licenciés, saisons, gymnases, créneaux et stock |
-| **Entraîneur** | Peut encadrer des créneaux | Peut être sélectionné comme entraîneur sur un créneau encadré |
+| **Entraîneur** | Peut encadrer des créneaux | Peut être sélectionné comme entraîneur sur un créneau encadré ; accède à l'historique des présences |
+| **Cordeur** | Gère les demandes de cordage | Voit toutes les demandes de cordage et fait avancer leur statut |
 
 Les rôles se gèrent depuis la fiche de création ou de modification d'un licencié (page **Licenciés**,
 bureau uniquement).
@@ -211,6 +213,23 @@ Menu **Présences** (réservé au bureau et aux entraîneurs).
   6 derniers mois glissants, et l'historique complet de ses réponses (date, créneau, présent ou
   absent).
 - Cet outil est utile pour les entraîneurs afin de suivre l'assiduité des joueurs.
+
+## Cordage (tous les licenciés, cordeurs)
+
+Menu **Cordage**.
+
+- Tout licencié peut déposer une **demande de cordage** : cordage souhaité (choisi dans le
+  catalogue tenu par le bureau), tension souhaitée, et lieu de dépose de la raquette. Il ne voit
+  que ses propres demandes, et peut annuler une demande tant qu'elle est encore « Déposée ».
+- Le **bureau** gère le **catalogue des cordages** proposés (menu **Gérer le catalogue de
+  cordages**) : ajout, activation/désactivation, suppression.
+- Un licencié peut recevoir le rôle **Cordeur** (coché par le bureau sur sa fiche, comme pour
+  Entraîneur). Un cordeur (avec ou sans rôle bureau) voit **toutes** les demandes de cordage et
+  peut faire avancer leur statut :
+  1. **Déposée** — demande créée par le licencié.
+  2. **En cours** — le cordeur la prend en charge (« Prendre en charge »).
+  3. **Prête** — le cordeur indique le lieu de retour et le prix, ce qui marque la raquette prête.
+  4. **Récupérée** — une fois rendue au licencié.
 
 ## Mon profil
 

@@ -10,8 +10,10 @@ licenciés, des gymnases et des créneaux.
 - [Gérer les licenciés (bureau)](#gérer-les-licenciés-bureau)
 - [Gérer les gymnases (bureau)](#gérer-les-gymnases-bureau)
 - [Gérer les créneaux (bureau)](#gérer-les-créneaux-bureau)
+- [Le calendrier](#le-calendrier)
 - [Indiquer sa présence à un créneau (tous les licenciés)](#indiquer-sa-présence-à-un-créneau-tous-les-licenciés)
 - [Consulter et rafraîchir son classement](#consulter-et-rafraîchir-son-classement)
+- [Mon profil (photo, licence, date de naissance)](#mon-profil-photo-licence-date-de-naissance)
 
 ## Se connecter
 
@@ -81,25 +83,50 @@ Menu **Créneaux**.
 
 1. Cliquer sur **+ Nouveau créneau**.
 2. Renseigner le nom, le gymnase, le jour de la semaine, l'heure de début et de fin.
-3. Cocher **Créneau encadré** si un entraîneur doit être associé, puis le sélectionner dans la
+3. Optionnel : dates de **répétition** (début/fin) si le créneau doit être borné dans le temps
+   (ex. saison sportive) — laisser vide pour un créneau sans date de fin.
+4. Choisir la **catégorie** (Adultes ou Enfants) et, si besoin, un **classement minimum requis**
+   pour filtrer les licenciés d'un certain niveau (laisser vide si aucun niveau minimum).
+5. Cocher **Créneau encadré** si un entraîneur doit être associé, puis le sélectionner dans la
    liste (seuls les licenciés ayant le rôle Entraîneur apparaissent).
-4. Valider.
+6. Valider.
 
 ### Supprimer un créneau
 
 Bouton **Supprimer** sur la ligne du créneau concerné.
 
+## Le calendrier
+
+Menu **Calendrier** : vue hebdomadaire de tous les créneaux, organisés par jour, avec horaire,
+gymnase, catégorie, niveau minimum et encadrement.
+
 ## Indiquer sa présence à un créneau (tous les licenciés)
 
-Sur la page **Créneaux**, chaque licencié voit la liste de tous les créneaux avec deux boutons :
-**Je viens** / **Je ne viens pas**. Le choix est enregistré instantanément et peut être changé à
-tout moment avant le créneau.
+Sur la page **Créneaux**, chaque licencié voit par défaut uniquement les créneaux qui correspondent
+à **sa catégorie d'âge** (déduite de sa date de naissance) et à **son niveau** (si un classement
+minimum est requis sur le créneau). Un lien **Voir tous les créneaux** permet d'afficher l'ensemble
+des créneaux du club, y compris ceux qui ne correspondent pas à son profil. Les membres du bureau
+voient toujours tous les créneaux.
+
+Sur chaque créneau, deux boutons : **Je viens** / **Je ne viens pas**. Le choix est enregistré
+instantanément et peut être changé à tout moment avant le créneau.
 
 ## Consulter et rafraîchir son classement
 
 Le classement (simple / double / mixte) est visible par le bureau sur la fiche du licencié
 (page **Licenciés**). Sa mise à jour se fait manuellement via le bouton **Rafraîchir le
 classement**, qui interroge l'API de la FFBaD.
+
+## Mon profil (photo, licence, date de naissance)
+
+Chaque licencié peut compléter et modifier lui-même son profil en cliquant sur son nom en haut à
+droite (page **Mon compte**) :
+- **Photo de profil** (affichée en rond).
+- **Téléphone**.
+- **Date de naissance** : sert à déterminer automatiquement la catégorie d'âge (moins de 18 ans =
+  Enfant, 18 ans et plus = Adulte), utilisée pour filtrer les créneaux adaptés.
+- **Numéro de licence FFBaD** : nécessaire pour que le bureau puisse rafraîchir le classement du
+  licencié via l'API de la fédération.
 
 ## Configuration email (production)
 

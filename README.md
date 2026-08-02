@@ -17,7 +17,8 @@ Fournir aux clubs de badminton un outil pour gérer leurs licenciés, leurs cré
 - Chaque licencié dispose d'un compte et d'informations personnelles classiques (nom, prénom, email, coordonnées, etc.).
 - Un compte administrateur par défaut est créé automatiquement (`admin@axiobad.local` / `admin`), avec changement de mot de passe obligatoire à la première connexion.
 - Le bureau peut créer de nouveaux licenciés depuis l'application : un email d'invitation leur est envoyé pour qu'ils définissent eux-mêmes leur mot de passe (lien valable 7 jours).
-- Récupération du classement du licencié via l'API de la Fédération Française de Badminton (FFBaD).
+- Chaque licencié peut gérer son propre profil (page "Mon compte") : photo, téléphone, date de naissance, numéro de licence FFBaD.
+- Récupération du classement du licencié via l'API de la Fédération Française de Badminton (FFBaD), à partir de son numéro de licence.
 - Rôles (cumulables, un licencié peut appartenir à plusieurs groupes à la fois) :
   - **Licencié** : rôle de base, tout adhérent du club.
   - **Membre du bureau** : rôle administrateur de l'application.
@@ -26,9 +27,12 @@ Fournir aux clubs de badminton un outil pour gérer leurs licenciés, leurs cré
 ### Module 2 — Gestion des créneaux et des gymnases
 
 - Gestion des gymnases (lieux de pratique).
-- Création, modification et suppression des créneaux d'entraînement.
+- Création, modification et suppression des créneaux d'entraînement, avec possibilité de dates de répétition (début/fin).
 - Chaque créneau est rattaché à un gymnase.
 - Un créneau peut être **encadré** (associé à un entraîneur) ou **libre**.
+- Un créneau a une **catégorie** (adultes ou enfants) et peut requérir un **classement minimum**.
+- Vue **calendrier** hebdomadaire de tous les créneaux.
+- Par défaut, un licencié ne voit que les créneaux correspondant à son âge et son niveau (bascule possible vers "tous les créneaux").
 - Les licenciés peuvent indiquer leur présence ou absence sur chaque créneau.
 
 ## Stack technique

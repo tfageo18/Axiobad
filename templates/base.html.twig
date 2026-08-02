@@ -225,6 +225,28 @@
             button:hover, input[type="submit"]:hover { background: var(--color-primary-dark); }
             button:active { transform: scale(0.98); }
 
+            .presence-form { display: flex; gap: 0.5rem; }
+            .btn-presence {
+                background: var(--color-surface);
+                color: var(--color-text);
+                border: 2px solid var(--color-border);
+            }
+            .btn-presence:hover { background: var(--color-bg); }
+            .btn-presence.selectionne {
+                border-color: transparent;
+                cursor: default;
+                box-shadow: inset 0 0 0 2px currentColor;
+            }
+            .btn-presence.selectionne:hover { background: inherit; }
+            .btn-presence-oui.selectionne {
+                background: var(--color-success-bg);
+                color: var(--color-success);
+            }
+            .btn-presence-non.selectionne {
+                background: var(--color-error-bg);
+                color: var(--color-error);
+            }
+
             a {
                 color: var(--color-primary);
                 font-weight: 500;

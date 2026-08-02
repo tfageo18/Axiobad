@@ -21,11 +21,11 @@
         Ferme le gymnase : <strong>{{ ouverture and ouverture.licencieFermeture ? ouverture.licencieFermeture.nomComplet : 'non défini' }}</strong>
     </p>
 
-    <form method="post" action="{{ path('app_creneau_presence', {id: creneau.id}) }}">
+    <form method="post" action="{{ path('app_creneau_presence', {id: creneau.id}) }}" class="presence-form">
         <input type="hidden" name="date" value="{{ date|date('Y-m-d') }}">
         <input type="hidden" name="retour" value="{{ path('app_creneau_detail', {id: creneau.id, date: date|date('Y-m-d')}) }}">
-        <button type="submit" name="present" value="1" {% if maPresence and maPresence.present %}disabled{% endif %}>Je viens</button>
-        <button type="submit" name="present" value="0" {% if maPresence and not maPresence.present %}disabled{% endif %}>Je ne viens pas</button>
+        <button type="submit" name="present" value="1" class="btn-presence btn-presence-oui {{ maPresence and maPresence.present ? 'selectionne' : '' }}">✓ Je viens</button>
+        <button type="submit" name="present" value="0" class="btn-presence btn-presence-non {{ maPresence and not maPresence.present ? 'selectionne' : '' }}">✗ Je ne viens pas</button>
     </form>
 
     {% if maPresence and maPresence.present %}

@@ -49,6 +49,13 @@ class ProfilController extends AbstractController
             $licencie->setClassementMixte($this->normaliserClassement($request->request->get('classementMixte')));
 
             $photoFile = $request->files->get('photo');
+            if ($photoFile && !$photoFile->isValid()) {
+                $this->addFlash('error', sprintf(
+                    "La photo n'a pas pu être envoyée (%s). Essayez une image plus légère (moins de 10 Mo).",
+                    $photoFile->getErrorMessage()
+                ));
+                $photoFile = null;
+            }
             if ($photoFile) {
                 $originalFilename = pathinfo($photoFile->getClientOriginalName(), PATHINFO_FILENAME);
                 $safeFilename = $slugger->slug($originalFilename);

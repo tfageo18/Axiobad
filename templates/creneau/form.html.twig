@@ -52,8 +52,13 @@
         </div>
         <div>
             <label for="classementMinimum">Classement minimum requis</label>
-            <input type="number" name="classementMinimum" id="classementMinimum" value="{{ creneau ? creneau.classementMinimum : '' }}">
-            <small>Laisser vide si aucun niveau minimum n'est requis.</small>
+            <select name="classementMinimum" id="classementMinimum">
+                <option value="">Aucun</option>
+                {% for code in constant('App\\Badminton\\ClassementFfbad::CODES')|reverse %}
+                    <option value="{{ code }}" {{ creneau and creneau.classementMinimum == code ? 'selected' : '' }}>{{ code }}</option>
+                {% endfor %}
+            </select>
+            <small>Laisser sur "Aucun" si aucun niveau minimum n'est requis.</small>
         </div>
         <div>
             <label>

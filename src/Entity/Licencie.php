@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Badminton\ClassementFfbad;
 use App\Repository\LicencieRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -47,14 +48,14 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $numeroLicence = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $classementSimple = null;
+    #[ORM\Column(length: 5, nullable: true)]
+    private ?string $classementSimple = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $classementDouble = null;
+    #[ORM\Column(length: 5, nullable: true)]
+    private ?string $classementDouble = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $classementMixte = null;
+    #[ORM\Column(length: 5, nullable: true)]
+    private ?string $classementMixte = null;
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $classementMisAJourLe = null;
@@ -216,40 +217,59 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getClassementSimple(): ?int
+    public function getClassementSimple(): ?string
     {
         return $this->classementSimple;
     }
 
-    public function setClassementSimple(?int $classementSimple): static
+    public function setClassementSimple(?string $classementSimple): static
     {
         $this->classementSimple = $classementSimple;
 
         return $this;
     }
 
-    public function getClassementDouble(): ?int
+    public function getClassementDouble(): ?string
     {
         return $this->classementDouble;
     }
 
-    public function setClassementDouble(?int $classementDouble): static
+    public function setClassementDouble(?string $classementDouble): static
     {
         $this->classementDouble = $classementDouble;
 
         return $this;
     }
 
-    public function getClassementMixte(): ?int
+    public function getClassementMixte(): ?string
     {
         return $this->classementMixte;
     }
 
-    public function setClassementMixte(?int $classementMixte): static
+    public function setClassementMixte(?string $classementMixte): static
     {
         $this->classementMixte = $classementMixte;
 
         return $this;
+    }
+
+    /**
+     * Meilleur classement du licencié tous tableaux confondus (simple/double/mixte), selon le rang officiel FFBaD.
+     */
+    public function getMeilleurClassement(): ?string
+    {
+        $meilleur = null;
+        $meilleurRang = -1;
+
+        foreach ([$this->classementSimple, $this->classementDouble, $this->classementMixte] as $classement) {
+            $rang = ClassementFfbad::rang($classement);
+            if ($rang > $meilleurRang) {
+                $meilleurRang = $rang;
+                $meilleur = $classement;
+            }
+        }
+
+        return $meilleur;
     }
 
     public function getClassementMisAJourLe(): ?\DateTimeImmutable

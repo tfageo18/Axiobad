@@ -44,15 +44,30 @@
             </div>
             <div>
                 <label for="classementSimple">Classement simple</label>
-                <input type="number" name="classementSimple" id="classementSimple" value="{{ licencie.classementSimple }}">
+                <select name="classementSimple" id="classementSimple">
+                    <option value="">-</option>
+                    {% for code in constant('App\\Badminton\\ClassementFfbad::CODES')|reverse %}
+                        <option value="{{ code }}" {{ licencie.classementSimple == code ? 'selected' : '' }}>{{ code }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div>
                 <label for="classementDouble">Classement double</label>
-                <input type="number" name="classementDouble" id="classementDouble" value="{{ licencie.classementDouble }}">
+                <select name="classementDouble" id="classementDouble">
+                    <option value="">-</option>
+                    {% for code in constant('App\\Badminton\\ClassementFfbad::CODES')|reverse %}
+                        <option value="{{ code }}" {{ licencie.classementDouble == code ? 'selected' : '' }}>{{ code }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <div>
                 <label for="classementMixte">Classement mixte</label>
-                <input type="number" name="classementMixte" id="classementMixte" value="{{ licencie.classementMixte }}">
+                <select name="classementMixte" id="classementMixte">
+                    <option value="">-</option>
+                    {% for code in constant('App\\Badminton\\ClassementFfbad::CODES')|reverse %}
+                        <option value="{{ code }}" {{ licencie.classementMixte == code ? 'selected' : '' }}>{{ code }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <p style="font-size: 0.85rem; color: var(--color-text-muted);">
                 Les classements sont saisis manuellement par le bureau (à consulter sur

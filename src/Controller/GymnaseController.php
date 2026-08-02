@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Gymnase;
 use App\Repository\GymnaseRepository;
+use App\Repository\LicencieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,12 +25,15 @@ class GymnaseController extends AbstractController
 
     #[Route('/nouveau', name: 'app_gymnase_new', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_BUREAU')]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, LicencieRepository $licencieRepository): Response
     {
         if ($request->isMethod('POST')) {
             $gymnase = (new Gymnase())
                 ->setNom((string) $request->request->get('nom'))
-                ->setAdresse((string) $request->request->get('adresse'));
+                ->setAdresse((string) $request->request->get('adresse'))
+                ->setTelephone((string) $request->request->get('telephone') ?: null);
+
+            $this->appliquerPorteursCles($request, $gymnase, $licencieRepository);
 
             $entityManager->persist($gymnase);
             $entityManager->flush();
@@ -41,17 +45,21 @@ class GymnaseController extends AbstractController
 
         return $this->render('gymnase/form.html.twig', [
             'gymnase' => null,
+            'licencies' => $licencieRepository->findAll(),
         ]);
     }
 
     #[Route('/{id}/modifier', name: 'app_gymnase_edit', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_BUREAU')]
-    public function edit(Request $request, Gymnase $gymnase, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Gymnase $gymnase, EntityManagerInterface $entityManager, LicencieRepository $licencieRepository): Response
     {
         if ($request->isMethod('POST')) {
             $gymnase
                 ->setNom((string) $request->request->get('nom'))
-                ->setAdresse((string) $request->request->get('adresse'));
+                ->setAdresse((string) $request->request->get('adresse'))
+                ->setTelephone((string) $request->request->get('telephone') ?: null);
+
+            $this->appliquerPorteursCles($request, $gymnase, $licencieRepository);
 
             $entityManager->flush();
 
@@ -62,7 +70,26 @@ class GymnaseController extends AbstractController
 
         return $this->render('gymnase/form.html.twig', [
             'gymnase' => $gymnase,
+            'licencies' => $licencieRepository->findAll(),
         ]);
+    }
+
+    private function appliquerPorteursCles(Request $request, Gymnase $gymnase, LicencieRepository $licencieRepository): void
+    {
+        $idsSelectionnes = array_map('intval', $request->request->all('porteursCles'));
+
+        foreach ($gymnase->getPorteursCles() as $licencie) {
+            if (!in_array($licencie->getId(), $idsSelectionnes, true)) {
+                $gymnase->removePorteurCles($licencie);
+            }
+        }
+
+        foreach ($idsSelectionnes as $id) {
+            $licencie = $licencieRepository->find($id);
+            if ($licencie) {
+                $gymnase->addPorteurCles($licencie);
+            }
+        }
     }
 
     #[Route('/{id}/supprimer', name: 'app_gymnase_delete', methods: ['POST'])]

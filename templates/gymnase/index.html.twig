@@ -15,6 +15,8 @@
             <tr>
                 <th>Nom</th>
                 <th>Adresse</th>
+                <th>Téléphone</th>
+                <th>Porteurs de clés</th>
                 {% if is_granted('ROLE_BUREAU') %}<th></th>{% endif %}
             </tr>
         </thead>
@@ -23,6 +25,14 @@
                 <tr>
                     <td data-label="Nom">{{ gymnase.nom }}</td>
                     <td data-label="Adresse">{{ gymnase.adresse }}</td>
+                    <td data-label="Téléphone">{{ gymnase.telephone ?? '-' }}</td>
+                    <td data-label="Porteurs de clés">
+                        {% if gymnase.porteursCles|length %}
+                            {{ gymnase.porteursCles|map(l => l.nomComplet)|join(', ') }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
                     {% if is_granted('ROLE_BUREAU') %}
                         <td class="td-actions">
                             <a href="{{ path('app_gymnase_edit', {id: gymnase.id}) }}">Modifier</a>
@@ -34,7 +44,7 @@
                     {% endif %}
                 </tr>
             {% else %}
-                <tr><td colspan="3">Aucun gymnase.</td></tr>
+                <tr><td colspan="5">Aucun gymnase.</td></tr>
             {% endfor %}
         </tbody>
     </table>

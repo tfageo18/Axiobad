@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Badminton\ClassementFfbad;
 use App\Entity\Creneau;
 use App\Entity\CreneauOuverture;
 use App\Entity\Gymnase;
@@ -215,8 +216,8 @@ class CreneauController extends AbstractController
             $categorie = Creneau::CATEGORIE_ADULTE;
         }
 
-        $classementMinimumRaw = $request->request->get('classementMinimum');
-        $classementMinimum = ('' !== $classementMinimumRaw && null !== $classementMinimumRaw) ? (int) $classementMinimumRaw : null;
+        $classementMinimumRaw = (string) $request->request->get('classementMinimum');
+        $classementMinimum = in_array($classementMinimumRaw, ClassementFfbad::CODES, true) ? $classementMinimumRaw : null;
 
         $recurrenceDebutRaw = (string) $request->request->get('recurrenceDebut');
         $recurrenceFinRaw = (string) $request->request->get('recurrenceFin');

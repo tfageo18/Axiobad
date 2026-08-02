@@ -11,6 +11,6 @@ class HomeController extends AbstractController
     #[Route('/', name: 'app_home', methods: ['GET'])]
     public function __invoke(): RedirectResponse
     {
-        return $this->redirectToRoute('app_creneau_index');
+        return $this->redirectToRoute('app_calendrier');
     }
 }

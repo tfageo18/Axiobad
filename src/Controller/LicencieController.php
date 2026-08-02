@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Badminton\ClassementFfbad;
 use App\Entity\Adhesion;
 use App\Entity\Licencie;
 use App\Repository\AdhesionRepository;
@@ -112,9 +113,9 @@ class LicencieController extends AbstractController
             $roles = $request->request->all('roles');
             $dateNaissance = (string) $request->request->get('dateNaissance');
             $numeroLicence = (string) $request->request->get('numeroLicence');
-            $classementSimple = $request->request->get('classementSimple');
-            $classementDouble = $request->request->get('classementDouble');
-            $classementMixte = $request->request->get('classementMixte');
+            $classementSimple = $this->normaliserClassement($request->request->get('classementSimple'));
+            $classementDouble = $this->normaliserClassement($request->request->get('classementDouble'));
+            $classementMixte = $this->normaliserClassement($request->request->get('classementMixte'));
 
             $anciensClassements = [$licencie->getClassementSimple(), $licencie->getClassementDouble(), $licencie->getClassementMixte()];
 
@@ -125,9 +126,9 @@ class LicencieController extends AbstractController
                 ->setRoles(array_values(array_intersect($roles, [Licencie::ROLE_BUREAU, Licencie::ROLE_ENTRAINEUR])))
                 ->setDateNaissance($dateNaissance ? new \DateTimeImmutable($dateNaissance) : null)
                 ->setNumeroLicence($numeroLicence ?: null)
-                ->setClassementSimple($classementSimple !== null && $classementSimple !== '' ? (int) $classementSimple : null)
-                ->setClassementDouble($classementDouble !== null && $classementDouble !== '' ? (int) $classementDouble : null)
-                ->setClassementMixte($classementMixte !== null && $classementMixte !== '' ? (int) $classementMixte : null);
+                ->setClassementSimple($classementSimple)
+                ->setClassementDouble($classementDouble)
+                ->setClassementMixte($classementMixte);
 
             $nouveauxClassements = [$licencie->getClassementSimple(), $licencie->getClassementDouble(), $licencie->getClassementMixte()];
             if ($anciensClassements !== $nouveauxClassements) {
@@ -191,4 +192,10 @@ class LicencieController extends AbstractController
         return $this->redirectToRoute('app_licencie_index');
     }
 
+    private function normaliserClassement(mixed $valeur): ?string
+    {
+        $valeur = (string) $valeur;
+
+        return in_array($valeur, ClassementFfbad::CODES, true) ? $valeur : null;
+    }
 }

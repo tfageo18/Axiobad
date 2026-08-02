@@ -14,6 +14,24 @@
             <label for="adresse">Adresse</label>
             <input type="text" name="adresse" id="adresse" value="{{ gymnase ? gymnase.adresse : '' }}" required>
         </div>
+        <div>
+            <label for="telephone">Téléphone</label>
+            <input type="tel" name="telephone" id="telephone" value="{{ gymnase ? gymnase.telephone : '' }}">
+        </div>
+        <div>
+            <label>Porteurs de clés</label>
+            {% set idsPorteurs = gymnase ? gymnase.porteursCles|map(l => l.id) : [] %}
+            <div style="max-height: 220px; overflow-y: auto; border: 1px solid var(--color-border); border-radius: 8px; padding: 0.5rem 0.75rem;">
+                {% for licencie in licencies %}
+                    <label style="display: flex; align-items: center; gap: 0.4rem; font-weight: 400; margin-bottom: 0.3rem;">
+                        <input type="checkbox" name="porteursCles[]" value="{{ licencie.id }}" {{ licencie.id in idsPorteurs ? 'checked' : '' }} style="width: auto; margin: 0;">
+                        {{ licencie.nomComplet }}
+                    </label>
+                {% else %}
+                    <p style="margin: 0; color: var(--color-text-muted);">Aucun licencié.</p>
+                {% endfor %}
+            </div>
+        </div>
         <button type="submit">{{ gymnase ? 'Enregistrer' : 'Créer' }}</button>
     </form>
 {% endblock %}

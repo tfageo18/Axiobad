@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Badminton\ClassementFfbad;
 use App\Repository\CreneauRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -40,8 +41,8 @@ class Creneau
     #[ORM\Column(length: 10)]
     private string $categorie = self::CATEGORIE_ADULTE;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $classementMinimum = null;
+    #[ORM\Column(length: 5, nullable: true)]
+    private ?string $classementMinimum = null;
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $recurrenceDebut = null;
@@ -177,12 +178,12 @@ class Creneau
         return $this;
     }
 
-    public function getClassementMinimum(): ?int
+    public function getClassementMinimum(): ?string
     {
         return $this->classementMinimum;
     }
 
-    public function setClassementMinimum(?int $classementMinimum): static
+    public function setClassementMinimum(?string $classementMinimum): static
     {
         $this->classementMinimum = $classementMinimum;
 
@@ -223,13 +224,7 @@ class Creneau
         }
 
         if (null !== $this->classementMinimum) {
-            $meilleurClassement = max(
-                $licencie->getClassementSimple() ?? 0,
-                $licencie->getClassementDouble() ?? 0,
-                $licencie->getClassementMixte() ?? 0,
-            );
-
-            if ($meilleurClassement < $this->classementMinimum) {
+            if (ClassementFfbad::rang($licencie->getMeilleurClassement()) < ClassementFfbad::rang($this->classementMinimum)) {
                 return false;
             }
         }

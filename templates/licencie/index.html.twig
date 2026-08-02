@@ -42,9 +42,11 @@
     {% if saison %}
         {% set nbImpayes = 0 %}
         {% for licencie in licencies %}
-            {% set adhesion = adhesions[licencie.id] is defined ? adhesions[licencie.id] : null %}
-            {% if not (adhesion and adhesion.payee) %}
-                {% set nbImpayes = nbImpayes + 1 %}
+            {% if licencie.email != constant('App\\Entity\\Licencie::EMAIL_ADMIN_DEFAUT') %}
+                {% set adhesion = adhesions[licencie.id] is defined ? adhesions[licencie.id] : null %}
+                {% if not (adhesion and adhesion.payee) %}
+                    {% set nbImpayes = nbImpayes + 1 %}
+                {% endif %}
             {% endif %}
         {% endfor %}
         <p>
@@ -80,7 +82,7 @@
         <tbody>
             {% for licencie in licencies %}
                 {% set adhesion = saison and adhesions[licencie.id] is defined ? adhesions[licencie.id] : null %}
-                <tr class="{{ licencie.actif ? '' : 'ligne-inactive' }}" data-payee="{{ (adhesion and adhesion.payee) ? '1' : '0' }}">
+                <tr class="{{ licencie.actif ? '' : 'ligne-inactive' }}" data-payee="{{ (licencie.email == constant('App\\Entity\\Licencie::EMAIL_ADMIN_DEFAUT') or (adhesion and adhesion.payee)) ? '1' : '0' }}">
                     <td data-label="Nom">{{ licencie.nomComplet }}</td>
                     <td data-label="Email">{{ licencie.email }}</td>
                     <td data-label="Rôles">{{ licencie.roles|join(', ') }}</td>
@@ -88,16 +90,20 @@
                     <td data-label="Activation">{{ licencie.activationTokenValid ? "En attente d'activation" : 'Activé' }}</td>
                     {% if saison %}
                         <td data-label="Adhésion {{ saison.libelle }}">
-                            <form method="post" action="{{ path('app_licencie_adhesion', {id: licencie.id}) }}">
-                                <input type="hidden" name="saison" value="{{ saison.id }}">
-                                {% if adhesion and adhesion.payee %}
-                                    <span class="quantite-badge" style="background: var(--color-success-bg); color: var(--color-success);">Payée</span>
-                                    <button type="submit" name="payee" value="0">Annuler</button>
-                                {% else %}
-                                    <span class="quantite-badge zero">Non payée</span>
-                                    <button type="submit" name="payee" value="1">Marquer payée</button>
-                                {% endif %}
-                            </form>
+                            {% if licencie.email == constant('App\\Entity\\Licencie::EMAIL_ADMIN_DEFAUT') %}
+                                <span style="color: var(--color-text-muted);">Non applicable</span>
+                            {% else %}
+                                <form method="post" action="{{ path('app_licencie_adhesion', {id: licencie.id}) }}">
+                                    <input type="hidden" name="saison" value="{{ saison.id }}">
+                                    {% if adhesion and adhesion.payee %}
+                                        <span class="quantite-badge" style="background: var(--color-success-bg); color: var(--color-success);">Payée</span>
+                                        <button type="submit" name="payee" value="0">Annuler</button>
+                                    {% else %}
+                                        <span class="quantite-badge zero">Non payée</span>
+                                        <button type="submit" name="payee" value="1">Marquer payée</button>
+                                    {% endif %}
+                                </form>
+                            {% endif %}
                         </td>
                     {% endif %}
                     <td class="td-actions">

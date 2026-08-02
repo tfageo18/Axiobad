@@ -202,6 +202,10 @@
 
             .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
+            .badge-inactif { background: var(--color-error-bg); color: var(--color-error); padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700; }
+            .badge-actif { background: var(--color-success-bg); color: var(--color-success); padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.78rem; font-weight: 700; }
+            tr.ligne-inactive { opacity: 0.55; }
+
             .btn-cta {
                 display: inline-block;
                 background: var(--color-accent);
@@ -331,10 +335,10 @@
                     <a class="nav-link" href="{{ path('app_licencie_index') }}">Licenciés</a>
                     <a class="nav-link" href="{{ path('app_stock_index') }}">Stock</a>
                 {% endif %}
+                <a class="nav-link" href="{{ path('app_mon_profil') }}">{{ app.user.nomComplet }}</a>
             {% endif %}
             <span class="spacer">
                 {% if app.user %}
-                    <a href="{{ path('app_mon_profil') }}" class="user-link">{{ app.user.nomComplet }}</a>
                     <a href="{{ path('app_logout') }}" class="logout-link">Déconnexion</a>
                 {% else %}
                     <a href="{{ path('app_login') }}" class="user-link">Connexion</a>

@@ -24,6 +24,9 @@ class Gymnase
     #[ORM\Column(length: 30, nullable: true)]
     private ?string $telephone = null;
 
+    #[ORM\Column]
+    private bool $actif = true;
+
     /**
      * @var Collection<int, Creneau>
      */
@@ -80,6 +83,18 @@ class Gymnase
     public function setTelephone(?string $telephone): static
     {
         $this->telephone = $telephone;
+
+        return $this;
+    }
+
+    public function isActif(): bool
+    {
+        return $this->actif;
+    }
+
+    public function setActif(bool $actif): static
+    {
+        $this->actif = $actif;
 
         return $this;
     }

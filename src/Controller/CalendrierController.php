@@ -44,7 +44,7 @@ class CalendrierController extends AbstractController
         $dernierDuMois = $premierDuMois->modify('last day of this month');
         $dernierJourGrille = $dernierDuMois->modify(sprintf('+%d days', 7 - (int) $dernierDuMois->format('N')));
 
-        $tousLesCreneaux = $creneauRepository->findAll();
+        $tousLesCreneaux = array_values(array_filter($creneauRepository->findAll(), static fn (Creneau $c) => $c->isActif()));
 
         $semaines = [];
         $semaineCourante = [];

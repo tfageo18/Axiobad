@@ -2,6 +2,13 @@
 
 {% block title %}Créneaux — Axiobad{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        #recherche-creneaux { max-width: 320px; margin-bottom: 1rem; }
+    </style>
+{% endblock %}
+
 {% block body %}
     <h1>Créneaux</h1>
 
@@ -19,8 +26,13 @@
         </p>
     {% endif %}
 
+    <div>
+        <label for="recherche-creneaux">Rechercher</label>
+        <input type="search" id="recherche-creneaux" placeholder="Nom, gymnase, jour...">
+    </div>
+
     <div class="table-scroll">
-    <table class="table-cards">
+    <table class="table-cards" id="table-creneaux">
         <thead>
             <tr>
                 <th>Créneau</th>
@@ -30,12 +42,12 @@
                 <th>Catégorie</th>
                 <th>Niveau min.</th>
                 <th>Encadrement</th>
-                {% if is_granted('ROLE_BUREAU') %}<th></th>{% endif %}
+                {% if is_granted('ROLE_BUREAU') %}<th>Statut</th><th></th>{% endif %}
             </tr>
         </thead>
         <tbody>
             {% for creneau in creneaux %}
-                <tr>
+                <tr class="{{ creneau.actif ? '' : 'ligne-inactive' }}">
                     <td data-label="Créneau">{{ creneau.nom }}</td>
                     <td data-label="Gymnase">{{ creneau.gymnase.nom }}</td>
                     <td data-label="Jour">{{ creneau.jourSemaine }}</td>
@@ -50,8 +62,12 @@
                         {% endif %}
                     </td>
                     {% if is_granted('ROLE_BUREAU') %}
+                        <td data-label="Statut">{{ (creneau.actif ? '<span class="badge-actif">Actif</span>' : '<span class="badge-inactif">Inactif</span>')|raw }}</td>
                         <td class="td-actions">
                             <a href="{{ path('app_creneau_edit', {id: creneau.id}) }}">Modifier</a>
+                            <form method="post" action="{{ path('app_creneau_toggle_actif', {id: creneau.id}) }}" style="display:inline">
+                                <button type="submit">{{ creneau.actif ? 'Désactiver' : 'Réactiver' }}</button>
+                            </form>
                             <form method="post" action="{{ path('app_creneau_delete', {id: creneau.id}) }}" onsubmit="return confirm('Supprimer ce créneau ?');" style="display:inline">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete-creneau-' ~ creneau.id) }}">
                                 <button type="submit">Supprimer</button>
@@ -60,9 +76,29 @@
                     {% endif %}
                 </tr>
             {% else %}
-                <tr><td colspan="8">Aucun créneau.</td></tr>
+                <tr><td colspan="9">Aucun créneau.</td></tr>
             {% endfor %}
         </tbody>
     </table>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        (function () {
+            var input = document.getElementById('recherche-creneaux');
+            var table = document.getElementById('table-creneaux');
+            if (!input || !table) { return; }
+            var lignes = Array.prototype.slice.call(table.querySelectorAll('tbody tr'));
+
+            input.addEventListener('input', function () {
+                var terme = input.value.trim().toLowerCase();
+                lignes.forEach(function (tr) {
+                    var texte = tr.textContent.toLowerCase();
+                    tr.style.display = texte.indexOf(terme) === -1 ? 'none' : '';
+                });
+            });
+        })();
+    </script>
 {% endblock %}

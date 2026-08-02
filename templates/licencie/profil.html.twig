@@ -32,10 +32,42 @@
                 <input type="tel" name="telephone" id="telephone" value="{{ licencie.telephone }}">
             </div>
             <div>
-                <p>Classement : {{ licencie.classementSimple ?? '-' }} (simple) / {{ licencie.classementDouble ?? '-' }} (double) / {{ licencie.classementMixte ?? '-' }} (mixte)</p>
+                <label for="dateNaissance">Date de naissance</label>
+                <input type="date" name="dateNaissance" id="dateNaissance" value="{{ licencie.dateNaissance ? licencie.dateNaissance|date('Y-m-d') : '' }}">
                 {% if licencie.age is not null %}
-                    <p>Âge : {{ licencie.age }} ans ({{ licencie.categorie == 'ENFANT' ? 'enfant' : 'adulte' }})</p>
+                    <small>Âge : {{ licencie.age }} ans ({{ licencie.categorie == 'ENFANT' ? 'enfant' : 'adulte' }})</small>
                 {% endif %}
+            </div>
+            <div>
+                <label for="numeroLicence">Numéro de licence FFBaD</label>
+                <input type="text" name="numeroLicence" id="numeroLicence" value="{{ licencie.numeroLicence }}">
+            </div>
+            <div>
+                <label for="classementSimple">Classement simple</label>
+                <select name="classementSimple" id="classementSimple">
+                    <option value="">-</option>
+                    {% for code in constant('App\\Badminton\\ClassementFfbad::CODES')|reverse %}
+                        <option value="{{ code }}" {{ licencie.classementSimple == code ? 'selected' : '' }}>{{ code }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="classementDouble">Classement double</label>
+                <select name="classementDouble" id="classementDouble">
+                    <option value="">-</option>
+                    {% for code in constant('App\\Badminton\\ClassementFfbad::CODES')|reverse %}
+                        <option value="{{ code }}" {{ licencie.classementDouble == code ? 'selected' : '' }}>{{ code }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="classementMixte">Classement mixte</label>
+                <select name="classementMixte" id="classementMixte">
+                    <option value="">-</option>
+                    {% for code in constant('App\\Badminton\\ClassementFfbad::CODES')|reverse %}
+                        <option value="{{ code }}" {{ licencie.classementMixte == code ? 'selected' : '' }}>{{ code }}</option>
+                    {% endfor %}
+                </select>
             </div>
             <button type="submit">Enregistrer</button>
         </form>

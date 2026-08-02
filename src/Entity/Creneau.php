@@ -38,6 +38,9 @@ class Creneau
     #[ORM\Column]
     private bool $encadre = false;
 
+    #[ORM\Column]
+    private bool $actif = true;
+
     #[ORM\Column(length: 10)]
     private string $categorie = self::CATEGORIE_ADULTE;
 
@@ -126,6 +129,18 @@ class Creneau
     public function setHeureFin(\DateTimeImmutable $heureFin): static
     {
         $this->heureFin = $heureFin;
+
+        return $this;
+    }
+
+    public function isActif(): bool
+    {
+        return $this->actif;
+    }
+
+    public function setActif(bool $actif): static
+    {
+        $this->actif = $actif;
 
         return $this;
     }

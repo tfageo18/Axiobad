@@ -17,12 +17,13 @@
                 <th>Adresse</th>
                 <th>Téléphone</th>
                 <th>Porteurs de clés</th>
+                <th>Statut</th>
                 {% if is_granted('ROLE_BUREAU') %}<th></th>{% endif %}
             </tr>
         </thead>
         <tbody>
             {% for gymnase in gymnases %}
-                <tr>
+                <tr class="{{ gymnase.actif ? '' : 'ligne-inactive' }}">
                     <td data-label="Nom">{{ gymnase.nom }}</td>
                     <td data-label="Adresse">{{ gymnase.adresse }}</td>
                     <td data-label="Téléphone">{{ gymnase.telephone ?? '-' }}</td>
@@ -33,9 +34,13 @@
                             -
                         {% endif %}
                     </td>
+                    <td data-label="Statut">{{ (gymnase.actif ? '<span class="badge-actif">Actif</span>' : '<span class="badge-inactif">Inactif</span>')|raw }}</td>
                     {% if is_granted('ROLE_BUREAU') %}
                         <td class="td-actions">
                             <a href="{{ path('app_gymnase_edit', {id: gymnase.id}) }}">Modifier</a>
+                            <form method="post" action="{{ path('app_gymnase_toggle_actif', {id: gymnase.id}) }}" style="display:inline">
+                                <button type="submit">{{ gymnase.actif ? 'Désactiver' : 'Réactiver' }}</button>
+                            </form>
                             <form method="post" action="{{ path('app_gymnase_delete', {id: gymnase.id}) }}" onsubmit="return confirm('Supprimer ce gymnase ?');" style="display:inline">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete-gymnase-' ~ gymnase.id) }}">
                                 <button type="submit">Supprimer</button>
@@ -44,7 +49,7 @@
                     {% endif %}
                 </tr>
             {% else %}
-                <tr><td colspan="5">Aucun gymnase.</td></tr>
+                <tr><td colspan="6">Aucun gymnase.</td></tr>
             {% endfor %}
         </tbody>
     </table>

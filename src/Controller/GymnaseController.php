@@ -92,6 +92,18 @@ class GymnaseController extends AbstractController
         }
     }
 
+    #[Route('/{id}/activer', name: 'app_gymnase_toggle_actif', methods: ['POST'])]
+    #[IsGranted('ROLE_BUREAU')]
+    public function toggleActif(Gymnase $gymnase, EntityManagerInterface $entityManager): Response
+    {
+        $gymnase->setActif(!$gymnase->isActif());
+        $entityManager->flush();
+
+        $this->addFlash('success', $gymnase->isActif() ? 'Gymnase réactivé.' : 'Gymnase désactivé.');
+
+        return $this->redirectToRoute('app_gymnase_index');
+    }
+
     #[Route('/{id}/supprimer', name: 'app_gymnase_delete', methods: ['POST'])]
     #[IsGranted('ROLE_BUREAU')]
     public function delete(Request $request, Gymnase $gymnase, EntityManagerInterface $entityManager): Response

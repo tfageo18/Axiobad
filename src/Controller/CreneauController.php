@@ -31,6 +31,9 @@ class CreneauController extends AbstractController
         $toutAfficher = $request->query->getBoolean('tous') || $this->isGranted('ROLE_BUREAU');
 
         $tousLesCreneaux = $creneauRepository->findAll();
+        if (!$this->isGranted('ROLE_BUREAU')) {
+            $tousLesCreneaux = array_values(array_filter($tousLesCreneaux, static fn (Creneau $c) => $c->isActif()));
+        }
         $creneaux = $toutAfficher
             ? $tousLesCreneaux
             : array_values(array_filter($tousLesCreneaux, static fn (Creneau $c) => $c->correspondA($licencie)));
@@ -98,6 +101,18 @@ class CreneauController extends AbstractController
             $entityManager->flush();
             $this->addFlash('success', 'Créneau supprimé.');
         }
+
+        return $this->redirectToRoute('app_creneau_index');
+    }
+
+    #[Route('/{id}/activer', name: 'app_creneau_toggle_actif', methods: ['POST'])]
+    #[IsGranted('ROLE_BUREAU')]
+    public function toggleActif(Creneau $creneau, EntityManagerInterface $entityManager): Response
+    {
+        $creneau->setActif(!$creneau->isActif());
+        $entityManager->flush();
+
+        $this->addFlash('success', $creneau->isActif() ? 'Créneau réactivé.' : 'Créneau désactivé.');
 
         return $this->redirectToRoute('app_creneau_index');
     }

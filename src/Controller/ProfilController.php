@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Badminton\ClassementFfbad;
 use App\Entity\Licencie;
 use App\Repository\LicencieRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,6 +28,8 @@ class ProfilController extends AbstractController
         if ($request->isMethod('POST')) {
             $email = (string) $request->request->get('email');
             $telephone = (string) $request->request->get('telephone');
+            $dateNaissance = (string) $request->request->get('dateNaissance');
+            $numeroLicence = (string) $request->request->get('numeroLicence');
 
             if ($email && $email !== $licencie->getEmail()) {
                 $existant = $licencieRepository->findOneBy(['email' => $email]);
@@ -39,6 +42,11 @@ class ProfilController extends AbstractController
             }
 
             $licencie->setTelephone($telephone ?: null);
+            $licencie->setDateNaissance($dateNaissance ? new \DateTimeImmutable($dateNaissance) : null);
+            $licencie->setNumeroLicence($numeroLicence ?: null);
+            $licencie->setClassementSimple($this->normaliserClassement($request->request->get('classementSimple')));
+            $licencie->setClassementDouble($this->normaliserClassement($request->request->get('classementDouble')));
+            $licencie->setClassementMixte($this->normaliserClassement($request->request->get('classementMixte')));
 
             $photoFile = $request->files->get('photo');
             if ($photoFile) {
@@ -68,5 +76,12 @@ class ProfilController extends AbstractController
         return $this->render('licencie/profil.html.twig', [
             'licencie' => $licencie,
         ]);
+    }
+
+    private function normaliserClassement(mixed $valeur): ?string
+    {
+        $valeur = (string) $valeur;
+
+        return in_array($valeur, ClassementFfbad::CODES, true) ? $valeur : null;
     }
 }

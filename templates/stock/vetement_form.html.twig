@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ vetement ? 'Modifier' : 'Nouvel' }} article — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>{{ vetement ? 'Modifier l\'article' : 'Nouvel article de vêtement' }}</h1>
+
+    <form method="post" action="{{ vetement ? path('app_stock_vetement_edit', {id: vetement.id}) : path('app_stock_vetement_new') }}">
+        <div>
+            <label for="type">Type</label>
+            <select name="type" id="type" required>
+                {% for valeur, libelle in constant('App\\Entity\\StockVetement::TYPES') %}
+                    <option value="{{ valeur }}" {{ vetement and vetement.type == valeur ? 'selected' : '' }}>{{ libelle }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="taille">Taille</label>
+            <select name="taille" id="taille" required>
+                {% for taille in constant('App\\Entity\\StockVetement::TAILLES') %}
+                    <option value="{{ taille }}" {{ vetement and vetement.taille == taille ? 'selected' : '' }}>{{ taille }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="quantite">Quantité</label>
+            <input type="number" name="quantite" id="quantite" min="0" value="{{ vetement ? vetement.quantite : 0 }}" required>
+        </div>
+        <div>
+            <label for="marque">Marque</label>
+            <input type="text" name="marque" id="marque" value="{{ vetement ? vetement.marque : '' }}">
+        </div>
+        <div>
+            <label for="commentaire">Commentaire</label>
+            <textarea name="commentaire" id="commentaire">{{ vetement ? vetement.commentaire : '' }}</textarea>
+        </div>
+        <button type="submit">{{ vetement ? 'Enregistrer' : 'Ajouter' }}</button>
+    </form>
+{% endblock %}

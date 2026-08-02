@@ -27,6 +27,7 @@
             <a href="{{ path('app_gymnase_index') }}">Gymnases</a>
             {% if is_granted('ROLE_BUREAU') %}
                 <a href="{{ path('app_licencie_index') }}">Licenciés</a>
+                <a href="{{ path('app_stock_index') }}">Stock</a>
             {% endif %}
             <span style="margin-left: auto">
                 {% if app.user %}

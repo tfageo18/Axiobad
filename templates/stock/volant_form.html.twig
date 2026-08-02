@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ volant ? 'Modifier' : 'Nouveau' }} tube de volants — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>{{ volant ? 'Modifier le tube' : 'Nouveau tube de volants' }}</h1>
+
+    <form method="post" action="{{ volant ? path('app_stock_volant_edit', {id: volant.id}) : path('app_stock_volant_new') }}">
+        <div>
+            <label for="type">Type</label>
+            <select name="type" id="type" required>
+                {% for valeur, libelle in constant('App\\Entity\\StockVolant::TYPES') %}
+                    <option value="{{ valeur }}" {{ volant and volant.type == valeur ? 'selected' : '' }}>{{ libelle }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="vitesse">Vitesse</label>
+            <select name="vitesse" id="vitesse" required>
+                {% for vitesse in constant('App\\Entity\\StockVolant::VITESSES') %}
+                    <option value="{{ vitesse }}" {{ volant and volant.vitesse == vitesse ? 'selected' : '' }}>{{ vitesse }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="destination">Destination</label>
+            <select name="destination" id="destination" required>
+                {% for valeur, libelle in constant('App\\Entity\\StockVolant::DESTINATIONS') %}
+                    <option value="{{ valeur }}" {{ volant and volant.destination == valeur ? 'selected' : '' }}>{{ libelle }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="quantiteTubes">Nombre de tubes en stock</label>
+            <input type="number" name="quantiteTubes" id="quantiteTubes" min="0" value="{{ volant ? volant.quantiteTubes : 0 }}" required>
+        </div>
+        <div>
+            <label for="marque">Marque</label>
+            <input type="text" name="marque" id="marque" value="{{ volant ? volant.marque : '' }}">
+        </div>
+        <div>
+            <label for="commentaire">Commentaire</label>
+            <textarea name="commentaire" id="commentaire">{{ volant ? volant.commentaire : '' }}</textarea>
+        </div>
+        <button type="submit">{{ volant ? 'Enregistrer' : 'Ajouter' }}</button>
+    </form>
+{% endblock %}

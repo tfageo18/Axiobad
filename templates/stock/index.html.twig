@@ -1,0 +1,79 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Stock — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>Gestion du stock</h1>
+
+    <h2>Vêtements</h2>
+    <p><a href="{{ path('app_stock_vetement_new') }}">+ Nouvel article</a></p>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Taille</th>
+                <th>Quantité</th>
+                <th>Marque</th>
+                <th>Commentaire</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for vetement in vetements %}
+                <tr>
+                    <td>{{ vetement.typeLabel }}</td>
+                    <td>{{ vetement.taille }}</td>
+                    <td>{{ vetement.quantite }}</td>
+                    <td>{{ vetement.marque ?? '-' }}</td>
+                    <td>{{ vetement.commentaire ?? '-' }}</td>
+                    <td>
+                        <a href="{{ path('app_stock_vetement_edit', {id: vetement.id}) }}">Modifier</a>
+                        <form method="post" action="{{ path('app_stock_vetement_delete', {id: vetement.id}) }}" onsubmit="return confirm('Supprimer cet article ?');" style="display:inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete-stock-vetement-' ~ vetement.id) }}">
+                            <button type="submit">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="6">Aucun article.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Volants</h2>
+    <p><a href="{{ path('app_stock_volant_new') }}">+ Nouveau tube</a></p>
+    <table>
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Vitesse</th>
+                <th>Destination</th>
+                <th>Tubes en stock</th>
+                <th>Marque</th>
+                <th>Commentaire</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for volant in volants %}
+                <tr>
+                    <td>{{ volant.typeLabel }}</td>
+                    <td>{{ volant.vitesse }}</td>
+                    <td>{{ volant.destinationLabel }}</td>
+                    <td>{{ volant.quantiteTubes }}</td>
+                    <td>{{ volant.marque ?? '-' }}</td>
+                    <td>{{ volant.commentaire ?? '-' }}</td>
+                    <td>
+                        <a href="{{ path('app_stock_volant_edit', {id: volant.id}) }}">Modifier</a>
+                        <form method="post" action="{{ path('app_stock_volant_delete', {id: volant.id}) }}" onsubmit="return confirm('Supprimer ce tube ?');" style="display:inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete-stock-volant-' ~ volant.id) }}">
+                            <button type="submit">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="7">Aucun tube en stock.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

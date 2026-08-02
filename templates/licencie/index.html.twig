@@ -86,7 +86,15 @@
                     <td data-label="Email">{{ licencie.email }}</td>
                     <td data-label="Rôles">{{ licencie.roles|join(', ') }}</td>
                     <td data-label="Compte">{{ (licencie.actif ? '<span class="badge-actif">Actif</span>' : '<span class="badge-inactif">Désactivé</span>')|raw }}</td>
-                    <td data-label="Activation">{{ licencie.activationTokenValid ? "En attente d'activation" : 'Activé' }}</td>
+                    <td data-label="Activation">
+                        {% if not licencie.mustChangePassword %}
+                            Activé
+                        {% elseif licencie.activationTokenValid %}
+                            En attente d'activation
+                        {% else %}
+                            Invitation expirée
+                        {% endif %}
+                    </td>
                     {% if saison %}
                         <td data-label="Adhésion {{ saison.libelle }}">
                             {% if licencie.email == constant('App\\Entity\\Licencie::EMAIL_ADMIN_DEFAUT') %}
@@ -107,6 +115,11 @@
                     {% endif %}
                     <td class="td-actions">
                         <a href="{{ path('app_licencie_edit', {id: licencie.id}) }}">Modifier</a>
+                        {% if licencie.mustChangePassword %}
+                            <form method="post" action="{{ path('app_licencie_renvoyer_invitation', {id: licencie.id}) }}" style="display:inline">
+                                <button type="submit">Renvoyer l'invitation</button>
+                            </form>
+                        {% endif %}
                         {% if licencie.email == constant('App\\Entity\\Licencie::EMAIL_ADMIN_DEFAUT') %}
                             <span style="font-size: 0.82rem; color: var(--color-text-muted);">Compte administrateur par défaut (protégé)</span>
                         {% else %}

@@ -269,6 +269,25 @@ class LicencieController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/renvoyer-invitation', name: 'app_licencie_renvoyer_invitation', methods: ['POST'])]
+    public function renvoyerInvitation(Licencie $licencie, EntityManagerInterface $entityManager, InvitationMailer $invitationMailer): Response
+    {
+        if (!$licencie->mustChangePassword()) {
+            $this->addFlash('error', 'Ce compte est déjà activé.');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        $token = $licencie->generateActivationToken();
+        $entityManager->flush();
+
+        $invitationMailer->envoyerInvitation($licencie, $token);
+
+        $this->addFlash('success', sprintf('Invitation renvoyée à %s.', $licencie->getEmail()));
+
+        return $this->redirectToRoute('app_licencie_index');
+    }
+
     #[Route('/{id}/activer', name: 'app_licencie_toggle_actif', methods: ['POST'])]
     public function toggleActif(Licencie $licencie, EntityManagerInterface $entityManager): Response
     {

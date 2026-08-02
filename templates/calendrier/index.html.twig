@@ -2,54 +2,113 @@
 
 {% block title %}Calendrier — Axiobad{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .calendrier { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        .calendrier th { border: 1px solid #ddd; padding: 0.25rem; background: #f0f0f0; }
+        .calendrier td { border: 1px solid #ddd; padding: 0.25rem; vertical-align: top; height: 1px; }
+        .calendrier .hors-mois { background: #fafafa; color: #999; }
+        .calendrier .jour-numero { font-weight: bold; }
+        .creneau-cal { border: 1px solid #ccc; border-radius: 4px; padding: 0.25rem; margin-top: 0.25rem; font-size: 0.8rem; }
+        .creneau-cal button { font-size: 0.75rem; padding: 0.1rem 0.3rem; }
+    </style>
+{% endblock %}
+
 {% block body %}
     <h1>Calendrier des créneaux</h1>
 
     <p>
-        <a href="{{ path('app_calendrier', {semaine: semainePrecedente, tous: toutAfficher ? 1 : null}) }}">&laquo; Semaine précédente</a>
+        <a href="{{ path('app_calendrier', {mois: moisPrecedent, tous: toutAfficher ? 1 : null}) }}">&laquo; Mois précédent</a>
         —
-        Semaine du {{ lundi|date('d/m/Y') }}
+        <strong>{{ nomMois }}</strong>
         —
-        <a href="{{ path('app_calendrier', {semaine: semaineSuivante, tous: toutAfficher ? 1 : null}) }}">Semaine suivante &raquo;</a>
+        <a href="{{ path('app_calendrier', {mois: moisSuivant, tous: toutAfficher ? 1 : null}) }}">Mois suivant &raquo;</a>
     </p>
 
     {% if not is_granted('ROLE_BUREAU') %}
         <p>
             {% if toutAfficher %}
-                Affichage de tous les créneaux. <a href="{{ path('app_calendrier', {semaine: lundi|date('Y-m-d')}) }}">Voir seulement les créneaux adaptés à mon niveau et mon âge</a>
+                Affichage de tous les créneaux. <a href="{{ path('app_calendrier', {mois: premierDuMois|date('Y-m')}) }}">Voir seulement les créneaux adaptés à mon niveau et mon âge</a>
             {% else %}
-                Affichage des créneaux adaptés à votre niveau et votre âge. <a href="{{ path('app_calendrier', {semaine: lundi|date('Y-m-d'), tous: 1}) }}">Voir tous les créneaux</a>
+                Affichage des créneaux adaptés à votre niveau et votre âge. <a href="{{ path('app_calendrier', {mois: premierDuMois|date('Y-m'), tous: 1}) }}">Voir tous les créneaux</a>
             {% endif %}
         </p>
     {% endif %}
 
-    <div style="display: flex; gap: 1rem; overflow-x: auto;">
-        {% for jour in jours %}
-            <div style="min-width: 220px; flex: 1;">
-                <h3>{{ jour.nom }}<br><small>{{ jour.date|date('d/m') }}</small></h3>
-                {% for creneau in jour.creneaux %}
-                    <div style="border: 1px solid #ccc; border-radius: 4px; padding: 0.5rem; margin-bottom: 0.5rem;">
-                        <strong>{{ creneau.nom }}</strong><br>
-                        {{ creneau.heureDebut|date('H:i') }} - {{ creneau.heureFin|date('H:i') }}<br>
-                        {{ creneau.gymnase.nom }}<br>
-                        <small>
-                            {{ creneau.categorie == 'ENFANT' ? 'Enfants' : 'Adultes' }}
-                            {% if creneau.classementMinimum %} · niveau min. {{ creneau.classementMinimum }}{% endif %}
-                        </small><br>
-                        <small>{{ creneau.encadre ? 'Encadré par ' ~ creneau.entraineur.nomComplet : 'Libre' }}</small>
+    <div style="overflow-x: auto;">
+        <table class="calendrier">
+            <thead>
+                <tr>
+                    <th>Lundi</th>
+                    <th>Mardi</th>
+                    <th>Mercredi</th>
+                    <th>Jeudi</th>
+                    <th>Vendredi</th>
+                    <th>Samedi</th>
+                    <th>Dimanche</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for semaine in semaines %}
+                    <tr>
+                        {% for jour in semaine %}
+                            <td class="{{ jour.dansLeMois ? '' : 'hors-mois' }}">
+                                <div class="jour-numero">{{ jour.date|date('d') }}</div>
+                                {% for creneau in jour.creneaux %}
+                                    {% set ouverture = jour.ouvertures[creneau.id] %}
+                                    <div class="creneau-cal">
+                                        <strong>{{ creneau.nom }}</strong> {{ creneau.heureDebut|date('H:i') }}<br>
+                                        <small>{{ creneau.gymnase.nom }}</small><br>
 
-                        {% set presence = jour.presences[creneau.id] %}
-                        <form method="post" action="{{ path('app_creneau_presence', {id: creneau.id}) }}" style="margin-top: 0.5rem;">
-                            <input type="hidden" name="date" value="{{ jour.date|date('Y-m-d') }}">
-                            <input type="hidden" name="semaine" value="{{ lundi|date('Y-m-d') }}">
-                            <button type="submit" name="present" value="1" {% if presence and presence.present %}disabled{% endif %}>Je viens</button>
-                            <button type="submit" name="present" value="0" {% if presence and not presence.present %}disabled{% endif %}>Je ne viens pas</button>
-                        </form>
-                    </div>
-                {% else %}
-                    <p><small>Aucun créneau.</small></p>
+                                        {% set presence = jour.presences[creneau.id] %}
+                                        <form method="post" action="{{ path('app_creneau_presence', {id: creneau.id}) }}">
+                                            <input type="hidden" name="date" value="{{ jour.date|date('Y-m-d') }}">
+                                            <input type="hidden" name="semaine" value="{{ premierDuMois|date('Y-m') }}">
+                                            <button type="submit" name="present" value="1" {% if presence and presence.present %}disabled{% endif %}>Je viens</button>
+                                            <button type="submit" name="present" value="0" {% if presence and not presence.present %}disabled{% endif %}>Non</button>
+                                        </form>
+
+                                        <div>
+                                            <small>
+                                                Ouvre : {{ ouverture and ouverture.licencieOuverture ? ouverture.licencieOuverture.nomComplet : '—' }}<br>
+                                                Ferme : {{ ouverture and ouverture.licencieFermeture ? ouverture.licencieFermeture.nomComplet : '—' }}
+                                            </small>
+                                        </div>
+
+                                        {% if is_granted('ROLE_BUREAU') %}
+                                            <details>
+                                                <summary>Ouverture/fermeture</summary>
+                                                <form method="post" action="{{ path('app_creneau_ouverture', {id: creneau.id}) }}">
+                                                    <input type="hidden" name="date" value="{{ jour.date|date('Y-m-d') }}">
+                                                    <input type="hidden" name="mois" value="{{ premierDuMois|date('Y-m') }}">
+                                                    <label>Ouvre
+                                                        <select name="licencieOuverture">
+                                                            <option value="">—</option>
+                                                            {% for l in licenciesDisponibles %}
+                                                                <option value="{{ l.id }}" {{ ouverture and ouverture.licencieOuverture and ouverture.licencieOuverture.id == l.id ? 'selected' : '' }}>{{ l.nomComplet }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </label>
+                                                    <label>Ferme
+                                                        <select name="licencieFermeture">
+                                                            <option value="">—</option>
+                                                            {% for l in licenciesDisponibles %}
+                                                                <option value="{{ l.id }}" {{ ouverture and ouverture.licencieFermeture and ouverture.licencieFermeture.id == l.id ? 'selected' : '' }}>{{ l.nomComplet }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </label>
+                                                    <button type="submit">Valider</button>
+                                                </form>
+                                            </details>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </td>
+                        {% endfor %}
+                    </tr>
                 {% endfor %}
-            </div>
-        {% endfor %}
+            </tbody>
+        </table>
     </div>
 {% endblock %}

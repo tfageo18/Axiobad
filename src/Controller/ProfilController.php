@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Licencie;
+use App\Repository\LicencieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -17,19 +18,27 @@ class ProfilController extends AbstractController
     public function __invoke(
         Request $request,
         EntityManagerInterface $entityManager,
+        LicencieRepository $licencieRepository,
         SluggerInterface $slugger,
     ): Response {
         /** @var Licencie $licencie */
         $licencie = $this->getUser();
 
         if ($request->isMethod('POST')) {
+            $email = (string) $request->request->get('email');
             $telephone = (string) $request->request->get('telephone');
-            $dateNaissance = (string) $request->request->get('dateNaissance');
-            $numeroLicence = (string) $request->request->get('numeroLicence');
+
+            if ($email && $email !== $licencie->getEmail()) {
+                $existant = $licencieRepository->findOneBy(['email' => $email]);
+                if ($existant && $existant->getId() !== $licencie->getId()) {
+                    $this->addFlash('error', 'Cet email est déjà utilisé par un autre compte.');
+
+                    return $this->redirectToRoute('app_mon_profil');
+                }
+                $licencie->setEmail($email);
+            }
 
             $licencie->setTelephone($telephone ?: null);
-            $licencie->setNumeroLicence($numeroLicence ?: null);
-            $licencie->setDateNaissance($dateNaissance ? new \DateTimeImmutable($dateNaissance) : null);
 
             $photoFile = $request->files->get('photo');
             if ($photoFile) {

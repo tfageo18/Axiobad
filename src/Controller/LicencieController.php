@@ -71,12 +71,16 @@ class LicencieController extends AbstractController
     {
         if ($request->isMethod('POST')) {
             $roles = $request->request->all('roles');
+            $dateNaissance = (string) $request->request->get('dateNaissance');
+            $numeroLicence = (string) $request->request->get('numeroLicence');
 
             $licencie
                 ->setEmail((string) $request->request->get('email'))
                 ->setPrenom((string) $request->request->get('prenom'))
                 ->setNom((string) $request->request->get('nom'))
-                ->setRoles(array_values(array_intersect($roles, [Licencie::ROLE_BUREAU, Licencie::ROLE_ENTRAINEUR])));
+                ->setRoles(array_values(array_intersect($roles, [Licencie::ROLE_BUREAU, Licencie::ROLE_ENTRAINEUR])))
+                ->setDateNaissance($dateNaissance ? new \DateTimeImmutable($dateNaissance) : null)
+                ->setNumeroLicence($numeroLicence ?: null);
 
             $entityManager->flush();
 

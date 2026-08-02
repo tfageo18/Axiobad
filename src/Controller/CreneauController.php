@@ -3,9 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Creneau;
+use App\Entity\CreneauOuverture;
 use App\Entity\Gymnase;
 use App\Entity\Licencie;
 use App\Entity\Presence;
+use App\Repository\CreneauOuvertureRepository;
 use App\Repository\CreneauRepository;
 use App\Repository\GymnaseRepository;
 use App\Repository\LicencieRepository;
@@ -117,6 +119,29 @@ class CreneauController extends AbstractController
         $this->addFlash('success', 'Réponse enregistrée.');
 
         return $this->redirectToRoute('app_calendrier', ['semaine' => $request->request->get('semaine')]);
+    }
+
+    #[Route('/{id}/ouverture', name: 'app_creneau_ouverture', methods: ['POST'])]
+    #[IsGranted('ROLE_BUREAU')]
+    public function ouverture(Request $request, Creneau $creneau, EntityManagerInterface $entityManager, CreneauOuvertureRepository $ouvertureRepository, LicencieRepository $licencieRepository): Response
+    {
+        $date = new \DateTimeImmutable((string) $request->request->get('date'));
+
+        $ouverture = $ouvertureRepository->findOneByCreneauEtDate($creneau, $date)
+            ?? (new CreneauOuverture())->setCreneau($creneau)->setDate($date);
+
+        $ouvreId = $request->request->get('licencieOuverture');
+        $fermeId = $request->request->get('licencieFermeture');
+
+        $ouverture->setLicencieOuverture($ouvreId ? $licencieRepository->find($ouvreId) : null);
+        $ouverture->setLicencieFermeture($fermeId ? $licencieRepository->find($fermeId) : null);
+
+        $entityManager->persist($ouverture);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Ouverture/fermeture mises à jour.');
+
+        return $this->redirectToRoute('app_calendrier', ['mois' => $request->request->get('mois')]);
     }
 
     private function remplirDepuisRequete(Creneau $creneau, Request $request, GymnaseRepository $gymnaseRepository, LicencieRepository $licencieRepository): bool

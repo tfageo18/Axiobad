@@ -17,24 +17,19 @@
         </div>
 
         <form method="post" enctype="multipart/form-data" style="flex: 1;">
-            <p><strong>{{ licencie.nomComplet }}</strong> — {{ licencie.email }}</p>
+            <p><strong>{{ licencie.nomComplet }}</strong></p>
 
             <div>
                 <label for="photo">Photo de profil</label>
                 <input type="file" name="photo" id="photo" accept="image/*">
             </div>
             <div>
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email" value="{{ licencie.email }}" required>
+            </div>
+            <div>
                 <label for="telephone">Téléphone</label>
                 <input type="tel" name="telephone" id="telephone" value="{{ licencie.telephone }}">
-            </div>
-            <div>
-                <label for="dateNaissance">Date de naissance</label>
-                <input type="date" name="dateNaissance" id="dateNaissance" value="{{ licencie.dateNaissance ? licencie.dateNaissance|date('Y-m-d') : '' }}">
-            </div>
-            <div>
-                <label for="numeroLicence">Numéro de licence FFBaD</label>
-                <input type="text" name="numeroLicence" id="numeroLicence" value="{{ licencie.numeroLicence }}">
-                <small>Permet de récupérer votre classement.</small>
             </div>
             <div>
                 <p>Classement : {{ licencie.classementSimple ?? '-' }} (simple) / {{ licencie.classementDouble ?? '-' }} (double) / {{ licencie.classementMixte ?? '-' }} (mixte)</p>
@@ -45,4 +40,6 @@
             <button type="submit">Enregistrer</button>
         </form>
     </div>
+
+    <p><a href="{{ path('app_change_password') }}">Changer mon mot de passe</a></p>
 {% endblock %}

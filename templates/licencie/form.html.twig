@@ -33,6 +33,16 @@
                 Entraîneur
             </label>
         </div>
+        {% if licencie %}
+            <div>
+                <label for="dateNaissance">Date de naissance</label>
+                <input type="date" name="dateNaissance" id="dateNaissance" value="{{ licencie.dateNaissance ? licencie.dateNaissance|date('Y-m-d') : '' }}">
+            </div>
+            <div>
+                <label for="numeroLicence">Numéro de licence FFBaD</label>
+                <input type="text" name="numeroLicence" id="numeroLicence" value="{{ licencie.numeroLicence }}">
+            </div>
+        {% endif %}
         <button type="submit">{{ licencie ? 'Enregistrer' : "Créer et envoyer l'invitation" }}</button>
     </form>
 {% endblock %}

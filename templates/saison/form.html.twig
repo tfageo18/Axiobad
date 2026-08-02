@@ -1,0 +1,23 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ saison ? 'Modifier' : 'Nouvelle' }} saison — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>{{ saison ? 'Modifier la saison' : 'Nouvelle saison' }}</h1>
+
+    <form method="post" action="{{ saison ? path('app_saison_edit', {id: saison.id}) : path('app_saison_new') }}">
+        <div>
+            <label for="libelle">Libellé</label>
+            <input type="text" name="libelle" id="libelle" placeholder="2026-2027" value="{{ saison ? saison.libelle : '' }}" required>
+        </div>
+        <div>
+            <label for="dateDebut">Date de début</label>
+            <input type="date" name="dateDebut" id="dateDebut" value="{{ saison and saison.dateDebut ? saison.dateDebut|date('Y-m-d') : '' }}" required>
+        </div>
+        <div>
+            <label for="dateFin">Date de fin</label>
+            <input type="date" name="dateFin" id="dateFin" value="{{ saison and saison.dateFin ? saison.dateFin|date('Y-m-d') : '' }}" required>
+        </div>
+        <button type="submit">{{ saison ? 'Enregistrer' : 'Créer' }}</button>
+    </form>
+{% endblock %}

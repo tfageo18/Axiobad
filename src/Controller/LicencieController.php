@@ -2,8 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\Adhesion;
 use App\Entity\Licencie;
+use App\Repository\AdhesionRepository;
 use App\Repository\LicencieRepository;
+use App\Repository\SaisonRepository;
 use App\Service\FfbadClassementService;
 use App\Service\InvitationMailer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,11 +22,44 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class LicencieController extends AbstractController
 {
     #[Route('', name: 'app_licencie_index', methods: ['GET'])]
-    public function index(LicencieRepository $licencieRepository): Response
-    {
+    public function index(
+        Request $request,
+        LicencieRepository $licencieRepository,
+        SaisonRepository $saisonRepository,
+        AdhesionRepository $adhesionRepository,
+    ): Response {
+        $saisonId = $request->query->get('saison');
+        $saison = $saisonId ? $saisonRepository->find($saisonId) : $saisonRepository->findEnCours();
+
         return $this->render('licencie/index.html.twig', [
             'licencies' => $licencieRepository->findAll(),
+            'saisons' => $saisonRepository->findAllTrieesParDate(),
+            'saison' => $saison,
+            'adhesions' => $saison ? $adhesionRepository->findParLicenciePourSaison($saison) : [],
         ]);
+    }
+
+    #[Route('/{id}/adhesion', name: 'app_licencie_adhesion', methods: ['POST'])]
+    public function adhesion(Request $request, Licencie $licencie, EntityManagerInterface $entityManager, SaisonRepository $saisonRepository, AdhesionRepository $adhesionRepository): Response
+    {
+        $saison = $saisonRepository->find($request->request->get('saison'));
+        if (!$saison) {
+            $this->addFlash('error', 'Saison invalide.');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        $adhesion = $adhesionRepository->findOneByLicencieEtSaison($licencie, $saison)
+            ?? (new Adhesion())->setLicencie($licencie)->setSaison($saison);
+
+        $adhesion->setPayee('1' === $request->request->get('payee'));
+
+        $entityManager->persist($adhesion);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Statut d\'adhésion mis à jour.');
+
+        return $this->redirectToRoute('app_licencie_index', ['saison' => $saison->getId()]);
     }
 
     #[Route('/nouveau', name: 'app_licencie_new', methods: ['GET', 'POST'])]

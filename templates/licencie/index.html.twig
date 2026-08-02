@@ -6,6 +6,19 @@
     <h1>Licenciés</h1>
 
     <p><a class="btn-cta" href="{{ path('app_licencie_new') }}">+ Nouveau licencié</a></p>
+    <p><a href="{{ path('app_saison_index') }}">Gérer les saisons</a></p>
+
+    <form method="get" style="margin-bottom: 1rem;">
+        <label for="saison">Saison</label>
+        <select name="saison" id="saison" onchange="this.form.submit()">
+            {% for s in saisons %}
+                <option value="{{ s.id }}" {{ saison and saison.id == s.id ? 'selected' : '' }}>{{ s.libelle }}{{ s.estEnCours ? ' (en cours)' : '' }}</option>
+            {% endfor %}
+        </select>
+    </form>
+    {% if not saison %}
+        <p class="flash-error">Aucune saison n'est configurée. <a href="{{ path('app_saison_new') }}">En créer une</a> pour suivre les adhésions.</p>
+    {% endif %}
 
     <div class="table-scroll">
     <table>
@@ -16,6 +29,7 @@
                 <th>Rôles</th>
                 <th>Statut</th>
                 <th>Classement (S/D/M)</th>
+                {% if saison %}<th>Adhésion {{ saison.libelle }}</th>{% endif %}
                 <th></th>
             </tr>
         </thead>
@@ -27,6 +41,21 @@
                     <td>{{ licencie.roles|join(', ') }}</td>
                     <td>{{ licencie.activationTokenValid ? 'En attente d\'activation' : 'Actif' }}</td>
                     <td>{{ licencie.classementSimple ?? '-' }} / {{ licencie.classementDouble ?? '-' }} / {{ licencie.classementMixte ?? '-' }}</td>
+                    {% if saison %}
+                        {% set adhesion = adhesions[licencie.id] is defined ? adhesions[licencie.id] : null %}
+                        <td>
+                            <form method="post" action="{{ path('app_licencie_adhesion', {id: licencie.id}) }}">
+                                <input type="hidden" name="saison" value="{{ saison.id }}">
+                                {% if adhesion and adhesion.payee %}
+                                    <span class="quantite-badge" style="background: var(--color-success-bg); color: var(--color-success);">Payée</span>
+                                    <button type="submit" name="payee" value="0">Annuler</button>
+                                {% else %}
+                                    <span class="quantite-badge zero">Non payée</span>
+                                    <button type="submit" name="payee" value="1">Marquer payée</button>
+                                {% endif %}
+                            </form>
+                        </td>
+                    {% endif %}
                     <td>
                         <a href="{{ path('app_licencie_edit', {id: licencie.id}) }}">Modifier</a>
                         <form method="post" action="{{ path('app_licencie_classement', {id: licencie.id}) }}" style="display:inline">
@@ -35,7 +64,7 @@
                     </td>
                 </tr>
             {% else %}
-                <tr><td colspan="6">Aucun licencié.</td></tr>
+                <tr><td colspan="7">Aucun licencié.</td></tr>
             {% endfor %}
         </tbody>
     </table>

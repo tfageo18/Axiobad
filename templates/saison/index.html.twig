@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Saisons — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>Saisons</h1>
+
+    <p><a class="btn-cta" href="{{ path('app_saison_new') }}">+ Nouvelle saison</a></p>
+
+    <div class="table-scroll">
+    <table>
+        <thead>
+            <tr>
+                <th>Libellé</th>
+                <th>Début</th>
+                <th>Fin</th>
+                <th>Statut</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for saison in saisons %}
+                <tr>
+                    <td>{{ saison.libelle }}</td>
+                    <td>{{ saison.dateDebut|date('d/m/Y') }}</td>
+                    <td>{{ saison.dateFin|date('d/m/Y') }}</td>
+                    <td>{{ saison.estEnCours ? 'En cours' : '-' }}</td>
+                    <td>
+                        <a href="{{ path('app_saison_edit', {id: saison.id}) }}">Modifier</a>
+                        <form method="post" action="{{ path('app_saison_delete', {id: saison.id}) }}" onsubmit="return confirm('Supprimer cette saison ?');" style="display:inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete-saison-' ~ saison.id) }}">
+                            <button type="submit">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="5">Aucune saison.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+{% endblock %}

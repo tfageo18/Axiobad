@@ -22,4 +22,7 @@ COPY . .
 
 RUN composer install --no-interaction --optimize-autoloader --no-scripts
 
+RUN mkdir -p var/cache var/log public/uploads \
+    && chown -R www-data:www-data var public/uploads
+
 CMD ["php-fpm"]

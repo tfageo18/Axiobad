@@ -12,7 +12,7 @@ LETSENCRYPT_EMAIL="thomas.fageol@gmail.com"
 
 dnf update -y
 dnf install -y docker git python3-pip cronie
-systemctl enable --now cronie
+systemctl enable --now crond
 
 # certbot n'est pas packagé pour AL2023/arm64 via dnf, on l'installe via pip.
 pip3 install --quiet certbot
@@ -47,9 +47,16 @@ mkdir -p /var/www/certbot
 
 # Obtention du certificat initial : nginx n'est pas encore démarré, on utilise le mode standalone
 # (certbot ouvre lui-même un mini-serveur sur le port 80 le temps de la validation ACME).
+# On retente plusieurs fois : le DNS peut ne pas encore être propagé partout juste après le boot.
 if [ ! -d "/etc/letsencrypt/live/$DOMAIN" ]; then
-    /usr/local/bin/certbot certonly --standalone --non-interactive --agree-tos \
-        --email "$LETSENCRYPT_EMAIL" -d "$DOMAIN"
+    for attempt in $(seq 1 10); do
+        if /usr/local/bin/certbot certonly --standalone --non-interactive --agree-tos \
+            --email "$LETSENCRYPT_EMAIL" -d "$DOMAIN"; then
+            break
+        fi
+        echo "Tentative $attempt échouée, nouvel essai dans 30s..."
+        sleep 30
+    done
 fi
 
 docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local up -d --build

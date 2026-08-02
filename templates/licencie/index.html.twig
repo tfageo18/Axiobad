@@ -39,6 +39,26 @@
         <p class="flash-error">Aucune saison n'est configurée. <a href="{{ path('app_saison_new') }}">En créer une</a> pour suivre les adhésions.</p>
     {% endif %}
 
+    {% if saison %}
+        {% set nbImpayes = 0 %}
+        {% for licencie in licencies %}
+            {% set adhesion = adhesions[licencie.id] is defined ? adhesions[licencie.id] : null %}
+            {% if not (adhesion and adhesion.payee) %}
+                {% set nbImpayes = nbImpayes + 1 %}
+            {% endif %}
+        {% endfor %}
+        <p>
+            {% if nbImpayes > 0 %}
+                <span class="flash-error" style="display: inline-block;">
+                    ⚠ {{ nbImpayes }} licencié{{ nbImpayes > 1 ? 's' : '' }} n'{{ nbImpayes > 1 ? 'ont' : 'a' }} pas payé son adhésion {{ saison.libelle }}.
+                </span>
+                <button type="button" id="filtre-impayes" style="margin-left: 0.5rem;">Voir uniquement les impayés</button>
+            {% else %}
+                <span class="flash-success" style="display: inline-block;">✓ Toutes les adhésions {{ saison.libelle }} sont payées.</span>
+            {% endif %}
+        </p>
+    {% endif %}
+
     <div>
         <label for="recherche-licencies">Rechercher</label>
         <input type="search" id="recherche-licencies" placeholder="Nom, email, rôle...">
@@ -59,14 +79,14 @@
         </thead>
         <tbody>
             {% for licencie in licencies %}
-                <tr class="{{ licencie.actif ? '' : 'ligne-inactive' }}">
+                {% set adhesion = saison and adhesions[licencie.id] is defined ? adhesions[licencie.id] : null %}
+                <tr class="{{ licencie.actif ? '' : 'ligne-inactive' }}" data-payee="{{ (adhesion and adhesion.payee) ? '1' : '0' }}">
                     <td data-label="Nom">{{ licencie.nomComplet }}</td>
                     <td data-label="Email">{{ licencie.email }}</td>
                     <td data-label="Rôles">{{ licencie.roles|join(', ') }}</td>
                     <td data-label="Compte">{{ (licencie.actif ? '<span class="badge-actif">Actif</span>' : '<span class="badge-inactif">Désactivé</span>')|raw }}</td>
                     <td data-label="Activation">{{ licencie.activationTokenValid ? "En attente d'activation" : 'Activé' }}</td>
                     {% if saison %}
-                        {% set adhesion = adhesions[licencie.id] is defined ? adhesions[licencie.id] : null %}
                         <td data-label="Adhésion {{ saison.libelle }}">
                             <form method="post" action="{{ path('app_licencie_adhesion', {id: licencie.id}) }}">
                                 <input type="hidden" name="saison" value="{{ saison.id }}">
@@ -82,17 +102,21 @@
                     {% endif %}
                     <td class="td-actions">
                         <a href="{{ path('app_licencie_edit', {id: licencie.id}) }}">Modifier</a>
-                        <form method="post" action="{{ path('app_licencie_toggle_actif', {id: licencie.id}) }}" style="display:inline">
-                            <button type="submit">{{ licencie.actif ? 'Désactiver' : 'Réactiver' }}</button>
-                        </form>
-                        <form method="post" action="{{ path('app_licencie_delete', {id: licencie.id}) }}" onsubmit="return confirm('Supprimer définitivement ce licencié ?');" style="display:inline">
-                            <input type="hidden" name="_token" value="{{ csrf_token('delete-licencie-' ~ licencie.id) }}">
-                            <button type="submit">Supprimer</button>
-                        </form>
+                        {% if licencie.email == constant('App\\Entity\\Licencie::EMAIL_ADMIN_DEFAUT') %}
+                            <span style="font-size: 0.82rem; color: var(--color-text-muted);">Compte administrateur par défaut (protégé)</span>
+                        {% else %}
+                            <form method="post" action="{{ path('app_licencie_toggle_actif', {id: licencie.id}) }}" style="display:inline">
+                                <button type="submit">{{ licencie.actif ? 'Désactiver' : 'Réactiver' }}</button>
+                            </form>
+                            <form method="post" action="{{ path('app_licencie_delete', {id: licencie.id}) }}" onsubmit="return confirm('Supprimer définitivement ce licencié ?');" style="display:inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete-licencie-' ~ licencie.id) }}">
+                                <button type="submit">Supprimer</button>
+                            </form>
+                        {% endif %}
                     </td>
                 </tr>
             {% else %}
-                <tr><td colspan="7">Aucun licencié.</td></tr>
+                <tr><td colspan="8">Aucun licencié.</td></tr>
             {% endfor %}
         </tbody>
     </table>
@@ -116,6 +140,18 @@
                     tr.style.display = texte.indexOf(terme) === -1 ? 'none' : '';
                 });
             });
+
+            var boutonImpayes = document.getElementById('filtre-impayes');
+            if (boutonImpayes) {
+                boutonImpayes.addEventListener('click', function () {
+                    var actif = boutonImpayes.classList.toggle('actif');
+                    boutonImpayes.textContent = actif ? 'Voir tout le monde' : 'Voir uniquement les impayés';
+                    linesOriginal.forEach(function (tr) {
+                        tr.style.display = (actif && tr.getAttribute('data-payee') === '1') ? 'none' : '';
+                    });
+                    input.value = '';
+                });
+            }
 
             table.querySelectorAll('th[data-sort]').forEach(function (th, index) {
                 th.addEventListener('click', function () {

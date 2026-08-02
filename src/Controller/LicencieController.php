@@ -158,6 +158,12 @@ class LicencieController extends AbstractController
             return $this->redirectToRoute('app_licencie_index');
         }
 
+        if ($licencie->getEmail() === Licencie::EMAIL_ADMIN_DEFAUT) {
+            $this->addFlash('error', 'Le compte administrateur par défaut ne peut pas être désactivé.');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
         $licencie->setActif(!$licencie->isActif());
         $entityManager->flush();
 
@@ -173,6 +179,12 @@ class LicencieController extends AbstractController
         $moi = $this->getUser();
         if ($moi->getId() === $licencie->getId()) {
             $this->addFlash('error', 'Vous ne pouvez pas supprimer votre propre compte.');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        if ($licencie->getEmail() === Licencie::EMAIL_ADMIN_DEFAUT) {
+            $this->addFlash('error', 'Le compte administrateur par défaut ne peut pas être supprimé.');
 
             return $this->redirectToRoute('app_licencie_index');
         }

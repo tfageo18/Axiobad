@@ -16,6 +16,8 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     public const ROLE_BUREAU = 'ROLE_BUREAU';
     public const ROLE_ENTRAINEUR = 'ROLE_ENTRAINEUR';
 
+    public const EMAIL_ADMIN_DEFAUT = 'admin@axiobad.local';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]

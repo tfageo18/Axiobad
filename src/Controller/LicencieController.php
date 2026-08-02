@@ -5,9 +5,12 @@ namespace App\Controller;
 use App\Entity\Licencie;
 use App\Repository\LicencieRepository;
 use App\Service\FfbadClassementService;
+use App\Service\InvitationMailer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -21,6 +24,44 @@ class LicencieController extends AbstractController
         return $this->render('licencie/index.html.twig', [
             'licencies' => $licencieRepository->findAll(),
         ]);
+    }
+
+    #[Route('/nouveau', name: 'app_licencie_new', methods: ['GET', 'POST'])]
+    public function new(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        UserPasswordHasherInterface $passwordHasher,
+        InvitationMailer $invitationMailer,
+    ): Response {
+        if ($request->isMethod('POST')) {
+            $email = (string) $request->request->get('email');
+            $prenom = (string) $request->request->get('prenom');
+            $nom = (string) $request->request->get('nom');
+            $roles = $request->request->all('roles');
+
+            $licencie = (new Licencie())
+                ->setEmail($email)
+                ->setPrenom($prenom)
+                ->setNom($nom)
+                ->setRoles(array_values(array_intersect($roles, [Licencie::ROLE_BUREAU, Licencie::ROLE_ENTRAINEUR])))
+                ->setMustChangePassword(true);
+
+            // Mot de passe temporaire inutilisable : le licencié le définit lui-même via le lien d'activation.
+            $licencie->setPassword($passwordHasher->hashPassword($licencie, bin2hex(random_bytes(32))));
+
+            $token = $licencie->generateActivationToken();
+
+            $entityManager->persist($licencie);
+            $entityManager->flush();
+
+            $invitationMailer->envoyerInvitation($licencie, $token);
+
+            $this->addFlash('success', sprintf('Licencié créé, un email d\'activation a été envoyé à %s.', $email));
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        return $this->render('licencie/new.html.twig');
     }
 
     #[Route('/{id}/classement', name: 'app_licencie_classement', methods: ['POST'])]

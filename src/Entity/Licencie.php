@@ -59,6 +59,15 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $classementMisAJourLe = null;
 
+    #[ORM\Column]
+    private bool $mustChangePassword = true;
+
+    #[ORM\Column(length: 100, unique: true, nullable: true)]
+    private ?string $activationToken = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $activationTokenExpiresAt = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -245,6 +254,52 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     public function setClassementMisAJourLe(?\DateTimeImmutable $classementMisAJourLe): static
     {
         $this->classementMisAJourLe = $classementMisAJourLe;
+
+        return $this;
+    }
+
+    public function mustChangePassword(): bool
+    {
+        return $this->mustChangePassword;
+    }
+
+    public function setMustChangePassword(bool $mustChangePassword): static
+    {
+        $this->mustChangePassword = $mustChangePassword;
+
+        return $this;
+    }
+
+    public function getActivationToken(): ?string
+    {
+        return $this->activationToken;
+    }
+
+    public function getActivationTokenExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->activationTokenExpiresAt;
+    }
+
+    public function isActivationTokenValid(): bool
+    {
+        return null !== $this->activationToken
+            && null !== $this->activationTokenExpiresAt
+            && $this->activationTokenExpiresAt > new \DateTimeImmutable();
+    }
+
+    public function generateActivationToken(): string
+    {
+        $token = bin2hex(random_bytes(32));
+        $this->activationToken = $token;
+        $this->activationTokenExpiresAt = new \DateTimeImmutable('+7 days');
+
+        return $token;
+    }
+
+    public function clearActivationToken(): static
+    {
+        $this->activationToken = null;
+        $this->activationTokenExpiresAt = null;
 
         return $this;
     }

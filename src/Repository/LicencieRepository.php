@@ -30,4 +30,9 @@ class LicencieRepository extends ServiceEntityRepository implements PasswordUpgr
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
     }
+
+    public function findOneByActivationToken(string $token): ?Licencie
+    {
+        return $this->findOneBy(['activationToken' => $token]);
+    }
 }

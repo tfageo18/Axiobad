@@ -141,6 +141,40 @@
             .compte-menu-liste a:hover, .compte-menu-liste button:hover { background: var(--color-bg); }
             .compte-menu-liste .deconnexion { color: var(--color-error); }
 
+            .nav-dropdown { position: relative; }
+            .nav-dropdown-bouton {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.3rem;
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-family: inherit;
+            }
+            .nav-dropdown-bouton .chevron { font-size: 0.6rem; opacity: 0.75; }
+            .nav-dropdown-liste {
+                display: none;
+                position: absolute;
+                left: 0;
+                top: calc(100% + 0.4rem);
+                background: var(--color-surface);
+                border-radius: var(--radius);
+                box-shadow: var(--shadow);
+                min-width: 200px;
+                overflow: hidden;
+                z-index: 20;
+            }
+            .nav-dropdown.ouvert .nav-dropdown-liste { display: block; }
+            .nav-dropdown-item {
+                display: block;
+                padding: 0.65rem 1rem;
+                color: var(--color-text);
+                text-decoration: none;
+                font-size: 0.9rem;
+                font-weight: 500;
+            }
+            .nav-dropdown-item:hover { background: var(--color-bg); }
+
             main { padding: 1.75rem; max-width: 1200px; margin: 0 auto; }
 
             .flash-success, .flash-error {
@@ -399,20 +433,38 @@
             </a>
             {% if app.user %}
                 <a class="nav-link" href="{{ path('app_mon_espace') }}">Mon espace</a>
-                <a class="nav-link" href="{{ path('app_creneau_index') }}">Créneaux</a>
-                <a class="nav-link" href="{{ path('app_calendrier') }}">Calendrier</a>
-                <a class="nav-link" href="{{ path('app_gymnase_index') }}">Gymnases</a>
-                <a class="nav-link" href="{{ path('app_equipe_index') }}">Équipes</a>
-                <a class="nav-link" href="{{ path('app_cordage_index') }}">Cordage</a>
-                <a class="nav-link" href="{{ path('app_evenement_index') }}">Vie du club</a>
-                <a class="nav-link" href="{{ path('app_interclub_index') }}">Interclubs</a>
-                {% if is_granted('ROLE_BUREAU') %}
-                    <a class="nav-link" href="{{ path('app_dashboard') }}">Tableau de bord</a>
-                    <a class="nav-link" href="{{ path('app_licencie_index') }}">Licenciés</a>
-                    <a class="nav-link" href="{{ path('app_stock_index') }}">Stock</a>
-                {% endif %}
+
+                <div class="nav-dropdown">
+                    <button type="button" class="nav-link nav-dropdown-bouton" onclick="toggleNavDropdown(this)">Jouer <span class="chevron">▼</span></button>
+                    <div class="nav-dropdown-liste">
+                        <a class="nav-dropdown-item" href="{{ path('app_calendrier') }}">Calendrier</a>
+                        <a class="nav-dropdown-item" href="{{ path('app_creneau_index') }}">Créneaux</a>
+                        <a class="nav-dropdown-item" href="{{ path('app_gymnase_index') }}">Gymnases</a>
+                    </div>
+                </div>
+
+                <div class="nav-dropdown">
+                    <button type="button" class="nav-link nav-dropdown-bouton" onclick="toggleNavDropdown(this)">Club <span class="chevron">▼</span></button>
+                    <div class="nav-dropdown-liste">
+                        <a class="nav-dropdown-item" href="{{ path('app_evenement_index') }}">Vie du club</a>
+                        <a class="nav-dropdown-item" href="{{ path('app_equipe_index') }}">Équipes</a>
+                        <a class="nav-dropdown-item" href="{{ path('app_interclub_index') }}">Interclubs</a>
+                        <a class="nav-dropdown-item" href="{{ path('app_cordage_index') }}">Cordage</a>
+                    </div>
+                </div>
+
                 {% if is_granted('ROLE_BUREAU') or is_granted('ROLE_ENTRAINEUR') %}
-                    <a class="nav-link" href="{{ path('app_presence_index') }}">Présences</a>
+                    <div class="nav-dropdown">
+                        <button type="button" class="nav-link nav-dropdown-bouton" onclick="toggleNavDropdown(this)">Bureau <span class="chevron">▼</span></button>
+                        <div class="nav-dropdown-liste">
+                            {% if is_granted('ROLE_BUREAU') %}
+                                <a class="nav-dropdown-item" href="{{ path('app_dashboard') }}">Tableau de bord</a>
+                                <a class="nav-dropdown-item" href="{{ path('app_licencie_index') }}">Licenciés</a>
+                                <a class="nav-dropdown-item" href="{{ path('app_stock_index') }}">Stock</a>
+                            {% endif %}
+                            <a class="nav-dropdown-item" href="{{ path('app_presence_index') }}">Présences</a>
+                        </div>
+                    </div>
                 {% endif %}
             {% endif %}
             <span class="spacer">
@@ -443,11 +495,27 @@
         </main>
 
         <script>
+            function toggleNavDropdown(bouton) {
+                var menu = bouton.closest('.nav-dropdown');
+                var etaitOuvert = menu.classList.contains('ouvert');
+                document.querySelectorAll('.nav-dropdown.ouvert').forEach(function (autre) {
+                    autre.classList.remove('ouvert');
+                });
+                if (!etaitOuvert) {
+                    menu.classList.add('ouvert');
+                }
+            }
+
             document.addEventListener('click', function (event) {
                 var menu = document.getElementById('compte-menu');
                 if (menu && menu.classList.contains('ouvert') && !menu.contains(event.target)) {
                     menu.classList.remove('ouvert');
                 }
+                document.querySelectorAll('.nav-dropdown.ouvert').forEach(function (dropdown) {
+                    if (!dropdown.contains(event.target)) {
+                        dropdown.classList.remove('ouvert');
+                    }
+                });
             });
         </script>
 

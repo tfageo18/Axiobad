@@ -49,6 +49,15 @@
                 <input type="text" name="numeroLicence" id="numeroLicence" value="{{ licencie.numeroLicence }}">
             </div>
             <div>
+                <label for="genre">Genre (optionnel)</label>
+                <select name="genre" id="genre">
+                    <option value="">-</option>
+                    {% for valeur, libelle in constant('App\\Entity\\Licencie::GENRES') %}
+                        <option value="{{ valeur }}" {{ licencie.genre == valeur ? 'selected' : '' }}>{{ libelle }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
                 <label for="classementSimple">Classement simple</label>
                 <select name="classementSimple" id="classementSimple">
                     <option value="">-</option>

@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Présences — Axiobad{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .taux-badge {
+            display: inline-block;
+            min-width: 3rem;
+            text-align: center;
+            padding: 0.15rem 0.5rem;
+            border-radius: 999px;
+            font-weight: 700;
+        }
+        .taux-haut { background: var(--color-success-bg); color: var(--color-success); }
+        .taux-moyen { background: #fff7ed; color: var(--color-accent-dark); }
+        .taux-bas { background: var(--color-error-bg); color: var(--color-error); }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <h1>Présences</h1>
+    <p style="color: var(--color-text-muted);">
+        Taux de présence = nombre de « je viens » ÷ nombre de réponses données (présent ou absent), tous créneaux confondus.
+    </p>
+
+    <div class="table-scroll">
+    <table class="table-cards">
+        <thead>
+            <tr>
+                <th>Licencié</th>
+                <th>Séances (présent)</th>
+                <th>Réponses données</th>
+                <th>Taux de présence</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ligne in stats %}
+                <tr>
+                    <td data-label="Licencié">{{ ligne.licencie.nomComplet }}</td>
+                    <td data-label="Séances">{{ ligne.nombreSeances }}</td>
+                    <td data-label="Réponses">{{ ligne.nombreReponses }}</td>
+                    <td data-label="Taux">
+                        {% if ligne.taux is null %}
+                            <span class="taux-badge" style="background: var(--color-bg); color: var(--color-text-muted);">-</span>
+                        {% else %}
+                            <span class="taux-badge {{ ligne.taux >= 75 ? 'taux-haut' : (ligne.taux >= 50 ? 'taux-moyen' : 'taux-bas') }}">{{ ligne.taux }} %</span>
+                        {% endif %}
+                    </td>
+                    <td class="td-actions">
+                        <a href="{{ path('app_presence_detail', {id: ligne.licencie.id}) }}">Détail</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="5">Aucun licencié.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+{% endblock %}

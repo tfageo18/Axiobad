@@ -405,6 +405,9 @@
                     <a class="nav-link" href="{{ path('app_licencie_index') }}">Licenciés</a>
                     <a class="nav-link" href="{{ path('app_stock_index') }}">Stock</a>
                 {% endif %}
+                {% if is_granted('ROLE_BUREAU') or is_granted('ROLE_ENTRAINEUR') %}
+                    <a class="nav-link" href="{{ path('app_presence_index') }}">Présences</a>
+                {% endif %}
             {% endif %}
             <span class="spacer">
                 {% if app.user %}

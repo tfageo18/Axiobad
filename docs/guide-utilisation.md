@@ -15,6 +15,7 @@ en ligne, une fois connecté, via le menu du compte (en haut à droite) → **Do
 - [Le calendrier](#le-calendrier)
 - [Indiquer sa présence à un créneau (tous les licenciés)](#indiquer-sa-présence-à-un-créneau-tous-les-licenciés)
 - [Gérer le stock (bureau)](#gérer-le-stock-bureau)
+- [Historique des présences (bureau, entraîneurs)](#historique-des-présences-bureau-entraîneurs)
 - [Mon profil](#mon-profil)
 - [Configuration email (production)](#configuration-email-production)
 
@@ -185,6 +186,18 @@ Menu **Stock** (réservé au bureau).
   motif optionnel), pas une simple valeur modifiable — un historique de tous les mouvements est
   consultable par article. Une sortie ne peut pas faire passer le stock sous zéro.
 - Une **recherche instantanée** filtre les deux catégories à la fois.
+
+## Historique des présences (bureau, entraîneurs)
+
+Menu **Présences** (réservé au bureau et aux entraîneurs).
+
+- La liste affiche, pour chaque licencié, son **taux de présence** (nombre de « je viens » ÷
+  nombre de réponses données, tous créneaux confondus), son nombre de séances où il/elle était
+  présent·e, et le nombre total de réponses données. La liste est triée par taux décroissant.
+- La fiche **détail** d'un licencié affiche un récapitulatif, un **graphique** de présence sur les
+  6 derniers mois glissants, et l'historique complet de ses réponses (date, créneau, présent ou
+  absent).
+- Cet outil est utile pour les entraîneurs afin de suivre l'assiduité des joueurs.
 
 ## Mon profil
 

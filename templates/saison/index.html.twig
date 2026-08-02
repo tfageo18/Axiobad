@@ -8,7 +8,7 @@
     <p><a class="btn-cta" href="{{ path('app_saison_new') }}">+ Nouvelle saison</a></p>
 
     <div class="table-scroll">
-    <table>
+    <table class="table-cards">
         <thead>
             <tr>
                 <th>Libellé</th>
@@ -21,11 +21,11 @@
         <tbody>
             {% for saison in saisons %}
                 <tr>
-                    <td>{{ saison.libelle }}</td>
-                    <td>{{ saison.dateDebut|date('d/m/Y') }}</td>
-                    <td>{{ saison.dateFin|date('d/m/Y') }}</td>
-                    <td>{{ saison.estEnCours ? 'En cours' : '-' }}</td>
-                    <td>
+                    <td data-label="Libellé">{{ saison.libelle }}</td>
+                    <td data-label="Début">{{ saison.dateDebut|date('d/m/Y') }}</td>
+                    <td data-label="Fin">{{ saison.dateFin|date('d/m/Y') }}</td>
+                    <td data-label="Statut">{{ saison.estEnCours ? 'En cours' : '-' }}</td>
+                    <td class="td-actions">
                         <a href="{{ path('app_saison_edit', {id: saison.id}) }}">Modifier</a>
                         <form method="post" action="{{ path('app_saison_delete', {id: saison.id}) }}" onsubmit="return confirm('Supprimer cette saison ?');" style="display:inline">
                             <input type="hidden" name="_token" value="{{ csrf_token('delete-saison-' ~ saison.id) }}">

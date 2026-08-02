@@ -10,7 +10,7 @@
     {% endif %}
 
     <div class="table-scroll">
-    <table>
+    <table class="table-cards">
         <thead>
             <tr>
                 <th>Nom</th>
@@ -21,10 +21,10 @@
         <tbody>
             {% for gymnase in gymnases %}
                 <tr>
-                    <td>{{ gymnase.nom }}</td>
-                    <td>{{ gymnase.adresse }}</td>
+                    <td data-label="Nom">{{ gymnase.nom }}</td>
+                    <td data-label="Adresse">{{ gymnase.adresse }}</td>
                     {% if is_granted('ROLE_BUREAU') %}
-                        <td>
+                        <td class="td-actions">
                             <a href="{{ path('app_gymnase_edit', {id: gymnase.id}) }}">Modifier</a>
                             <form method="post" action="{{ path('app_gymnase_delete', {id: gymnase.id}) }}" onsubmit="return confirm('Supprimer ce gymnase ?');" style="display:inline">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete-gymnase-' ~ gymnase.id) }}">

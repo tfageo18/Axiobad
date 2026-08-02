@@ -267,6 +267,51 @@
 
                 .mouvement-form { flex-direction: column; align-items: stretch; }
                 .mouvement-form input, .mouvement-form button { width: 100%; max-width: 100%; }
+
+                /* Tableaux transformés en cartes empilées sur mobile (voir data-label sur chaque <td>). */
+                table.table-cards { min-width: 0; box-shadow: none; background: transparent; }
+                table.table-cards thead { display: none; }
+                table.table-cards, table.table-cards tbody, table.table-cards tr, table.table-cards td { display: block; width: 100%; }
+                table.table-cards tr {
+                    background: var(--color-surface);
+                    border-radius: var(--radius);
+                    box-shadow: var(--shadow);
+                    margin-bottom: 0.75rem;
+                    padding: 0.75rem 1rem;
+                }
+                table.table-cards td {
+                    border-bottom: none;
+                    padding: 0.3rem 0;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 0.75rem;
+                    text-align: right;
+                }
+                table.table-cards td::before {
+                    content: attr(data-label);
+                    font-weight: 600;
+                    font-size: 0.78rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.04em;
+                    color: var(--color-text-muted);
+                    text-align: left;
+                }
+                table.table-cards td:not([data-label])::before { content: none; }
+                table.table-cards td.td-actions,
+                table.table-cards td.td-mouvement {
+                    flex-direction: column;
+                    align-items: stretch;
+                    text-align: left;
+                    gap: 0.4rem;
+                    margin-top: 0.4rem;
+                }
+                table.table-cards td.td-actions::before,
+                table.table-cards td.td-mouvement::before { content: none; }
+                table.table-cards td.td-actions a,
+                table.table-cards td.td-actions form,
+                table.table-cards td.td-mouvement form { width: 100%; margin: 0; }
+                table.table-cards td.td-actions button { width: 100%; }
             }
         </style>
         {% endblock %}

@@ -31,7 +31,7 @@
     <h2>Vêtements</h2>
     <p><a class="btn-cta" href="{{ path('app_stock_vetement_new') }}">+ Nouvel article</a></p>
     <div class="table-scroll">
-    <table>
+    <table class="table-cards">
         <thead>
             <tr>
                 <th>Type</th>
@@ -45,11 +45,11 @@
         <tbody>
             {% for vetement in vetements %}
                 <tr>
-                    <td>{{ vetement.typeLabel }}</td>
-                    <td>{{ vetement.taille }}</td>
-                    <td>{{ vetement.marque ?? '-' }}</td>
-                    <td><span class="quantite-badge {{ vetement.quantite == 0 ? 'zero' : '' }}">{{ vetement.quantite }}</span></td>
-                    <td>
+                    <td data-label="Type">{{ vetement.typeLabel }}</td>
+                    <td data-label="Taille">{{ vetement.taille }}</td>
+                    <td data-label="Marque">{{ vetement.marque ?? '-' }}</td>
+                    <td data-label="En stock"><span class="quantite-badge {{ vetement.quantite == 0 ? 'zero' : '' }}">{{ vetement.quantite }}</span></td>
+                    <td class="td-mouvement">
                         <form method="post" action="{{ path('app_stock_vetement_mouvement', {id: vetement.id}) }}" class="mouvement-form">
                             <input type="number" name="quantite" min="1" value="1" required>
                             <input type="text" name="motif" placeholder="Motif (optionnel)">
@@ -57,7 +57,7 @@
                             <button type="submit" name="type" value="SORTIE" class="btn-sortie">− Sortie</button>
                         </form>
                     </td>
-                    <td>
+                    <td class="td-actions">
                         <a href="{{ path('app_stock_vetement_historique', {id: vetement.id}) }}">Historique</a>
                         <a href="{{ path('app_stock_vetement_edit', {id: vetement.id}) }}">Modifier</a>
                         <form method="post" action="{{ path('app_stock_vetement_delete', {id: vetement.id}) }}" onsubmit="return confirm('Supprimer cet article ?');" style="display:inline">
@@ -76,7 +76,7 @@
     <h2>Volants</h2>
     <p><a class="btn-cta" href="{{ path('app_stock_volant_new') }}">+ Nouveau tube</a></p>
     <div class="table-scroll">
-    <table>
+    <table class="table-cards">
         <thead>
             <tr>
                 <th>Type</th>
@@ -91,12 +91,12 @@
         <tbody>
             {% for volant in volants %}
                 <tr>
-                    <td>{{ volant.typeLabel }}</td>
-                    <td>{{ volant.vitesse }}</td>
-                    <td>{{ volant.destinationLabel }}</td>
-                    <td>{{ volant.marque ?? '-' }}</td>
-                    <td><span class="quantite-badge {{ volant.quantiteTubes == 0 ? 'zero' : '' }}">{{ volant.quantiteTubes }}</span></td>
-                    <td>
+                    <td data-label="Type">{{ volant.typeLabel }}</td>
+                    <td data-label="Vitesse">{{ volant.vitesse }}</td>
+                    <td data-label="Destination">{{ volant.destinationLabel }}</td>
+                    <td data-label="Marque">{{ volant.marque ?? '-' }}</td>
+                    <td data-label="Tubes en stock"><span class="quantite-badge {{ volant.quantiteTubes == 0 ? 'zero' : '' }}">{{ volant.quantiteTubes }}</span></td>
+                    <td class="td-mouvement">
                         <form method="post" action="{{ path('app_stock_volant_mouvement', {id: volant.id}) }}" class="mouvement-form">
                             <input type="number" name="quantite" min="1" value="1" required>
                             <input type="text" name="motif" placeholder="Motif (optionnel)">
@@ -104,7 +104,7 @@
                             <button type="submit" name="type" value="SORTIE" class="btn-sortie">− Sortie</button>
                         </form>
                     </td>
-                    <td>
+                    <td class="td-actions">
                         <a href="{{ path('app_stock_volant_historique', {id: volant.id}) }}">Historique</a>
                         <a href="{{ path('app_stock_volant_edit', {id: volant.id}) }}">Modifier</a>
                         <form method="post" action="{{ path('app_stock_volant_delete', {id: volant.id}) }}" onsubmit="return confirm('Supprimer ce tube ?');" style="display:inline">

@@ -20,7 +20,7 @@
     {% endif %}
 
     <div class="table-scroll">
-    <table>
+    <table class="table-cards">
         <thead>
             <tr>
                 <th>Créneau</th>
@@ -36,13 +36,13 @@
         <tbody>
             {% for creneau in creneaux %}
                 <tr>
-                    <td>{{ creneau.nom }}</td>
-                    <td>{{ creneau.gymnase.nom }}</td>
-                    <td>{{ creneau.jourSemaine }}</td>
-                    <td>{{ creneau.heureDebut|date('H:i') }} - {{ creneau.heureFin|date('H:i') }}</td>
-                    <td>{{ creneau.categorie == 'ENFANT' ? 'Enfants' : 'Adultes' }}</td>
-                    <td>{{ creneau.classementMinimum ?? '-' }}</td>
-                    <td>
+                    <td data-label="Créneau">{{ creneau.nom }}</td>
+                    <td data-label="Gymnase">{{ creneau.gymnase.nom }}</td>
+                    <td data-label="Jour">{{ creneau.jourSemaine }}</td>
+                    <td data-label="Horaire">{{ creneau.heureDebut|date('H:i') }} - {{ creneau.heureFin|date('H:i') }}</td>
+                    <td data-label="Catégorie">{{ creneau.categorie == 'ENFANT' ? 'Enfants' : 'Adultes' }}</td>
+                    <td data-label="Niveau min.">{{ creneau.classementMinimum ?? '-' }}</td>
+                    <td data-label="Encadrement">
                         {% if creneau.encadre %}
                             Encadré par {{ creneau.entraineur.nomComplet }}
                         {% else %}
@@ -50,7 +50,7 @@
                         {% endif %}
                     </td>
                     {% if is_granted('ROLE_BUREAU') %}
-                        <td>
+                        <td class="td-actions">
                             <a href="{{ path('app_creneau_edit', {id: creneau.id}) }}">Modifier</a>
                             <form method="post" action="{{ path('app_creneau_delete', {id: creneau.id}) }}" onsubmit="return confirm('Supprimer ce créneau ?');" style="display:inline">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete-creneau-' ~ creneau.id) }}">

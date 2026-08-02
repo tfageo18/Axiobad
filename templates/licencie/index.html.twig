@@ -17,46 +17,6 @@
 
         @media (max-width: 768px) {
             #recherche-licencies { max-width: 100%; }
-
-            table.datatable { min-width: 0; box-shadow: none; background: transparent; }
-            table.datatable thead { display: none; }
-            table.datatable, table.datatable tbody, table.datatable tr, table.datatable td { display: block; width: 100%; }
-            table.datatable tr {
-                background: var(--color-surface);
-                border-radius: var(--radius);
-                box-shadow: var(--shadow);
-                margin-bottom: 0.75rem;
-                padding: 0.75rem 1rem;
-            }
-            table.datatable td {
-                border-bottom: none;
-                padding: 0.3rem 0;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                gap: 0.75rem;
-                text-align: right;
-            }
-            table.datatable td::before {
-                content: attr(data-label);
-                font-weight: 600;
-                font-size: 0.78rem;
-                text-transform: uppercase;
-                letter-spacing: 0.04em;
-                color: var(--color-text-muted);
-                text-align: left;
-            }
-            table.datatable td:last-child {
-                flex-direction: column;
-                align-items: stretch;
-                text-align: left;
-                gap: 0.4rem;
-                margin-top: 0.4rem;
-            }
-            table.datatable td:last-child::before { content: none; }
-            table.datatable td:last-child a,
-            table.datatable td:last-child form { width: 100%; margin: 0; }
-            table.datatable td:last-child button { width: 100%; }
         }
     </style>
 {% endblock %}
@@ -85,7 +45,7 @@
     </div>
 
     <div class="table-scroll">
-    <table class="datatable" id="table-licencies">
+    <table class="datatable table-cards" id="table-licencies">
         <thead>
             <tr>
                 <th data-sort="text">Nom</th>
@@ -120,7 +80,7 @@
                             </form>
                         </td>
                     {% endif %}
-                    <td>
+                    <td class="td-actions">
                         <a href="{{ path('app_licencie_edit', {id: licencie.id}) }}">Modifier</a>
                         <form method="post" action="{{ path('app_licencie_classement', {id: licencie.id}) }}" style="display:inline">
                             <button type="submit">Rafraîchir le classement</button>

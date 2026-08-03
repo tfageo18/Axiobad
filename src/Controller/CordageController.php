@@ -53,7 +53,7 @@ class CordageController extends AbstractController
         }
 
         return $this->render('cordage/form.html.twig', [
-            'typesCordage' => $typeCordageRepository->findBy(['actif' => true]),
+            'typesCordage' => $typeCordageRepository->findBy(['actif' => true], ['nom' => 'ASC']),
         ]);
     }
 
@@ -133,7 +133,7 @@ class CordageController extends AbstractController
     public function types(TypeCordageRepository $typeCordageRepository): Response
     {
         return $this->render('cordage/types.html.twig', [
-            'types' => $typeCordageRepository->findAll(),
+            'types' => $typeCordageRepository->findBy([], ['nom' => 'ASC']),
         ]);
     }
 

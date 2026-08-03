@@ -3,6 +3,8 @@
 namespace App\Service;
 
 use App\Entity\Licencie;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -13,10 +15,16 @@ class InvitationMailer
         private readonly MailerInterface $mailer,
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly string $mailerFrom,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
-    public function envoyerInvitation(Licencie $licencie, string $token): void
+    /**
+     * Envoie l'email d'invitation. Retourne false (sans lever d'exception) si l'envoi échoue
+     * (ex. adresse non joignable, quota d'envoi atteint) — l'erreur est journalisée, mais elle ne
+     * doit jamais empêcher la création/gestion du compte du licencié.
+     */
+    public function envoyerInvitation(Licencie $licencie, string $token): bool
     {
         $lienActivation = $this->urlGenerator->generate('app_activation', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
 
@@ -30,6 +38,17 @@ class InvitationMailer
                 $lienActivation
             ));
 
-        $this->mailer->send($email);
+        try {
+            $this->mailer->send($email);
+
+            return true;
+        } catch (TransportExceptionInterface $exception) {
+            $this->logger->error('Échec d\'envoi de l\'email d\'invitation à {email} : {message}', [
+                'email' => $licencie->getEmail(),
+                'message' => $exception->getMessage(),
+            ]);
+
+            return false;
+        }
     }
 }

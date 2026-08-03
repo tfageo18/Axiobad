@@ -221,6 +221,7 @@ class LicencieController extends AbstractController
 
             $creees = 0;
             $ignorees = [];
+            $echecsEnvoi = [];
             $numeroLigne = 1;
 
             while (($ligne = fgetcsv($handle, 0, ';')) !== false) {
@@ -267,14 +268,22 @@ class LicencieController extends AbstractController
                 $entityManager->persist($licencie);
                 $entityManager->flush();
 
-                $invitationMailer->envoyerInvitation($licencie, $token);
+                if (!$invitationMailer->envoyerInvitation($licencie, $token)) {
+                    $echecsEnvoi[] = $email;
+                }
                 ++$creees;
             }
 
             fclose($handle);
 
             if ($creees > 0) {
-                $this->addFlash('success', sprintf('%d licencié(s) créé(s), invitation envoyée à chacun.', $creees));
+                $this->addFlash('success', sprintf('%d licencié(s) créé(s).', $creees));
+            }
+            if ($echecsEnvoi) {
+                $this->addFlash('error', sprintf(
+                    "L'email d'invitation n'a pas pu être envoyé à : %s. Les comptes ont bien été créés ; utilisez « Renvoyer l'invitation » une fois le problème résolu.",
+                    implode(', ', $echecsEnvoi)
+                ));
             }
             if ($ignorees) {
                 $this->addFlash('error', sprintf('%d ligne(s) ignorée(s) : %s', count($ignorees), implode(' — ', $ignorees)));
@@ -317,9 +326,14 @@ class LicencieController extends AbstractController
             $entityManager->persist($licencie);
             $entityManager->flush();
 
-            $invitationMailer->envoyerInvitation($licencie, $token);
-
-            $this->addFlash('success', sprintf('Licencié créé, un email d\'activation a été envoyé à %s.', $email));
+            if ($invitationMailer->envoyerInvitation($licencie, $token)) {
+                $this->addFlash('success', sprintf('Licencié créé, un email d\'activation a été envoyé à %s.', $email));
+            } else {
+                $this->addFlash('error', sprintf(
+                    "Licencié créé, mais l'email d'invitation n'a pas pu être envoyé à %s. Utilisez « Renvoyer l'invitation » une fois le problème résolu.",
+                    $email
+                ));
+            }
 
             return $this->redirectToRoute('app_licencie_index');
         }
@@ -383,9 +397,11 @@ class LicencieController extends AbstractController
         $token = $licencie->generateActivationToken();
         $entityManager->flush();
 
-        $invitationMailer->envoyerInvitation($licencie, $token);
-
-        $this->addFlash('success', sprintf('Invitation renvoyée à %s.', $licencie->getEmail()));
+        if ($invitationMailer->envoyerInvitation($licencie, $token)) {
+            $this->addFlash('success', sprintf('Invitation renvoyée à %s.', $licencie->getEmail()));
+        } else {
+            $this->addFlash('error', sprintf("L'email n'a pas pu être envoyé à %s. Réessayez plus tard.", $licencie->getEmail()));
+        }
 
         return $this->redirectToRoute('app_licencie_index');
     }

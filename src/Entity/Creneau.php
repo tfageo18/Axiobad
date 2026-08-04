@@ -13,6 +13,7 @@ class Creneau
 {
     public const CATEGORIE_ADULTE = 'ADULTE';
     public const CATEGORIE_ENFANT = 'ENFANT';
+    public const AGE_MINIMUM_ADO = 11;
 
     public const ACTIVITE_BADMINTON = 'Badminton';
 
@@ -361,7 +362,14 @@ class Creneau
     public function correspondA(Licencie $licencie): bool
     {
         if ($licencie->getCategorie() !== null && $licencie->getCategorie() !== $this->categorie) {
-            return false;
+            $ouvertPourCetAdo = $this->ouvertAdos
+                && self::CATEGORIE_ADULTE === $this->categorie
+                && null !== $licencie->getAge()
+                && $licencie->getAge() >= self::AGE_MINIMUM_ADO;
+
+            if (!$ouvertPourCetAdo) {
+                return false;
+            }
         }
 
         if (null !== $this->classementMinimum) {

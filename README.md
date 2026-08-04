@@ -140,7 +140,10 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
 - **Catégorie** (adultes ou enfants) et **classement minimum requis** (échelle FFBaD), utilisés
   pour filtrer les créneaux adaptés à chaque licencié.
 - **Type** : loisir et/ou compétiteur (cases cumulables), **ouvert aux personnes extérieures au
-  club**, **ouvert aux ados** — indicatifs, affichés partout où le créneau apparaît.
+  club** (indicatif, affiché partout où le créneau apparaît), **ouvert aux ados** (à partir de
+  11 ans) — un créneau adultes marqué « ouvert aux ados » apparaît aussi comme un créneau adapté
+  pour un licencié mineur d'au moins 11 ans, y compris dans « Ma famille » pour son responsable
+  légal.
 - Dates de **répétition** (début/fin) optionnelles.
 - Peut être activé/désactivé (un créneau désactivé disparaît du calendrier et de la liste pour
   les licenciés).

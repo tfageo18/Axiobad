@@ -151,6 +151,10 @@
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete-licencie-' ~ licencie.id) }}">
                                 <button type="submit">Supprimer</button>
                             </form>
+                            <form method="post" action="{{ path('app_licencie_force_delete', {id: licencie.id}) }}" onsubmit="return confirm('Forcer la suppression de ' ~ licencie.nomComplet ~ ' ?\n\nCeci supprime AUSSI toutes ses données liées (présences, inscriptions, adhésion et paiements, demandes de cordage, raquettes, mouvements de stock, clés de gymnase...). Action irréversible.');" style="display:inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('force-delete-licencie-' ~ licencie.id) }}">
+                                <button type="submit" style="background: var(--color-error); color: white;">Forcer la suppression</button>
+                            </form>
                         {% endif %}
                     </td>
                 </tr>

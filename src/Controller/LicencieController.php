@@ -4,8 +4,16 @@ namespace App\Controller;
 
 use App\Badminton\ClassementFfbad;
 use App\Entity\Adhesion;
+use App\Entity\CleGymnase;
+use App\Entity\Convocation;
+use App\Entity\DemandeCordage;
+use App\Entity\Inscription;
 use App\Entity\Licencie;
 use App\Entity\PaiementAdhesion;
+use App\Entity\Presence;
+use App\Entity\Raquette;
+use App\Entity\StockMouvementVetement;
+use App\Entity\StockMouvementVolant;
 use App\Repository\AdhesionRepository;
 use App\Repository\LicencieRepository;
 use App\Repository\PaiementAdhesionRepository;
@@ -510,8 +518,90 @@ class LicencieController extends AbstractController
             $entityManager->flush();
             $this->addFlash('success', 'Licencié supprimé.');
         } catch (ForeignKeyConstraintViolationException) {
-            $this->addFlash('error', 'Impossible de supprimer ce licencié : des données lui sont liées (présences, créneaux encadrés, mouvements de stock...). Désactivez plutôt son compte.');
+            $this->addFlash('error', 'Impossible de supprimer ce licencié : des données lui sont liées (présences, créneaux encadrés, mouvements de stock...). Désactivez plutôt son compte, ou utilisez « Forcer la suppression ».');
         }
+
+        return $this->redirectToRoute('app_licencie_index');
+    }
+
+    /**
+     * Supprime le licencié et absolument toutes les données qui lui sont directement liées
+     * (présences, inscriptions, convocations, clés de gymnase, mouvements de stock, demandes de
+     * cordage, raquettes, adhésion et paiements). Les données où il n'est qu'une référence
+     * secondaire (créneau encadré, équipe capitainée, demande de cordage traitée en tant que
+     * cordeur) sont détachées plutôt que supprimées.
+     */
+    #[Route('/{id}/supprimer-de-force', name: 'app_licencie_force_delete', methods: ['POST'])]
+    public function forceDelete(Request $request, Licencie $licencie, EntityManagerInterface $entityManager): Response
+    {
+        /** @var Licencie $moi */
+        $moi = $this->getUser();
+        if ($moi->getId() === $licencie->getId()) {
+            $this->addFlash('error', 'Vous ne pouvez pas supprimer votre propre compte.');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        if ($licencie->getEmail() === Licencie::EMAIL_ADMIN_DEFAUT) {
+            $this->addFlash('error', 'Le compte administrateur par défaut ne peut pas être supprimé.');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        if (!$this->isCsrfTokenValid('force-delete-licencie-'.$licencie->getId(), (string) $request->request->get('_token'))) {
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        // Références secondaires : on détache plutôt que supprimer les données qui n'appartiennent pas au licencié.
+        foreach ($entityManager->getRepository(\App\Entity\Creneau::class)->findBy(['entraineur' => $licencie]) as $creneau) {
+            $creneau->setEntraineur(null);
+        }
+        foreach ($entityManager->getRepository(\App\Entity\Equipe::class)->findBy(['capitaine' => $licencie]) as $equipe) {
+            $equipe->setCapitaine(null);
+        }
+        foreach ($entityManager->getRepository(\App\Entity\Equipe::class)->findAll() as $equipe) {
+            $equipe->getMembres()->removeElement($licencie);
+        }
+        foreach ($entityManager->getRepository(DemandeCordage::class)->findBy(['cordeur' => $licencie]) as $demande) {
+            $demande->setCordeur(null);
+        }
+
+        // Données appartenant au licencié : suppression complète.
+        foreach ($entityManager->getRepository(Presence::class)->findBy(['licencie' => $licencie]) as $entite) {
+            $entityManager->remove($entite);
+        }
+        foreach ($entityManager->getRepository(Convocation::class)->findBy(['licencie' => $licencie]) as $entite) {
+            $entityManager->remove($entite);
+        }
+        foreach ($entityManager->getRepository(Inscription::class)->findBy(['licencie' => $licencie]) as $entite) {
+            $entityManager->remove($entite);
+        }
+        foreach ($entityManager->getRepository(CleGymnase::class)->findBy(['licencie' => $licencie]) as $entite) {
+            $entityManager->remove($entite);
+        }
+        foreach ($entityManager->getRepository(StockMouvementVetement::class)->findBy(['auteur' => $licencie]) as $entite) {
+            $entityManager->remove($entite);
+        }
+        foreach ($entityManager->getRepository(StockMouvementVolant::class)->findBy(['auteur' => $licencie]) as $entite) {
+            $entityManager->remove($entite);
+        }
+        foreach ($entityManager->getRepository(DemandeCordage::class)->findBy(['licencie' => $licencie]) as $entite) {
+            $entityManager->remove($entite);
+        }
+        foreach ($entityManager->getRepository(Raquette::class)->findBy(['licencie' => $licencie]) as $entite) {
+            $entityManager->remove($entite);
+        }
+        foreach ($entityManager->getRepository(Adhesion::class)->findBy(['licencie' => $licencie]) as $adhesion) {
+            foreach ($adhesion->getPaiements() as $paiement) {
+                $entityManager->remove($paiement);
+            }
+            $entityManager->remove($adhesion);
+        }
+
+        $entityManager->remove($licencie);
+        $entityManager->flush();
+
+        $this->addFlash('success', sprintf('%s a été supprimé, avec toutes les données qui lui étaient liées.', $licencie->getNomComplet()));
 
         return $this->redirectToRoute('app_licencie_index');
     }

@@ -50,11 +50,11 @@
                 Accès au stock
             </label>
         </div>
+        <div>
+            <label for="dateNaissance">Date de naissance</label>
+            <input type="date" name="dateNaissance" id="dateNaissance" value="{{ licencie and licencie.dateNaissance ? licencie.dateNaissance|date('Y-m-d') : '' }}">
+        </div>
         {% if licencie %}
-            <div>
-                <label for="dateNaissance">Date de naissance</label>
-                <input type="date" name="dateNaissance" id="dateNaissance" value="{{ licencie.dateNaissance ? licencie.dateNaissance|date('Y-m-d') : '' }}">
-            </div>
             <div>
                 <label for="numeroLicence">Numéro de licence FFBaD</label>
                 <input type="text" name="numeroLicence" id="numeroLicence" value="{{ licencie.numeroLicence }}">

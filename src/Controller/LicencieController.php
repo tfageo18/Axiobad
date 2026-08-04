@@ -310,6 +310,7 @@ class LicencieController extends AbstractController
             $prenom = (string) $request->request->get('prenom');
             $nom = (string) $request->request->get('nom');
             $roles = $request->request->all('roles');
+            $dateNaissance = (string) $request->request->get('dateNaissance');
 
             if (null !== $email && $entityManager->getRepository(Licencie::class)->findOneBy(['email' => $email])) {
                 $this->addFlash('error', 'Cet email est déjà utilisé par un autre compte.');
@@ -322,6 +323,7 @@ class LicencieController extends AbstractController
                 ->setPrenom($prenom)
                 ->setNom($nom)
                 ->setRoles(array_values(array_intersect($roles, [Licencie::ROLE_BUREAU, Licencie::ROLE_ENTRAINEUR, Licencie::ROLE_CORDEUR, Licencie::ROLE_STOCK])))
+                ->setDateNaissance($dateNaissance ? new \DateTimeImmutable($dateNaissance) : null)
                 ->setMustChangePassword(true);
 
             $this->appliquerChampsMineur($licencie, $request, $entityManager);

@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ raquette ? 'Modifier' : 'Nouvelle' }} raquette — Axiobad{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('app_raquette_index') }}">&laquo; Retour à mes raquettes</a></p>
+
+    <h1>{{ raquette ? 'Modifier la raquette' : 'Nouvelle raquette' }}</h1>
+
+    <form method="post" action="{{ raquette ? path('app_raquette_edit', {id: raquette.id}) : path('app_raquette_new') }}">
+        <div>
+            <label for="marque">Marque</label>
+            <input type="text" name="marque" id="marque" list="marques-raquette" value="{{ raquette ? raquette.marque : '' }}" placeholder="Choisir ou saisir une marque" required>
+            <datalist id="marques-raquette">
+                {% for marque in constant('App\\Entity\\Raquette::MARQUES') %}
+                    <option value="{{ marque }}">
+                {% endfor %}
+            </datalist>
+        </div>
+        <div>
+            <label for="modele">Modèle</label>
+            <input type="text" name="modele" id="modele" value="{{ raquette ? raquette.modele : '' }}" placeholder="ex: Astrox 99 Pro" required>
+        </div>
+        <div>
+            <label for="signeDistinctif">Signe distinctif (optionnel)</label>
+            <input type="text" name="signeDistinctif" id="signeDistinctif" value="{{ raquette ? raquette.signeDistinctif : '' }}" placeholder="ex: grip rouge, sticker bleu">
+        </div>
+        <div>
+            <label for="tensionHabituelle">Tension habituelle (optionnel)</label>
+            <input type="text" name="tensionHabituelle" id="tensionHabituelle" value="{{ raquette ? raquette.tensionHabituelle : '' }}" placeholder="ex: 10 kg">
+            <small>Pré-remplira automatiquement la tension lors de vos demandes de cordage.</small>
+        </div>
+        <button type="submit">{{ raquette ? 'Enregistrer' : 'Ajouter' }}</button>
+    </form>
+{% endblock %}

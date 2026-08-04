@@ -243,14 +243,19 @@ eux, avec une **recherche instantanée** par nom de licencié.
 
 Menu **Club → Cordage**.
 
-- Tout licencié peut déposer une **demande de cordage** : cordage souhaité (choisi dans le
-  catalogue tenu par le bureau), tension souhaitée, et lieu de dépose de la raquette. Il ne voit
-  que ses propres demandes, et peut annuler une demande tant qu'elle est encore « Déposée ».
+- Chaque licencié peut gérer **ses raquettes** (menu **Cordage → Mes raquettes**) : marque
+  (suggestions courantes, texte libre sinon), modèle, un **signe distinctif** (utile s'il existe
+  plusieurs raquettes similaires) et une **tension habituelle**. La page **Historique** d'une
+  raquette liste toutes les demandes de cordage passées pour cette raquette.
+- Tout licencié peut déposer une **demande de cordage** : raquette concernée (optionnel — la
+  tension habituelle se pré-remplit automatiquement), cordage souhaité (choisi dans le catalogue
+  tenu par le bureau), tension souhaitée, et lieu de dépose. Il ne voit que ses propres demandes,
+  et peut annuler une demande tant qu'elle est encore « Déposée ».
 - Le **bureau** gère le **catalogue des cordages** proposés (menu **Gérer le catalogue de
   cordages**) : ajout, activation/désactivation, suppression.
 - Un licencié peut recevoir le rôle **Cordeur** (coché par le bureau sur sa fiche, comme pour
-  Entraîneur). Un cordeur (avec ou sans rôle bureau) voit **toutes** les demandes de cordage et
-  peut faire avancer leur statut :
+  Entraîneur). Un cordeur (avec ou sans rôle bureau) voit **toutes** les demandes de cordage,
+  peut les **modifier ou annuler** à tout moment (comme le bureau), et fait avancer leur statut :
   1. **Déposée** — demande créée par le licencié.
   2. **En cours** — le cordeur la prend en charge (« Prendre en charge »).
   3. **Prête** — le cordeur indique le lieu de retour et le prix, ce qui marque la raquette prête.

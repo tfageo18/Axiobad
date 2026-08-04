@@ -6,6 +6,7 @@ use App\Entity\DemandeCordage;
 use App\Entity\Licencie;
 use App\Entity\TypeCordage;
 use App\Repository\DemandeCordageRepository;
+use App\Repository\RaquetteRepository;
 use App\Repository\TypeCordageRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -33,14 +34,22 @@ class CordageController extends AbstractController
     }
 
     #[Route('/nouveau', name: 'app_cordage_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, TypeCordageRepository $typeCordageRepository): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, TypeCordageRepository $typeCordageRepository, RaquetteRepository $raquetteRepository): Response
     {
+        /** @var Licencie $licencie */
+        $licencie = $this->getUser();
+
         if ($request->isMethod('POST')) {
             $typeCordage = $typeCordageRepository->find($request->request->get('typeCordage'));
+            $raquette = $raquetteRepository->find($request->request->get('raquette'));
+            if ($raquette && $raquette->getLicencie() !== $licencie) {
+                $raquette = null;
+            }
 
             $demande = (new DemandeCordage())
-                ->setLicencie($this->getUser())
+                ->setLicencie($licencie)
                 ->setTypeCordage($typeCordage)
+                ->setRaquette($raquette)
                 ->setTension((string) $request->request->get('tension') ?: null)
                 ->setLieuDepose((string) $request->request->get('lieuDepose'));
 
@@ -53,7 +62,41 @@ class CordageController extends AbstractController
         }
 
         return $this->render('cordage/form.html.twig', [
+            'demande' => null,
             'typesCordage' => $typeCordageRepository->findBy(['actif' => true], ['nom' => 'ASC']),
+            'raquettes' => $raquetteRepository->findBy(['licencie' => $licencie]),
+        ]);
+    }
+
+    #[Route('/{id}/modifier', name: 'app_cordage_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, DemandeCordage $demande, EntityManagerInterface $entityManager, TypeCordageRepository $typeCordageRepository, RaquetteRepository $raquetteRepository): Response
+    {
+        $this->refuserSiPasBureauNiCordeur();
+
+        if ($request->isMethod('POST')) {
+            $typeCordage = $typeCordageRepository->find($request->request->get('typeCordage'));
+            $raquette = $raquetteRepository->find($request->request->get('raquette'));
+            if ($raquette && $raquette->getLicencie() !== $demande->getLicencie()) {
+                $raquette = null;
+            }
+
+            $demande
+                ->setTypeCordage($typeCordage)
+                ->setRaquette($raquette)
+                ->setTension((string) $request->request->get('tension') ?: null)
+                ->setLieuDepose((string) $request->request->get('lieuDepose'));
+
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Demande modifiée.');
+
+            return $this->redirectToRoute('app_cordage_index');
+        }
+
+        return $this->render('cordage/form.html.twig', [
+            'demande' => $demande,
+            'typesCordage' => $typeCordageRepository->findBy([], ['nom' => 'ASC']),
+            'raquettes' => $raquetteRepository->findBy(['licencie' => $demande->getLicencie()]),
         ]);
     }
 
@@ -61,7 +104,7 @@ class CordageController extends AbstractController
     public function delete(Request $request, DemandeCordage $demande, EntityManagerInterface $entityManager): Response
     {
         $estProprietaire = $demande->getLicencie() === $this->getUser();
-        if (!$estProprietaire && !$this->isGranted('ROLE_BUREAU')) {
+        if (!$estProprietaire && !$this->estBureauOuCordeur()) {
             throw $this->createAccessDeniedException();
         }
 

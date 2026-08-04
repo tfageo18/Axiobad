@@ -18,8 +18,9 @@
 
     <p>
         <a class="btn-cta" href="{{ path('app_cordage_new') }}">+ Nouvelle demande de cordage</a>
+        <a href="{{ path('app_raquette_index') }}">Mes raquettes</a>
         {% if is_granted('ROLE_BUREAU') %}
-            <a href="{{ path('app_cordage_type_index') }}">Gérer le catalogue de cordages</a>
+            · <a href="{{ path('app_cordage_type_index') }}">Gérer le catalogue de cordages</a>
         {% endif %}
     </p>
 
@@ -28,6 +29,7 @@
         <thead>
             <tr>
                 {% if peutGererToutes %}<th>Licencié</th>{% endif %}
+                <th>Raquette</th>
                 <th>Cordage</th>
                 <th>Tension</th>
                 <th>Lieu de dépose</th>
@@ -42,6 +44,13 @@
             {% for demande in demandes %}
                 <tr>
                     {% if peutGererToutes %}<td data-label="Licencié">{{ demande.licencie.nomComplet }}</td>{% endif %}
+                    <td data-label="Raquette">
+                        {% if demande.raquette %}
+                            {{ demande.raquette.libelle }}{{ demande.raquette.signeDistinctif ? ' (' ~ demande.raquette.signeDistinctif ~ ')' : '' }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
                     <td data-label="Cordage">{{ demande.typeCordage ? demande.typeCordage.nom : '-' }}</td>
                     <td data-label="Tension">{{ demande.tension ?? '-' }}</td>
                     <td data-label="Dépose">{{ demande.lieuDepose }}</td>
@@ -51,6 +60,7 @@
                     <td data-label="Prix">{{ demande.prix is not null ? demande.prix|number_format(2, ',', ' ') ~ ' €' : '-' }}</td>
                     <td class="td-actions">
                         {% if peutGererToutes %}
+                            <a href="{{ path('app_cordage_edit', {id: demande.id}) }}">Modifier</a>
                             {% if demande.statut == 'DEPOSEE' %}
                                 <form method="post" action="{{ path('app_cordage_prendre_en_charge', {id: demande.id}) }}" style="display:inline">
                                     <button type="submit">Prendre en charge</button>
@@ -69,7 +79,7 @@
                                 </form>
                             {% endif %}
                         {% endif %}
-                        {% if demande.statut == 'DEPOSEE' and (demande.licencie == app.user or is_granted('ROLE_BUREAU')) %}
+                        {% if peutGererToutes or (demande.statut == 'DEPOSEE' and demande.licencie == app.user) %}
                             <form method="post" action="{{ path('app_cordage_delete', {id: demande.id}) }}" onsubmit="return confirm('Annuler cette demande ?');" style="display:inline; margin-left: 0.35rem;">
                                 <input type="hidden" name="_token" value="{{ csrf_token('annuler-cordage-' ~ demande.id) }}">
                                 <button type="submit">Annuler</button>
@@ -78,7 +88,7 @@
                     </td>
                 </tr>
             {% else %}
-                <tr><td colspan="{{ peutGererToutes ? 9 : 8 }}">Aucune demande de cordage.</td></tr>
+                <tr><td colspan="{{ peutGererToutes ? 10 : 9 }}">Aucune demande de cordage.</td></tr>
             {% endfor %}
         </tbody>
     </table>

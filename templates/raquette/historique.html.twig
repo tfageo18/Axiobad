@@ -1,0 +1,49 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Historique — {{ raquette.libelle }} — Axiobad{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .badge-statut { padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; }
+        .badge-DEPOSEE { background: #fff7ed; color: var(--color-accent-dark); }
+        .badge-EN_COURS { background: #eff6ff; color: #1d4ed8; }
+        .badge-PRETE { background: var(--color-success-bg); color: var(--color-success); }
+        .badge-RECUPEREE { background: var(--color-bg); color: var(--color-text-muted); }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('app_raquette_index') }}">&laquo; Retour à mes raquettes</a></p>
+
+    <h1>Historique de cordage — {{ raquette.libelle }}{{ raquette.signeDistinctif ? ' (' ~ raquette.signeDistinctif ~ ')' : '' }}</h1>
+
+    {% if demandes|length %}
+        <div class="table-scroll">
+        <table class="table-cards">
+            <thead>
+                <tr>
+                    <th>Date de dépôt</th>
+                    <th>Cordage</th>
+                    <th>Tension</th>
+                    <th>Statut</th>
+                    <th>Prix</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for demande in demandes %}
+                    <tr>
+                        <td data-label="Date">{{ demande.dateDepot|date('d/m/Y') }}</td>
+                        <td data-label="Cordage">{{ demande.typeCordage ? demande.typeCordage.nom : '-' }}</td>
+                        <td data-label="Tension">{{ demande.tension ?? '-' }}</td>
+                        <td data-label="Statut"><span class="badge-statut badge-{{ demande.statut }}">{{ demande.statutLabel }}</span></td>
+                        <td data-label="Prix">{{ demande.prix is not null ? demande.prix|number_format(2, ',', ' ') ~ ' €' : '-' }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    {% else %}
+        <p>Aucune demande de cordage pour cette raquette.</p>
+    {% endif %}
+{% endblock %}

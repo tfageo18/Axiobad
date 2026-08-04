@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes raquettes — Axiobad{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('app_cordage_index') }}">&laquo; Retour au cordage</a></p>
+
+    <h1>Mes raquettes</h1>
+
+    <p><a class="btn-cta" href="{{ path('app_raquette_new') }}">+ Ajouter une raquette</a></p>
+
+    {% if raquettes|length %}
+        <div class="table-scroll">
+        <table class="table-cards">
+            <thead>
+                <tr>
+                    <th>Marque</th>
+                    <th>Modèle</th>
+                    <th>Signe distinctif</th>
+                    <th>Tension habituelle</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for raquette in raquettes %}
+                    <tr>
+                        <td data-label="Marque">{{ raquette.marque }}</td>
+                        <td data-label="Modèle">{{ raquette.modele }}</td>
+                        <td data-label="Signe distinctif">{{ raquette.signeDistinctif ?? '-' }}</td>
+                        <td data-label="Tension">{{ raquette.tensionHabituelle ?? '-' }}</td>
+                        <td class="td-actions">
+                            <a href="{{ path('app_raquette_historique', {id: raquette.id}) }}">Historique</a>
+                            <a href="{{ path('app_raquette_edit', {id: raquette.id}) }}">Modifier</a>
+                            <form method="post" action="{{ path('app_raquette_delete', {id: raquette.id}) }}" onsubmit="return confirm('Supprimer cette raquette ?');" style="display:inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete-raquette-' ~ raquette.id) }}">
+                                <button type="submit">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    {% else %}
+        <p>Aucune raquette enregistrée pour l'instant.</p>
+    {% endif %}
+{% endblock %}

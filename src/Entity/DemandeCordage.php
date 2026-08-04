@@ -33,6 +33,10 @@ class DemandeCordage
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?TypeCordage $typeCordage = null;
 
+    #[ORM\ManyToOne(targetEntity: Raquette::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Raquette $raquette = null;
+
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $tension = null;
 
@@ -91,6 +95,18 @@ class DemandeCordage
     public function setTypeCordage(?TypeCordage $typeCordage): static
     {
         $this->typeCordage = $typeCordage;
+
+        return $this;
+    }
+
+    public function getRaquette(): ?Raquette
+    {
+        return $this->raquette;
+    }
+
+    public function setRaquette(?Raquette $raquette): static
+    {
+        $this->raquette = $raquette;
 
         return $this;
     }

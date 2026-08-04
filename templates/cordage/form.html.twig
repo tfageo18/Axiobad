@@ -1,30 +1,50 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Nouvelle demande de cordage — Axiobad{% endblock %}
+{% block title %}{{ demande ? 'Modifier la' : 'Nouvelle' }} demande de cordage — Axiobad{% endblock %}
 
 {% block body %}
     <p><a href="{{ path('app_cordage_index') }}">&laquo; Retour au cordage</a></p>
 
-    <h1>Nouvelle demande de cordage</h1>
+    <h1>{{ demande ? 'Modifier la demande de ' ~ demande.licencie.nomComplet : 'Nouvelle demande de cordage' }}</h1>
 
-    <form method="post" action="{{ path('app_cordage_new') }}">
+    {% if not demande and raquettes|length == 0 %}
+        <p style="color: var(--color-text-muted);">
+            Vous n'avez pas encore de raquette enregistrée. <a href="{{ path('app_raquette_new') }}">Ajoutez-en une</a>
+            pour retrouver sa tension habituelle automatiquement à chaque demande.
+        </p>
+    {% endif %}
+
+    <form method="post" action="{{ demande ? path('app_cordage_edit', {id: demande.id}) : path('app_cordage_new') }}">
+        {% if raquettes|length %}
+            <div>
+                <label for="raquette">Raquette (optionnel)</label>
+                <select name="raquette" id="raquette" onchange="document.getElementById('tension').value = this.options[this.selectedIndex].getAttribute('data-tension') || '';">
+                    <option value="">-</option>
+                    {% for raquette in raquettes %}
+                        <option value="{{ raquette.id }}" data-tension="{{ raquette.tensionHabituelle }}" {{ demande and demande.raquette and demande.raquette.id == raquette.id ? 'selected' : '' }}>
+                            {{ raquette.libelle }}{{ raquette.signeDistinctif ? ' (' ~ raquette.signeDistinctif ~ ')' : '' }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        {% endif %}
         <div>
             <label for="typeCordage">Cordage souhaité</label>
             <select name="typeCordage" id="typeCordage">
                 <option value="">-</option>
                 {% for type in typesCordage %}
-                    <option value="{{ type.id }}">{{ type.nom }}</option>
+                    <option value="{{ type.id }}" {{ demande and demande.typeCordage and demande.typeCordage.id == type.id ? 'selected' : '' }}>{{ type.nom }}</option>
                 {% endfor %}
             </select>
         </div>
         <div>
             <label for="tension">Tension souhaitée</label>
-            <input type="text" name="tension" id="tension" placeholder="ex: 24 lbs">
+            <input type="text" name="tension" id="tension" placeholder="ex: 10 kg" value="{{ demande ? demande.tension : '' }}">
         </div>
         <div>
             <label for="lieuDepose">Lieu de dépose</label>
-            <input type="text" name="lieuDepose" id="lieuDepose" placeholder="ex: Gymnase Jean Moulin, casier 3" required>
+            <input type="text" name="lieuDepose" id="lieuDepose" placeholder="ex: Gymnase Jean Moulin, casier 3" value="{{ demande ? demande.lieuDepose : '' }}" required>
         </div>
-        <button type="submit">Envoyer la demande</button>
+        <button type="submit">{{ demande ? 'Enregistrer' : 'Envoyer la demande' }}</button>
     </form>
 {% endblock %}

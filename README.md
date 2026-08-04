@@ -192,6 +192,18 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
 - Pas encore de notifications push (prévu une fois les notifications automatiques par email en
   place côté serveur).
 
+### Notifications automatiques
+
+- **Emails immédiats** pour les évènements importants : raquette prête à récupérer (cordage),
+  promotion depuis une liste d'attente de créneau (à confirmer sous 24h).
+- **Récapitulatif quotidien** par email (commande `app:notifications:quotidiennes`, cron 8h) :
+  rappel de réponse à un créneau (J-2 sans réponse), rappel de promotion bientôt expirée,
+  invitation de compte bientôt expirée, évènement à venir (J-2, inscrits confirmés), convocation
+  interclubs à venir sans réponse (J-3), et — chaque lundi — rappel des adhésions impayées de la
+  saison en cours.
+- Pas encore de préférences par utilisateur, d'historique des notifications envoyées, ni de
+  notifications push (prévues via la PWA, voir ci-dessous).
+
 ### RGPD
 
 - Pages publiques **Politique de confidentialité** et **Mentions légales** (liens en pied de
@@ -284,8 +296,8 @@ Tous les modules listés dans [Modules](#modules) sont en production. Ce qui n'a
 - **Registre des traitements RGPD** et **durée de conservation automatisée** (purge des comptes
   inactifs) : le volet RGPD applicatif (consentement, export, suppression) est en place, mais ces
   deux aspects organisationnels/techniques restent à faire.
-- Pas de **notifications proactives** (email ou push) pour les rappels de créneau, adhésion à
-  renouveler, cordage prêt, etc. — au-delà de l'email d'invitation initial. La PWA est prête à
-  recevoir des notifications push une fois ce backend construit.
+- **Notifications push** (via la PWA) : les notifications automatiques existent par email
+  seulement pour l'instant ; le push est prévu une fois ce backend éprouvé en production.
+- Les notifications n'ont **pas de préférences par utilisateur** ni d'historique consultable.
 - Pas d'**application mobile native** — le site est une PWA installable (icône, plein écran, cache
   hors-ligne des assets), pas une app iOS/Android compilée.

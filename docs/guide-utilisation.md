@@ -25,6 +25,7 @@ en ligne, une fois connecté, via le menu du compte (en haut à droite) → **Do
 - [Mon espace (tous les licenciés)](#mon-espace-tous-les-licenciés)
 - [Mon profil](#mon-profil)
 - [Mes données personnelles (RGPD)](#mes-données-personnelles-rgpd)
+- [Notifications automatiques](#notifications-automatiques)
 - [Configuration email (production)](#configuration-email-production)
 
 ## Se connecter
@@ -389,6 +390,22 @@ de cocher la case de **consentement explicite** — sans cette case, l'enregistr
 
 Les liens **Politique de confidentialité** et **Mentions légales**, en pied de page de chaque
 écran, détaillent les données collectées et vos droits.
+
+## Notifications automatiques
+
+Axiobad envoie des emails automatiquement, sans action du bureau :
+
+- **Immédiatement** : quand une raquette est marquée prête (cordage), et quand une place se
+  libère sur un créneau à capacité limitée (promotion depuis la liste d'attente, à confirmer sous
+  24h).
+- **Une fois par jour** (8h du matin) : rappel de réponse à un créneau dans 2 jours si vous n'avez
+  pas encore répondu, rappel si votre promotion de liste d'attente expire bientôt, rappel si votre
+  invitation de compte expire bientôt, rappel d'un évènement auquel vous êtes inscrit dans 2 jours,
+  rappel d'une convocation interclubs dans 3 jours si vous n'avez pas répondu, et — chaque lundi —
+  rappel des adhésions impayées de la saison en cours.
+
+Il n'y a pas encore de réglage de préférences (tout envoyer/rien envoyer) ni d'historique des
+notifications reçues.
 
 ## Configuration email (production)
 

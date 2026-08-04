@@ -108,3 +108,8 @@ EOF
 cat > /etc/cron.d/axiobad-expirer-promotions <<EOF
 */10 * * * * root cd $APP_DIR && docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local exec -T php bin/console app:creneau:expirer-promotions >> /var/log/axiobad-expirer-promotions.log 2>&1
 EOF
+
+# Notifications récapitulatives quotidiennes (rappels créneau, adhésions impayées...) : 8h du matin.
+cat > /etc/cron.d/axiobad-notifications-quotidiennes <<EOF
+0 8 * * * root cd $APP_DIR && docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local exec -T php bin/console app:notifications:quotidiennes >> /var/log/axiobad-notifications-quotidiennes.log 2>&1
+EOF

@@ -8,6 +8,7 @@ use App\Entity\TypeCordage;
 use App\Repository\DemandeCordageRepository;
 use App\Repository\RaquetteRepository;
 use App\Repository\TypeCordageRepository;
+use App\Service\NotificationMailer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -132,7 +133,7 @@ class CordageController extends AbstractController
     }
 
     #[Route('/{id}/marquer-prete', name: 'app_cordage_marquer_prete', methods: ['POST'])]
-    public function marquerPrete(Request $request, DemandeCordage $demande, EntityManagerInterface $entityManager): Response
+    public function marquerPrete(Request $request, DemandeCordage $demande, EntityManagerInterface $entityManager, NotificationMailer $notificationMailer): Response
     {
         $this->refuserSiPasBureauNiCordeur();
 
@@ -149,6 +150,7 @@ class CordageController extends AbstractController
         }
 
         $entityManager->flush();
+        $notificationMailer->cordagePret($demande);
 
         $this->addFlash('success', 'Raquette marquée comme prête.');
 

@@ -20,6 +20,7 @@ class GestionInscriptionCreneau
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly PresenceRepository $presenceRepository,
+        private readonly NotificationMailer $notificationMailer,
     ) {
     }
 
@@ -114,6 +115,8 @@ class GestionInscriptionCreneau
         $candidat->setStatutInscription(Presence::STATUT_EN_ATTENTE_CONFIRMATION);
         $candidat->setPromotionExpiresAt(new \DateTimeImmutable(self::DELAI_CONFIRMATION_PROMOTION));
         $this->entityManager->flush();
+
+        $this->notificationMailer->promotionListeAttente($creneau, $candidat->getLicencie(), $date);
     }
 
     /**

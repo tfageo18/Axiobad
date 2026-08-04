@@ -128,6 +128,14 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     private bool $consentementDonneesSante = false;
 
     /**
+     * Préférence de réception des notifications automatiques par email (rappels de créneau,
+     * cordage prêt, adhésion impayée...). N'affecte pas les emails d'invitation/activation de
+     * compte, ni les communications ciblées envoyées manuellement par le bureau.
+     */
+    #[ORM\Column]
+    private bool $notificationsActivees = true;
+
+    /**
      * Date à laquelle le licencié (ou son responsable légal) a demandé la suppression de son
      * compte (droit à l'effacement, RGPD art. 17). Null tant qu'aucune demande n'est en cours.
      */
@@ -598,6 +606,18 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     public function setConsentementDonneesSante(bool $consentementDonneesSante): static
     {
         $this->consentementDonneesSante = $consentementDonneesSante;
+
+        return $this;
+    }
+
+    public function isNotificationsActivees(): bool
+    {
+        return $this->notificationsActivees;
+    }
+
+    public function setNotificationsActivees(bool $notificationsActivees): static
+    {
+        $this->notificationsActivees = $notificationsActivees;
 
         return $this;
     }

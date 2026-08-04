@@ -449,8 +449,13 @@ Axiobad envoie des emails automatiquement, sans action du bureau :
   rappel d'une convocation interclubs dans 3 jours si vous n'avez pas répondu, et — chaque lundi —
   rappel des adhésions impayées de la saison en cours.
 
-Il n'y a pas encore de réglage de préférences (tout envoyer/rien envoyer) ni d'historique des
-notifications reçues.
+Pour arrêter de recevoir ces emails automatiques, décocher **« Recevoir les notifications
+automatiques par email »** sur la page **Mon compte**. Cela n'affecte pas l'email d'activation de
+compte (essentiel), ni les communications ciblées envoyées manuellement par le bureau (voir
+ci-dessus) — seulement ces rappels automatiques.
+
+Il n'y a pas encore d'historique des notifications reçues, ni de réglage plus fin (choisir quels
+types de rappels recevoir).
 
 ## Configuration email (production)
 

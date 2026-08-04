@@ -32,6 +32,17 @@
                 <input type="tel" name="telephone" id="telephone" value="{{ licencie.telephone }}">
             </div>
             <div>
+                <label>
+                    <input type="checkbox" name="notificationsActivees" value="1" {{ licencie.notificationsActivees ? 'checked' : '' }}>
+                    Recevoir les notifications automatiques par email (rappels de réponse à un
+                    créneau, promotion de liste d'attente, cordage prêt, adhésion impayée...)
+                </label>
+                <p style="color: var(--color-text-muted); font-size: 0.85rem; margin: 0.25rem 0 0;">
+                    Ne concerne pas les emails essentiels (activation de compte) ni les
+                    communications envoyées manuellement par le bureau.
+                </p>
+            </div>
+            <div>
                 <label for="genre">Genre (optionnel)</label>
                 <select name="genre" id="genre">
                     <option value="">-</option>

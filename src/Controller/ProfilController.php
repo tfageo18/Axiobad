@@ -49,6 +49,7 @@ class ProfilController extends AbstractController
             }
 
             $licencie->setTelephone($telephone ?: null);
+            $licencie->setNotificationsActivees((bool) $request->request->get('notificationsActivees'));
             $licencie->setGenre((string) $request->request->get('genre') ?: null);
             $licencie->setDateNaissance($dateNaissance ? new \DateTimeImmutable($dateNaissance) : null);
             $licencie->setNumeroLicence($numeroLicence ?: null);

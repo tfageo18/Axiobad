@@ -151,12 +151,23 @@ class NotificationMailer
      */
     public function communicationCiblee(Licencie $destinataire, string $sujet, string $corps): bool
     {
-        return $this->envoyer($destinataire, $sujet, $corps);
+        // Communication manuelle et ciblée par le bureau : envoyée même si le licencié a
+        // désactivé les notifications automatiques.
+        return $this->envoyer($destinataire, $sujet, $corps, automatique: false);
     }
 
-    private function envoyer(?Licencie $destinataire, string $sujet, string $corps): bool
+    /**
+     * @param bool $automatique si true (par défaut), respecte la préférence de notification du
+     *                          destinataire — utilisé pour tous les rappels/alertes automatiques,
+     *                          jamais pour les communications ciblées envoyées manuellement
+     */
+    private function envoyer(?Licencie $destinataire, string $sujet, string $corps, bool $automatique = true): bool
     {
         if (!$destinataire || !$destinataire->getEmail()) {
+            return false;
+        }
+
+        if ($automatique && !$destinataire->isNotificationsActivees()) {
             return false;
         }
 

@@ -225,8 +225,11 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
   invitation de compte bientôt expirée, évènement à venir (J-2, inscrits confirmés), convocation
   interclubs à venir sans réponse (J-3), et — chaque lundi — rappel des adhésions impayées de la
   saison en cours.
-- Pas encore de préférences par utilisateur, d'historique des notifications envoyées, ni de
-  notifications push (prévues via la PWA, voir ci-dessous).
+- Chaque licencié peut **désactiver la réception de ces notifications automatiques** depuis « Mon
+  compte » (case à cocher) — n'affecte ni les emails essentiels (activation de compte), ni les
+  communications ciblées envoyées manuellement par le bureau.
+- Pas encore d'historique des notifications envoyées, ni de notifications push (prévues via la
+  PWA, voir ci-dessous).
 
 ### RGPD
 

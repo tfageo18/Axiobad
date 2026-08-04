@@ -81,10 +81,15 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
 
 ### Cordage
 
-- Tout licencié peut déposer une demande de cordage (cordage souhaité choisi dans un catalogue
-  tenu par le bureau, tension souhaitée, lieu de dépose).
-- Un licencié avec le rôle **Cordeur** voit toutes les demandes et fait progresser leur statut :
-  déposée → en cours → prête (avec prix et lieu de retour) → récupérée.
+- Chaque licencié gère ses **raquettes** (marque, modèle, signe distinctif, tension habituelle en
+  kg) et consulte l'historique de cordage de chacune.
+- Tout licencié peut déposer une demande de cordage : raquette concernée (la tension habituelle
+  se pré-remplit), cordage souhaité (choisi dans un catalogue tenu par le bureau), tension
+  souhaitée, lieu de dépose.
+- Un licencié avec le rôle **Cordeur** (avec ou sans rôle bureau) voit toutes les demandes, peut
+  les modifier ou annuler à tout moment, et fait progresser leur statut : déposée → en cours →
+  prête (avec prix et lieu de retour) → récupérée (le licencié peut lui-même marquer sa raquette
+  récupérée).
 
 ### Tableau de bord (bureau)
 

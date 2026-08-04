@@ -7,7 +7,7 @@
     <p><a href="{{ retour }}">&laquo; Retour au stock</a></p>
 
     <div class="table-scroll">
-    <table>
+    <table class="table-cards">
         <thead>
             <tr>
                 <th>Date</th>
@@ -20,11 +20,11 @@
         <tbody>
             {% for mouvement in mouvements %}
                 <tr>
-                    <td>{{ mouvement.creeLe|date('d/m/Y H:i') }}</td>
-                    <td>{{ mouvement.entree ? 'Entrée' : 'Sortie' }}</td>
-                    <td>{{ mouvement.entree ? '+' : '−' }}{{ mouvement.quantite }}</td>
-                    <td>{{ mouvement.motif ?? '-' }}</td>
-                    <td>{{ mouvement.auteur.nomComplet }}</td>
+                    <td data-label="Date">{{ mouvement.creeLe|date('d/m/Y H:i') }}</td>
+                    <td data-label="Type">{{ mouvement.entree ? 'Entrée' : 'Sortie' }}</td>
+                    <td data-label="Quantité">{{ mouvement.entree ? '+' : '−' }}{{ mouvement.quantite }}</td>
+                    <td data-label="Motif">{{ mouvement.motif ?? '-' }}</td>
+                    <td data-label="Auteur">{{ mouvement.auteur.nomComplet }}</td>
                 </tr>
             {% else %}
                 <tr><td colspan="5">Aucun mouvement enregistré.</td></tr>

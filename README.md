@@ -181,6 +181,17 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
   quantité éditable.
 - Recherche instantanée sur les deux catégories.
 
+### Progressive Web App (PWA)
+
+- Application **installable** sur l'écran d'accueil (mobile et desktop) : manifest avec icônes,
+  couleur de thème, mode plein écran (`standalone`).
+- **Service worker** : cache les assets statiques (icônes, manifest) pour un chargement plus
+  rapide, et affiche une page dédiée en cas de perte de connexion. Les pages dynamiques (créneaux,
+  présences, adhésions...) ne sont jamais mises en cache, pour garantir des données toujours à
+  jour et ne jamais servir un jeton CSRF périmé.
+- Pas encore de notifications push (prévu une fois les notifications automatiques par email en
+  place côté serveur).
+
 ### RGPD
 
 - Pages publiques **Politique de confidentialité** et **Mentions légales** (liens en pied de
@@ -273,7 +284,8 @@ Tous les modules listés dans [Modules](#modules) sont en production. Ce qui n'a
 - **Registre des traitements RGPD** et **durée de conservation automatisée** (purge des comptes
   inactifs) : le volet RGPD applicatif (consentement, export, suppression) est en place, mais ces
   deux aspects organisationnels/techniques restent à faire.
-- Pas de **notifications push/email** proactives (rappel de créneau, adhésion à renouveler,
-  demande de cordage prête) au-delà de l'email d'invitation initial.
-- Pas d'**application mobile native** ni de mode hors-ligne — le site est responsive mais reste un
-  site web classique.
+- Pas de **notifications proactives** (email ou push) pour les rappels de créneau, adhésion à
+  renouveler, cordage prêt, etc. — au-delà de l'email d'invitation initial. La PWA est prête à
+  recevoir des notifications push une fois ce backend construit.
+- Pas d'**application mobile native** — le site est une PWA installable (icône, plein écran, cache
+  hors-ligne des assets), pas une app iOS/Android compilée.

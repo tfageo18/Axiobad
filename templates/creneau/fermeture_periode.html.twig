@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Fermeture par période — Axiobad{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('app_creneau_index') }}">&laquo; Retour aux créneaux</a></p>
+
+    <h1>Fermeture par période</h1>
+    <p>
+        Annule toutes les occurrences de tous les créneaux actifs sur une période donnée (ex.
+        vacances scolaires). Le créneau récurrent lui-même n'est pas modifié : les occurrences
+        annulées peuvent être rétablies individuellement depuis le calendrier si besoin.
+    </p>
+
+    <form method="post" action="{{ path('app_creneau_fermeture_periode') }}" onsubmit="return confirm('Annuler toutes les occurrences de créneau sur cette période ?');">
+        <div>
+            <label for="debut">Du</label>
+            <input type="date" name="debut" id="debut" required>
+        </div>
+        <div>
+            <label for="fin">Au</label>
+            <input type="date" name="fin" id="fin" required>
+        </div>
+        <div>
+            <label for="motif">Motif (optionnel, visible sur chaque occurrence annulée)</label>
+            <input type="text" name="motif" id="motif" placeholder="Ex. Vacances de Noël">
+        </div>
+        <button type="submit">Fermer sur cette période</button>
+    </form>
+{% endblock %}

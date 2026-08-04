@@ -159,6 +159,11 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
   au-delà de laquelle un licencié ne peut plus se désinscrire lui-même, et possibilité pour le
   bureau de **forcer une inscription**. Un traitement planifié côté serveur (cron, toutes les
   10 min, `app:creneau:expirer-promotions`) gère les promotions expirées.
+- **Exceptions ponctuelles** (bureau) : pour une occurrence précise (une date donnée), possibilité
+  d'**annuler** la séance ou de la **modifier exceptionnellement** (gymnase, horaire, capacité,
+  entraîneur, note) sans toucher au créneau récurrent ni à ses autres occurrences. Depuis le
+  calendrier ou en **fermeture groupée sur une période** (ex. vacances scolaires), qui annule en
+  une fois toutes les occurrences concernées.
 
 ### Calendrier
 

@@ -217,6 +217,27 @@ Si une **capacité maximale** est renseignée sur un créneau :
 - Le bureau peut **forcer une inscription** depuis la page détail d'un créneau (bouton en bas de
   page), même si la capacité est déjà atteinte.
 
+### Exceptions ponctuelles sur une occurrence
+
+Pour annuler ou modifier un créneau récurrent **une seule fois**, sans toucher aux autres
+occurrences ni au créneau lui-même :
+
+1. Depuis le **calendrier**, sur l'occurrence concernée, cliquer sur **« Annuler / modifier cette
+   occurrence »** (visible du bureau uniquement).
+2. Choisir **Annuler cette séance**, ou **Modifier exceptionnellement** (gymnase, horaire,
+   capacité, entraîneur différents juste pour cette date), et ajouter une note optionnelle
+   visible de tous.
+3. Une séance annulée n'accepte plus de réponse de présence, et est signalée en rouge partout où
+   elle apparaît (calendrier, Mon espace, Ma famille).
+4. Depuis la fiche de l'occurrence, un bouton **« Rétablir cette occurrence normalement »** annule
+   l'exception et revient au fonctionnement standard du créneau récurrent.
+
+### Fermeture par période (vacances scolaires...)
+
+Depuis la liste des créneaux, lien **Fermeture par période** : indiquer une date de début, une
+date de fin et un motif optionnel — toutes les occurrences de tous les créneaux actifs sur cette
+période sont annulées d'un coup (chacune peut être rétablie individuellement ensuite si besoin).
+
 ## Le calendrier
 
 Menu **Jouer → Calendrier** : vue du mois en cours (mois précédent/suivant navigable).

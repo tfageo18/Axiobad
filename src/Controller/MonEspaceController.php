@@ -7,6 +7,7 @@ use App\Entity\Evenement;
 use App\Entity\Licencie;
 use App\Repository\AdhesionRepository;
 use App\Repository\ConvocationRepository;
+use App\Repository\CreneauExceptionRepository;
 use App\Repository\CreneauRepository;
 use App\Repository\EvenementRepository;
 use App\Repository\PresenceRepository;
@@ -27,6 +28,7 @@ class MonEspaceController extends AbstractController
         AdhesionRepository $adhesionRepository,
         EvenementRepository $evenementRepository,
         ConvocationRepository $convocationRepository,
+        CreneauExceptionRepository $exceptionRepository,
     ): Response {
         /** @var Licencie $licencie */
         $licencie = $this->getUser();
@@ -52,9 +54,15 @@ class MonEspaceController extends AbstractController
                     continue;
                 }
 
+                $exception = $exceptionRepository->findOneByCreneauEtDate($creneau, $date);
+                if ($exception && $exception->estAnnulee()) {
+                    continue;
+                }
+
                 $prochainsCreneaux[] = [
                     'creneau' => $creneau,
                     'date' => $date,
+                    'exception' => $exception,
                     'presence' => $presenceRepository->findOneByCreneauLicencieEtDate($creneau, $licencie, $date),
                 ];
             }

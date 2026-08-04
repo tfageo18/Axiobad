@@ -15,7 +15,10 @@
     <p>Pour indiquer votre présence semaine par semaine, rendez-vous sur le <a href="{{ path('app_calendrier') }}">calendrier</a>.</p>
 
     {% if is_granted('ROLE_BUREAU') %}
-        <p><a class="btn-cta" href="{{ path('app_creneau_new') }}">+ Nouveau créneau</a></p>
+        <p>
+            <a class="btn-cta" href="{{ path('app_creneau_new') }}">+ Nouveau créneau</a>
+            <a href="{{ path('app_creneau_fermeture_periode') }}">Fermeture par période (vacances...)</a>
+        </p>
     {% else %}
         <p>
             {% if toutAfficher %}

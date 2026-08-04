@@ -4,9 +4,11 @@ namespace App\Controller;
 
 use App\Badminton\ClassementFfbad;
 use App\Entity\Creneau;
+use App\Entity\CreneauException;
 use App\Entity\CreneauOuverture;
 use App\Entity\Gymnase;
 use App\Entity\Licencie;
+use App\Repository\CreneauExceptionRepository;
 use App\Repository\CreneauOuvertureRepository;
 use App\Repository\CreneauRepository;
 use App\Repository\GymnaseRepository;
@@ -115,6 +117,143 @@ class CreneauController extends AbstractController
         $this->addFlash('success', $creneau->isActif() ? 'Créneau réactivé.' : 'Créneau désactivé.');
 
         return $this->redirectToRoute('app_creneau_index');
+    }
+
+    /**
+     * Annule ou modifie exceptionnellement une seule occurrence (date précise) d'un créneau
+     * récurrent, sans toucher au créneau récurrent lui-même ni à ses autres occurrences.
+     */
+    #[Route('/{id}/occurrences/{date}/modifier', name: 'app_creneau_exception_edit', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_BUREAU')]
+    public function exceptionEdit(
+        Request $request,
+        Creneau $creneau,
+        string $date,
+        CreneauExceptionRepository $exceptionRepository,
+        GymnaseRepository $gymnaseRepository,
+        LicencieRepository $licencieRepository,
+        EntityManagerInterface $entityManager,
+    ): Response {
+        $dateObjet = new \DateTimeImmutable($date);
+        $exception = $exceptionRepository->findOneByCreneauEtDate($creneau, $dateObjet) ?? (new CreneauException())->setCreneau($creneau)->setDate($dateObjet);
+
+        if ($request->isMethod('POST')) {
+            $type = (string) $request->request->get('type');
+            $exception->setType(in_array($type, [CreneauException::TYPE_ANNULEE, CreneauException::TYPE_MODIFIEE], true) ? $type : CreneauException::TYPE_ANNULEE);
+
+            if (CreneauException::TYPE_MODIFIEE === $exception->getType()) {
+                $gymnaseId = $request->request->get('gymnase');
+                $entraineurId = $request->request->get('entraineur');
+                $heureDebut = (string) $request->request->get('heureDebut');
+                $heureFin = (string) $request->request->get('heureFin');
+                $capaciteMax = $request->request->get('capaciteMax');
+
+                $exception
+                    ->setGymnase($gymnaseId ? $gymnaseRepository->find($gymnaseId) : null)
+                    ->setEntraineur($entraineurId ? $licencieRepository->find($entraineurId) : null)
+                    ->setHeureDebut($heureDebut ? new \DateTimeImmutable($heureDebut) : null)
+                    ->setHeureFin($heureFin ? new \DateTimeImmutable($heureFin) : null)
+                    ->setCapaciteMax(null !== $capaciteMax && '' !== $capaciteMax ? (int) $capaciteMax : null);
+            } else {
+                $exception->setGymnase(null)->setEntraineur(null)->setHeureDebut(null)->setHeureFin(null)->setCapaciteMax(null);
+            }
+
+            $exception->setNote((string) $request->request->get('note') ?: null);
+
+            $entityManager->persist($exception);
+            $entityManager->flush();
+
+            $this->addFlash('success', sprintf('Occurrence du %s modifiée.', $dateObjet->format('d/m/Y')));
+
+            return $this->redirectToRoute('app_calendrier', ['mois' => $dateObjet->format('Y-m')]);
+        }
+
+        return $this->render('creneau/exception_form.html.twig', [
+            'creneau' => $creneau,
+            'exception' => $exception,
+            'date' => $dateObjet,
+            'gymnases' => $gymnaseRepository->findAll(),
+            'entraineurs' => $licencieRepository->findAll(),
+        ]);
+    }
+
+    #[Route('/{id}/occurrences/{date}/reactiver', name: 'app_creneau_exception_delete', methods: ['POST'])]
+    #[IsGranted('ROLE_BUREAU')]
+    public function exceptionDelete(Request $request, Creneau $creneau, string $date, CreneauExceptionRepository $exceptionRepository, EntityManagerInterface $entityManager): Response
+    {
+        $dateObjet = new \DateTimeImmutable($date);
+        $exception = $exceptionRepository->findOneByCreneauEtDate($creneau, $dateObjet);
+
+        if ($exception && $this->isCsrfTokenValid('delete-exception-'.$exception->getId(), (string) $request->request->get('_token'))) {
+            $entityManager->remove($exception);
+            $entityManager->flush();
+            $this->addFlash('success', sprintf('Occurrence du %s rétablie normalement.', $dateObjet->format('d/m/Y')));
+        }
+
+        return $this->redirectToRoute('app_calendrier', ['mois' => $dateObjet->format('Y-m')]);
+    }
+
+    /**
+     * Fermeture groupée : annule toutes les occurrences de tous les créneaux actifs sur une
+     * période donnée (ex. vacances scolaires).
+     */
+    #[Route('/fermeture-periode', name: 'app_creneau_fermeture_periode', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_BUREAU')]
+    public function fermeturePeriode(
+        Request $request,
+        CreneauRepository $creneauRepository,
+        CreneauExceptionRepository $exceptionRepository,
+        EntityManagerInterface $entityManager,
+    ): Response {
+        if ($request->isMethod('POST')) {
+            $debut = new \DateTimeImmutable((string) $request->request->get('debut'));
+            $fin = new \DateTimeImmutable((string) $request->request->get('fin'));
+            $motif = (string) $request->request->get('motif') ?: null;
+
+            if ($fin < $debut) {
+                $this->addFlash('error', 'La date de fin doit être postérieure à la date de début.');
+
+                return $this->redirectToRoute('app_creneau_fermeture_periode');
+            }
+
+            $creneaux = array_values(array_filter($creneauRepository->findAll(), static fn (Creneau $c) => $c->isActif()));
+            $nombre = 0;
+
+            for ($date = $debut; $date <= $fin; $date = $date->modify('+1 day')) {
+                $nomJour = self::joursSemaine()[((int) $date->format('N')) - 1];
+
+                foreach ($creneaux as $creneau) {
+                    if ($creneau->getJourSemaine() !== $nomJour) {
+                        continue;
+                    }
+                    if ($creneau->getRecurrenceDebut() && $date < $creneau->getRecurrenceDebut()) {
+                        continue;
+                    }
+                    if ($creneau->getRecurrenceFin() && $date > $creneau->getRecurrenceFin()) {
+                        continue;
+                    }
+
+                    $exception = $exceptionRepository->findOneByCreneauEtDate($creneau, $date)
+                        ?? (new CreneauException())->setCreneau($creneau)->setDate($date);
+                    $exception->setType(CreneauException::TYPE_ANNULEE)->setNote($motif);
+                    $entityManager->persist($exception);
+                    ++$nombre;
+                }
+            }
+
+            $entityManager->flush();
+
+            $this->addFlash('success', sprintf('%d occurrence(s) annulée(s) du %s au %s.', $nombre, $debut->format('d/m/Y'), $fin->format('d/m/Y')));
+
+            return $this->redirectToRoute('app_creneau_index');
+        }
+
+        return $this->render('creneau/fermeture_periode.html.twig', []);
+    }
+
+    private static function joursSemaine(): array
+    {
+        return ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
     }
 
     #[Route('/{id}/detail', name: 'app_creneau_detail', methods: ['GET'])]

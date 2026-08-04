@@ -7,6 +7,7 @@ use App\Entity\Creneau;
 use App\Entity\Licencie;
 use App\Entity\PaiementAdhesion;
 use App\Repository\AdhesionRepository;
+use App\Repository\CreneauExceptionRepository;
 use App\Repository\CreneauRepository;
 use App\Repository\LicencieRepository;
 use App\Repository\PresenceRepository;
@@ -30,6 +31,7 @@ class FamilleController extends AbstractController
         PresenceRepository $presenceRepository,
         SaisonRepository $saisonRepository,
         AdhesionRepository $adhesionRepository,
+        CreneauExceptionRepository $exceptionRepository,
     ): Response {
         /** @var Licencie $responsable */
         $responsable = $this->getUser();
@@ -46,7 +48,7 @@ class FamilleController extends AbstractController
         foreach ($enfants as $enfant) {
             $fiches[] = [
                 'enfant' => $enfant,
-                'prochainsCreneaux' => $this->calculerProchainsCreneaux($enfant, $creneauxActifs, $presenceRepository),
+                'prochainsCreneaux' => $this->calculerProchainsCreneaux($enfant, $creneauxActifs, $presenceRepository, $exceptionRepository),
                 'adhesion' => $saisonEnCours ? $adhesionRepository->findOneByLicencieEtSaison($enfant, $saisonEnCours) : null,
             ];
         }
@@ -159,7 +161,7 @@ class FamilleController extends AbstractController
      *
      * @return array<int, array{creneau: Creneau, date: \DateTimeImmutable, presence: mixed}>
      */
-    private function calculerProchainsCreneaux(Licencie $enfant, array $creneauxActifs, PresenceRepository $presenceRepository): array
+    private function calculerProchainsCreneaux(Licencie $enfant, array $creneauxActifs, PresenceRepository $presenceRepository, CreneauExceptionRepository $exceptionRepository): array
     {
         $creneauxCorrespondants = array_values(array_filter($creneauxActifs, static fn (Creneau $c) => $c->correspondA($enfant)));
 
@@ -180,9 +182,15 @@ class FamilleController extends AbstractController
                     continue;
                 }
 
+                $exception = $exceptionRepository->findOneByCreneauEtDate($creneau, $date);
+                if ($exception && $exception->estAnnulee()) {
+                    continue;
+                }
+
                 $prochains[] = [
                     'creneau' => $creneau,
                     'date' => $date,
+                    'exception' => $exception,
                     'presence' => $presenceRepository->findOneByCreneauLicencieEtDate($creneau, $enfant, $date),
                 ];
             }

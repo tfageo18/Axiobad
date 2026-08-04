@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Creneau;
 use App\Entity\Licencie;
 use App\Entity\RencontreInterclub;
+use App\Repository\CreneauExceptionRepository;
 use App\Repository\CreneauOuvertureRepository;
 use App\Repository\CreneauRepository;
 use App\Repository\LicencieRepository;
@@ -32,6 +33,7 @@ class CalendrierController extends AbstractController
         CreneauOuvertureRepository $ouvertureRepository,
         LicencieRepository $licencieRepository,
         RencontreInterclubRepository $rencontreInterclubRepository,
+        CreneauExceptionRepository $exceptionRepository,
     ): Response {
         /** @var Licencie $licencie */
         $licencie = $this->getUser();
@@ -77,9 +79,11 @@ class CalendrierController extends AbstractController
 
             $presences = [];
             $ouvertures = [];
+            $exceptions = [];
             foreach ($creneauxDuJour as $creneau) {
                 $presences[$creneau->getId()] = $presenceRepository->findOneByCreneauLicencieEtDate($creneau, $licencie, $date);
                 $ouvertures[$creneau->getId()] = $ouvertureRepository->findOneByCreneauEtDate($creneau, $date);
+                $exceptions[$creneau->getId()] = $exceptionRepository->findOneByCreneauEtDate($creneau, $date);
             }
 
             $rencontresDuJour = array_values(array_filter(
@@ -94,6 +98,7 @@ class CalendrierController extends AbstractController
                 'creneaux' => $creneauxDuJour,
                 'presences' => $presences,
                 'ouvertures' => $ouvertures,
+                'exceptions' => $exceptions,
                 'rencontres' => $rencontresDuJour,
             ];
 

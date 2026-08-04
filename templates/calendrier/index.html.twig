@@ -102,19 +102,29 @@
                                 <div class="jour-numero">{{ jour.date|date('d') }}</div>
                                 {% for creneau in jour.creneaux %}
                                     {% set ouverture = jour.ouvertures[creneau.id] %}
-                                    <div class="creneau-cal">
+                                    {% set exception = jour.exceptions[creneau.id] %}
+                                    <div class="creneau-cal{{ exception and exception.estAnnulee ? ' creneau-annule' : '' }}">
                                         <a href="{{ path('app_creneau_detail', {id: creneau.id, date: jour.date|date('Y-m-d')}) }}">
-                                            <strong>{{ creneau.nom }}</strong> {{ creneau.heureDebut|date('H:i') }}
+                                            <strong>{{ creneau.nom }}</strong> {{ (exception ? exception.heureDebutEffective : creneau.heureDebut)|date('H:i') }}
                                         </a><br>
-                                        <small>{{ creneau.activite }} · {{ creneau.gymnase.nom }} · {{ creneau.typeLabel }}{{ creneau.ouvertExternes ? ' · Ouvert extérieurs' : '' }}{{ creneau.ouvertAdos ? ' · Ados' : '' }}</small><br>
+                                        <small>{{ creneau.activite }} · {{ exception ? exception.gymnaseEffectif.nom : creneau.gymnase.nom }} · {{ creneau.typeLabel }}{{ creneau.ouvertExternes ? ' · Ouvert extérieurs' : '' }}{{ creneau.ouvertAdos ? ' · Ados' : '' }}</small><br>
+
+                                        {% if exception %}
+                                            <p style="margin: 0.3rem 0; font-weight: 700; color: {{ exception.estAnnulee ? 'var(--color-error)' : 'var(--color-accent-dark)' }};">
+                                                {{ exception.estAnnulee ? '✗ Séance annulée' : '⚠ Séance modifiée exceptionnellement' }}
+                                            </p>
+                                            {% if exception.note %}<small>{{ exception.note }}</small><br>{% endif %}
+                                        {% endif %}
 
                                         {% set presence = jour.presences[creneau.id] %}
-                                        <form method="post" action="{{ path('app_creneau_presence', {id: creneau.id}) }}" class="presence-form">
-                                            <input type="hidden" name="date" value="{{ jour.date|date('Y-m-d') }}">
-                                            <input type="hidden" name="semaine" value="{{ premierDuMois|date('Y-m') }}">
-                                            <button type="submit" name="present" value="1" class="btn-presence btn-presence-oui {{ presence and presence.present ? 'selectionne' : '' }}">✓ Je viens</button>
-                                            <button type="submit" name="present" value="0" class="btn-presence btn-presence-non {{ presence and not presence.present ? 'selectionne' : '' }}">✗ Non</button>
-                                        </form>
+                                        {% if not (exception and exception.estAnnulee) %}
+                                            <form method="post" action="{{ path('app_creneau_presence', {id: creneau.id}) }}" class="presence-form">
+                                                <input type="hidden" name="date" value="{{ jour.date|date('Y-m-d') }}">
+                                                <input type="hidden" name="semaine" value="{{ premierDuMois|date('Y-m') }}">
+                                                <button type="submit" name="present" value="1" class="btn-presence btn-presence-oui {{ presence and presence.present ? 'selectionne' : '' }}">✓ Je viens</button>
+                                                <button type="submit" name="present" value="0" class="btn-presence btn-presence-non {{ presence and not presence.present ? 'selectionne' : '' }}">✗ Non</button>
+                                            </form>
+                                        {% endif %}
 
                                         {% if presence and presence.estEnListeAttente %}
                                             <small>⏳ Liste d'attente</small><br>
@@ -164,6 +174,7 @@
                                                     <button type="submit">Valider</button>
                                                 </form>
                                             </details>
+                                            <a href="{{ path('app_creneau_exception_edit', {id: creneau.id, date: jour.date|date('Y-m-d')}) }}">{{ exception ? 'Modifier cette occurrence' : 'Annuler / modifier cette occurrence' }}</a>
                                         {% endif %}
                                     </div>
                                 {% endfor %}
@@ -204,17 +215,27 @@
 
                     {% for creneau in jour.creneaux %}
                         {% set ouverture = jour.ouvertures[creneau.id] %}
+                        {% set exception = jour.exceptions[creneau.id] %}
                         {% set presence = jour.presences[creneau.id] %}
-                        <div class="agenda-creneau">
-                            <a href="{{ path('app_creneau_detail', {id: creneau.id, date: jour.date|date('Y-m-d')}) }}">{{ creneau.nom }} — {{ creneau.heureDebut|date('H:i') }}</a>
-                            <div class="lieu">{{ creneau.activite }} · {{ creneau.gymnase.nom }} · {{ creneau.typeLabel }}{{ creneau.ouvertExternes ? ' · Ouvert extérieurs' : '' }}{{ creneau.ouvertAdos ? ' · Ados' : '' }}</div>
+                        <div class="agenda-creneau{{ exception and exception.estAnnulee ? ' creneau-annule' : '' }}">
+                            <a href="{{ path('app_creneau_detail', {id: creneau.id, date: jour.date|date('Y-m-d')}) }}">{{ creneau.nom }} — {{ (exception ? exception.heureDebutEffective : creneau.heureDebut)|date('H:i') }}</a>
+                            <div class="lieu">{{ creneau.activite }} · {{ exception ? exception.gymnaseEffectif.nom : creneau.gymnase.nom }} · {{ creneau.typeLabel }}{{ creneau.ouvertExternes ? ' · Ouvert extérieurs' : '' }}{{ creneau.ouvertAdos ? ' · Ados' : '' }}</div>
 
-                            <form method="post" action="{{ path('app_creneau_presence', {id: creneau.id}) }}" class="presence-form">
-                                <input type="hidden" name="date" value="{{ jour.date|date('Y-m-d') }}">
-                                <input type="hidden" name="semaine" value="{{ premierDuMois|date('Y-m') }}">
-                                <button type="submit" name="present" value="1" class="btn-presence btn-presence-oui {{ presence and presence.present ? 'selectionne' : '' }}">✓ Je viens</button>
-                                <button type="submit" name="present" value="0" class="btn-presence btn-presence-non {{ presence and not presence.present ? 'selectionne' : '' }}">✗ Non</button>
-                            </form>
+                            {% if exception %}
+                                <p style="margin: 0 0 0.5rem; font-weight: 700; color: {{ exception.estAnnulee ? 'var(--color-error)' : 'var(--color-accent-dark)' }};">
+                                    {{ exception.estAnnulee ? '✗ Séance annulée' : '⚠ Séance modifiée exceptionnellement' }}
+                                    {% if exception.note %} — {{ exception.note }}{% endif %}
+                                </p>
+                            {% endif %}
+
+                            {% if not (exception and exception.estAnnulee) %}
+                                <form method="post" action="{{ path('app_creneau_presence', {id: creneau.id}) }}" class="presence-form">
+                                    <input type="hidden" name="date" value="{{ jour.date|date('Y-m-d') }}">
+                                    <input type="hidden" name="semaine" value="{{ premierDuMois|date('Y-m') }}">
+                                    <button type="submit" name="present" value="1" class="btn-presence btn-presence-oui {{ presence and presence.present ? 'selectionne' : '' }}">✓ Je viens</button>
+                                    <button type="submit" name="present" value="0" class="btn-presence btn-presence-non {{ presence and not presence.present ? 'selectionne' : '' }}">✗ Non</button>
+                                </form>
+                            {% endif %}
 
                             {% if presence and presence.estEnListeAttente %}
                                 <p style="margin: 0 0 0.5rem;">⏳ Liste d'attente</p>
@@ -264,6 +285,9 @@
                                         <button type="submit">Valider</button>
                                     </form>
                                 </details>
+                                <p style="margin: 0.5rem 0 0;">
+                                    <a href="{{ path('app_creneau_exception_edit', {id: creneau.id, date: jour.date|date('Y-m-d')}) }}">{{ exception ? 'Modifier cette occurrence' : 'Annuler / modifier cette occurrence' }}</a>
+                                </p>
                             {% endif %}
                         </div>
                     {% endfor %}

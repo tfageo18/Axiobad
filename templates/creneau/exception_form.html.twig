@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Occurrence du {{ date|date('d/m/Y') }} — {{ creneau.nom }} — Axiobad{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('app_calendrier', {mois: date|date('Y-m')}) }}">&laquo; Retour au calendrier</a></p>
+
+    <h1>{{ creneau.nom }} — occurrence du {{ date|date('d/m/Y') }}</h1>
+    <p>
+        Cette page ne modifie que <strong>cette date précise</strong> : le créneau récurrent et
+        ses autres occurrences ne sont pas affectés.
+    </p>
+
+    <form method="post" action="{{ path('app_creneau_exception_edit', {id: creneau.id, date: date|date('Y-m-d')}) }}">
+        <div>
+            <label>
+                <input type="radio" name="type" value="ANNULEE" {{ exception.type == 'ANNULEE' ? 'checked' : '' }} onchange="document.getElementById('champs-modifiee').style.display='none'">
+                Annuler cette séance
+            </label>
+        </div>
+        <div>
+            <label>
+                <input type="radio" name="type" value="MODIFIEE" {{ exception.type == 'MODIFIEE' ? 'checked' : '' }} onchange="document.getElementById('champs-modifiee').style.display='block'">
+                Modifier exceptionnellement cette séance
+            </label>
+        </div>
+
+        <div id="champs-modifiee" style="display: {{ exception.type == 'MODIFIEE' ? 'block' : 'none' }};">
+            <div>
+                <label for="gymnase">Gymnase (optionnel — sinon celui du créneau)</label>
+                <select name="gymnase" id="gymnase">
+                    <option value="">{{ creneau.gymnase.nom }} (par défaut)</option>
+                    {% for gymnase in gymnases %}
+                        <option value="{{ gymnase.id }}" {{ exception.gymnase and exception.gymnase.id == gymnase.id ? 'selected' : '' }}>{{ gymnase.nom }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="heureDebut">Heure de début (optionnel)</label>
+                <input type="time" name="heureDebut" id="heureDebut" value="{{ exception.heureDebut ? exception.heureDebut|date('H:i') : '' }}" placeholder="{{ creneau.heureDebut|date('H:i') }}">
+            </div>
+            <div>
+                <label for="heureFin">Heure de fin (optionnel)</label>
+                <input type="time" name="heureFin" id="heureFin" value="{{ exception.heureFin ? exception.heureFin|date('H:i') : '' }}" placeholder="{{ creneau.heureFin|date('H:i') }}">
+            </div>
+            <div>
+                <label for="capaciteMax">Capacité maximale (optionnel — sinon celle du créneau)</label>
+                <input type="number" name="capaciteMax" id="capaciteMax" min="1" value="{{ exception.capaciteMax }}" placeholder="{{ creneau.capaciteMax ?? 'illimitée' }}">
+            </div>
+            <div>
+                <label for="entraineur">Entraîneur (optionnel — sinon celui du créneau)</label>
+                <select name="entraineur" id="entraineur">
+                    <option value="">{{ creneau.entraineur ? creneau.entraineur.nomComplet ~ ' (par défaut)' : '-' }}</option>
+                    {% for entraineur in entraineurs %}
+                        <option value="{{ entraineur.id }}" {{ exception.entraineur and exception.entraineur.id == entraineur.id ? 'selected' : '' }}>{{ entraineur.nomComplet }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div>
+            <label for="note">Note (optionnel, visible par tous)</label>
+            <textarea name="note" id="note" rows="2">{{ exception.note }}</textarea>
+        </div>
+
+        <button type="submit">Enregistrer</button>
+    </form>
+
+    {% if exception.id %}
+        <form method="post" action="{{ path('app_creneau_exception_delete', {id: creneau.id, date: date|date('Y-m-d')}) }}" onsubmit="return confirm('Rétablir cette occurrence normalement (annule l\'exception) ?');" style="margin-top: 1rem;">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete-exception-' ~ exception.id) }}">
+            <button type="submit">Rétablir cette occurrence normalement</button>
+        </form>
+    {% endif %}
+{% endblock %}

@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Creneau;
 use App\Entity\Licencie;
 use App\Entity\Presence;
+use App\Repository\CreneauExceptionRepository;
 use App\Repository\PresenceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -21,6 +22,7 @@ class GestionInscriptionCreneau
         private readonly EntityManagerInterface $entityManager,
         private readonly PresenceRepository $presenceRepository,
         private readonly NotificationMailer $notificationMailer,
+        private readonly CreneauExceptionRepository $creneauExceptionRepository,
     ) {
     }
 
@@ -29,6 +31,11 @@ class GestionInscriptionCreneau
      */
     public function repondre(Creneau $creneau, Licencie $licencie, \DateTimeImmutable $date, bool $veutVenir, bool $estBureau): array
     {
+        $exception = $this->creneauExceptionRepository->findOneByCreneauEtDate($creneau, $date);
+        if ($veutVenir && $exception && $exception->estAnnulee()) {
+            return ['ok' => false, 'erreur' => 'Cette séance est annulée exceptionnellement.'];
+        }
+
         $presence = $this->presenceRepository->findOneByCreneauLicencieEtDate($creneau, $licencie, $date);
         $etaitConfirmee = $presence && $presence->estConfirmee();
 
@@ -55,14 +62,16 @@ class GestionInscriptionCreneau
             return ['ok' => true];
         }
 
+        $capaciteMax = $exception ? $exception->getCapaciteMaxEffective() : $creneau->getCapaciteMax();
+
         $presence = $presence ?? (new Presence())->setCreneau($creneau)->setLicencie($licencie)->setDate($date);
         $presence->setPresent(true);
 
-        if (null === $creneau->getCapaciteMax() || $presence->estConfirmee()) {
+        if (null === $capaciteMax || $presence->estConfirmee()) {
             $presence->setStatutInscription(Presence::STATUT_CONFIRMEE);
         } else {
             $confirmees = $this->presenceRepository->compterConfirmees($creneau, $date, $licencie);
-            $presence->setStatutInscription($confirmees < $creneau->getCapaciteMax() ? Presence::STATUT_CONFIRMEE : Presence::STATUT_LISTE_ATTENTE);
+            $presence->setStatutInscription($confirmees < $capaciteMax ? Presence::STATUT_CONFIRMEE : Presence::STATUT_LISTE_ATTENTE);
         }
         $presence->setPromotionExpiresAt(null);
 
@@ -99,11 +108,17 @@ class GestionInscriptionCreneau
 
     public function promouvoirSuivant(Creneau $creneau, \DateTimeImmutable $date): void
     {
-        if (null === $creneau->getCapaciteMax()) {
+        $exception = $this->creneauExceptionRepository->findOneByCreneauEtDate($creneau, $date);
+        if ($exception && $exception->estAnnulee()) {
             return;
         }
 
-        if ($this->presenceRepository->compterConfirmees($creneau, $date) >= $creneau->getCapaciteMax()) {
+        $capaciteMax = $exception ? $exception->getCapaciteMaxEffective() : $creneau->getCapaciteMax();
+        if (null === $capaciteMax) {
+            return;
+        }
+
+        if ($this->presenceRepository->compterConfirmees($creneau, $date) >= $capaciteMax) {
             return;
         }
 

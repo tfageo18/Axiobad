@@ -158,7 +158,10 @@ class CordageController extends AbstractController
     #[Route('/{id}/marquer-recuperee', name: 'app_cordage_marquer_recuperee', methods: ['POST'])]
     public function marquerRecuperee(DemandeCordage $demande, EntityManagerInterface $entityManager): Response
     {
-        $this->refuserSiPasBureauNiCordeur();
+        $estProprietaire = $demande->getLicencie() === $this->getUser();
+        if (!$estProprietaire && !$this->estBureauOuCordeur()) {
+            throw $this->createAccessDeniedException();
+        }
 
         $demande
             ->setStatut(DemandeCordage::STATUT_RECUPEREE)

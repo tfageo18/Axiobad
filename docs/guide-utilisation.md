@@ -259,7 +259,8 @@ Menu **Club → Cordage**.
   1. **Déposée** — demande créée par le licencié.
   2. **En cours** — le cordeur la prend en charge (« Prendre en charge »).
   3. **Prête** — le cordeur indique le lieu de retour et le prix, ce qui marque la raquette prête.
-  4. **Récupérée** — une fois rendue au licencié.
+  4. **Récupérée** — le licencié clique sur « J'ai récupéré ma raquette » (le cordeur/bureau peut
+     aussi le faire si la remise se fait en direct).
 
 ## Vie du club / Évènements (tous les licenciés)
 

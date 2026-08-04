@@ -79,6 +79,11 @@
                                 </form>
                             {% endif %}
                         {% endif %}
+                        {% if demande.statut == 'PRETE' and demande.licencie == app.user %}
+                            <form method="post" action="{{ path('app_cordage_marquer_recuperee', {id: demande.id}) }}" style="display:inline">
+                                <button type="submit">J'ai récupéré ma raquette</button>
+                            </form>
+                        {% endif %}
                         {% if peutGererToutes or (demande.statut == 'DEPOSEE' and demande.licencie == app.user) %}
                             <form method="post" action="{{ path('app_cordage_delete', {id: demande.id}) }}" onsubmit="return confirm('Annuler cette demande ?');" style="display:inline; margin-left: 0.35rem;">
                                 <input type="hidden" name="_token" value="{{ csrf_token('annuler-cordage-' ~ demande.id) }}">

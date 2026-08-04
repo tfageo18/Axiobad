@@ -19,6 +19,7 @@ use App\Repository\LicencieRepository;
 use App\Repository\PaiementAdhesionRepository;
 use App\Repository\PresenceRepository;
 use App\Repository\SaisonRepository;
+use App\Service\AnonymisationLicencieService;
 use App\Service\AuditLogger;
 use App\Service\InvitationMailer;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
@@ -409,6 +410,7 @@ class LicencieController extends AbstractController
             $ancienResponsable1 = $licencie->getResponsableLegal1();
             $ancienResponsable2 = $licencie->getResponsableLegal2();
             $ancienneSante = $licencie->getInformationsSante();
+            $ancienConsentement = $licencie->isConsentementDonneesSante();
 
             $roles = $request->request->all('roles');
             $dateNaissance = (string) $request->request->get('dateNaissance');
@@ -470,6 +472,15 @@ class LicencieController extends AbstractController
             }
             if ($ancienneSante !== $licencie->getInformationsSante()) {
                 $auditLogger->log(AuditLogger::SANTE_MODIFIEE, 'Licencie', $licencie->getNomComplet());
+            }
+            if ($ancienConsentement !== $licencie->isConsentementDonneesSante()) {
+                $auditLogger->log(
+                    AuditLogger::CONSENTEMENT_SANTE_CHANGE,
+                    'Licencie',
+                    $licencie->getNomComplet(),
+                    $ancienConsentement ? 'Accordé' : 'Refusé/absent',
+                    $licencie->isConsentementDonneesSante() ? 'Accordé' : 'Retiré'
+                );
             }
 
             $this->addFlash('success', 'Licencié modifié.');
@@ -567,9 +578,51 @@ class LicencieController extends AbstractController
         }
 
         $licencie->setActif(!$licencie->isActif());
+        $licencie->setDesactiveLe($licencie->isActif() ? null : new \DateTimeImmutable());
         $entityManager->flush();
 
         $this->addFlash('success', $licencie->isActif() ? 'Compte réactivé.' : 'Compte désactivé.');
+
+        return $this->redirectToRoute('app_licencie_index');
+    }
+
+    /**
+     * Anonymise un compte (RGPD art. 17) : à la différence de la suppression, la ligne et les
+     * données comptables liées (adhésions, paiements) sont conservées, mais l'identité et les
+     * données personnelles sont effacées de façon irréversible. Réservé aux comptes désactivés.
+     */
+    #[Route('/{id}/anonymiser', name: 'app_licencie_anonymiser', methods: ['POST'])]
+    public function anonymiser(Request $request, Licencie $licencie, AnonymisationLicencieService $anonymisationService, AuditLogger $auditLogger): Response
+    {
+        /** @var Licencie $moi */
+        $moi = $this->getUser();
+        if ($moi->getId() === $licencie->getId()) {
+            $this->addFlash('error', 'Vous ne pouvez pas anonymiser votre propre compte.');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        if ($licencie->getEmail() === Licencie::EMAIL_ADMIN_DEFAUT) {
+            $this->addFlash('error', 'Le compte administrateur par défaut ne peut pas être anonymisé.');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        if ($licencie->isActif()) {
+            $this->addFlash('error', 'Désactivez le compte avant de pouvoir l\'anonymiser.');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        if (!$this->isCsrfTokenValid('anonymiser-licencie-'.$licencie->getId(), (string) $request->request->get('_token'))) {
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        $nomLicencie = $licencie->getNomComplet();
+        $anonymisationService->anonymiser($licencie);
+        $auditLogger->log(AuditLogger::COMPTE_ANONYMISE, 'Licencie', $nomLicencie);
+
+        $this->addFlash('success', 'Compte anonymisé : son identité et ses données personnelles ont été effacées, ses données comptables (adhésions, paiements) sont conservées.');
 
         return $this->redirectToRoute('app_licencie_index');
     }

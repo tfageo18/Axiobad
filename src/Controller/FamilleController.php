@@ -13,8 +13,10 @@ use App\Repository\LicencieRepository;
 use App\Repository\PresenceRepository;
 use App\Repository\SaisonRepository;
 use App\Service\GestionInscriptionCreneau;
+use App\Service\LicencieDataExporter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -105,6 +107,17 @@ class FamilleController extends AbstractController
             'saisons' => $saisonRepository->findAllTrieesParDate(),
             'adhesion' => $adhesionRepository->findOneByLicencieEtSaison($enfant, $saison),
         ]);
+    }
+
+    #[Route('/{id}/mes-donnees', name: 'app_famille_export', methods: ['GET'])]
+    public function exporterDonnees(Licencie $enfant, LicencieDataExporter $exporter): JsonResponse
+    {
+        $this->refuserSiPasResponsable($enfant);
+
+        $response = new JsonResponse($exporter->exporter($enfant), 200, [], false);
+        $response->headers->set('Content-Disposition', sprintf('attachment; filename="donnees-%s-axiobad.json"', mb_strtolower(str_replace(' ', '-', $enfant->getNomComplet()))));
+
+        return $response;
     }
 
     #[Route('/{id}/adhesion/paiements', name: 'app_famille_adhesion_paiement_new', methods: ['POST'])]

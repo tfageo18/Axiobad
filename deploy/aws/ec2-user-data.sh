@@ -113,3 +113,9 @@ EOF
 cat > /etc/cron.d/axiobad-notifications-quotidiennes <<EOF
 0 8 * * * root cd $APP_DIR && docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local exec -T php bin/console app:notifications:quotidiennes >> /var/log/axiobad-notifications-quotidiennes.log 2>&1
 EOF
+
+# RGPD : anonymisation des comptes désactivés depuis plus de 3 ans (durée de conservation) —
+# le 1er de chaque mois à 4h.
+cat > /etc/cron.d/axiobad-rgpd-purge <<EOF
+0 4 1 * * root cd $APP_DIR && docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local exec -T php bin/console app:rgpd:purger-comptes-inactifs >> /var/log/axiobad-rgpd-purge.log 2>&1
+EOF

@@ -21,6 +21,12 @@ class RgpdController extends AbstractController
         return $this->renderMarkdown('Mentions légales', 'mentions-legales.md');
     }
 
+    #[Route('/registre-traitements', name: 'app_registre_traitements', methods: ['GET'])]
+    public function registreTraitements(): Response
+    {
+        return $this->renderMarkdown('Registre des traitements', 'registre-traitements.md');
+    }
+
     private function renderMarkdown(string $titre, string $fichier): Response
     {
         $chemin = $this->getParameter('kernel.project_dir').'/docs/'.$fichier;

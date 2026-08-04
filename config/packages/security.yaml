@@ -41,6 +41,7 @@ security:
         - { path: ^/activation, roles: PUBLIC_ACCESS }
         - { path: ^/confidentialite, roles: PUBLIC_ACCESS }
         - { path: ^/mentions-legales, roles: PUBLIC_ACCESS }
+        - { path: ^/registre-traitements, roles: PUBLIC_ACCESS }
         - { path: ^/bureau, roles: ROLE_BUREAU }
         - { path: ^/, roles: ROLE_LICENCIE }
 

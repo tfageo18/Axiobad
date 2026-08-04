@@ -464,11 +464,24 @@ Depuis **Mon compte** :
   la traite (badge visible sur votre fiche dans la liste des licenciés) via le bouton **« Forcer
   la suppression »**, qui efface le compte et toutes les données qui lui sont liées.
 
+Depuis **Ma famille**, un responsable légal peut aussi **télécharger les données de chacun de ses
+enfants** (même export JSON).
+
 La saisie d'une information de santé (allergies) sur la fiche d'un licencié ou d'un mineur exige
 de cocher la case de **consentement explicite** — sans cette case, l'enregistrement est refusé.
+Tout octroi ou retrait de ce consentement est tracé dans le [journal d'audit](#journal-daudit-bureau).
 
-Les liens **Politique de confidentialité** et **Mentions légales**, en pied de page de chaque
-écran, détaillent les données collectées et vos droits.
+Les liens **Politique de confidentialité**, **Mentions légales** et **Registre des traitements**,
+en pied de page de chaque écran, détaillent les données collectées et vos droits.
+
+### Anonymisation (bureau)
+
+À la différence de la suppression, **anonymiser** un compte (bouton disponible sur un compte
+**désactivé**, page Licenciés) efface son identité et ses données personnelles tout en
+**conservant ses données comptables** (adhésions, paiements) pour les obligations légales. Un
+compte désactivé depuis plus de **3 ans** est anonymisé **automatiquement** (tâche planifiée
+mensuelle) — cette durée correspond à la politique de conservation du club, détaillée dans le
+[registre des traitements](/registre-traitements).
 
 ## Notifications automatiques
 

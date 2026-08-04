@@ -24,6 +24,7 @@
     {% for fiche in fiches %}
         <div class="fiche-enfant">
             <h2>{{ fiche.enfant.nomComplet }}</h2>
+            <p><a href="{{ path('app_famille_export', {id: fiche.enfant.id}) }}">Télécharger les données de {{ fiche.enfant.prenom }}</a></p>
 
             <p>
                 Adhésion{{ saisonEnCours ? ' — ' ~ saisonEnCours.libelle : '' }} :

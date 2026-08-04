@@ -251,16 +251,27 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
 
 ### RGPD
 
-- Pages publiques **Politique de confidentialité** et **Mentions légales** (liens en pied de
-  page), décrivant les données collectées, les finalités et les droits des utilisateurs.
+- Pages publiques **Politique de confidentialité**, **Mentions légales** et **Registre des
+  traitements** (liens en pied de page) : données collectées par catégorie, finalités, base
+  légale, destinataires, durée de conservation.
 - La saisie d'une **information de santé** (allergies) exige de cocher un **consentement
-  explicite** (RGPD art. 9) ; sans consentement, l'enregistrement est refusé.
+  explicite** (RGPD art. 9) ; sans consentement, l'enregistrement est refusé. Tout octroi ou
+  **retrait de consentement** est tracé dans le journal d'audit (historique des consentements).
 - Chaque licencié peut, depuis **« Mon compte »** :
   - **télécharger l'ensemble de ses données** (droit à la portabilité, export JSON : profil,
     présences, convocations, inscriptions, raquettes, demandes de cordage, adhésions et
     paiements) ;
   - **demander la suppression de son compte** (droit à l'effacement). La demande est signalée au
     bureau (badge dans la liste des licenciés), qui la traite via **« Forcer la suppression »**.
+- Un responsable légal peut **télécharger les données de chacun de ses enfants** depuis « Ma
+  famille ».
+- **Anonymisation** (distincte de la suppression) : le bureau peut anonymiser un compte
+  **désactivé** — son identité et ses données personnelles sont effacées, mais les données
+  comptables liées (adhésions, paiements) sont conservées pour les obligations légales. Une
+  commande planifiée (`app:rgpd:purger-comptes-inactifs`, mensuelle) anonymise automatiquement
+  les comptes désactivés depuis plus de **3 ans** (durée de conservation).
+- Toute consultation ou modification des données de santé, changement de responsable légal,
+  suppression/anonymisation de compte est tracée dans le [journal d'audit](#journal-daudit).
 
 ## Stack technique
 
@@ -338,11 +349,8 @@ Tous les modules listés dans [Modules](#modules) sont en production. Ce qui n'a
   quelque chose de plus.
 - **Sauvegarde automatisée** de la base (snapshot EBS ou `pg_dump` planifié) : documentée
   ci-dessus mais pas encore mise en place concrètement.
-- **Registre des traitements RGPD** et **durée de conservation automatisée** (purge des comptes
-  inactifs) : le volet RGPD applicatif (consentement, export, suppression) est en place, mais ces
-  deux aspects organisationnels/techniques restent à faire.
 - **Notifications push** (via la PWA) : les notifications automatiques existent par email
   seulement pour l'instant ; le push est prévu une fois ce backend éprouvé en production.
-- Les notifications n'ont **pas de préférences par utilisateur** ni d'historique consultable.
+- Les notifications n'ont pas encore d'historique consultable (le réglage marche/arrêt existe).
 - Pas d'**application mobile native** — le site est une PWA installable (icône, plein écran, cache
   hors-ligne des assets), pas une app iOS/Android compilée.

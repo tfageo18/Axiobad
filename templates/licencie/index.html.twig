@@ -101,7 +101,10 @@
                         {% endif %}
                     </td>
                     <td data-label="Rôles">{{ licencie.roles|join(', ') }}</td>
-                    <td data-label="Compte">{{ (licencie.actif ? '<span class="badge-actif">Actif</span>' : '<span class="badge-inactif">Désactivé</span>')|raw }}</td>
+                    <td data-label="Compte">
+                        {{ (licencie.actif ? '<span class="badge-actif">Actif</span>' : '<span class="badge-inactif">Désactivé</span>')|raw }}
+                        {% if licencie.anonymise %}<br><small style="color: var(--color-text-muted);">Anonymisé</small>{% endif %}
+                    </td>
                     <td data-label="Activation">
                         {% if not licencie.aUnCompte %}
                             <span style="color: var(--color-text-muted);">Rattaché à un responsable</span>
@@ -160,6 +163,12 @@
                                 <input type="hidden" name="_token" value="{{ csrf_token('force-delete-licencie-' ~ licencie.id) }}">
                                 <button type="submit" style="background: var(--color-error); color: white;">Forcer la suppression</button>
                             </form>
+                            {% if not licencie.actif and not licencie.anonymise %}
+                                <form method="post" action="{{ path('app_licencie_anonymiser', {id: licencie.id}) }}" onsubmit="return confirm('Anonymiser ' ~ licencie.nomComplet ~ ' ?\n\nÀ la différence de la suppression, ses données comptables (adhésions, paiements) sont conservées, mais son identité et ses données personnelles seront effacées définitivement.');" style="display:inline">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('anonymiser-licencie-' ~ licencie.id) }}">
+                                    <button type="submit">Anonymiser</button>
+                                </form>
+                            {% endif %}
                         {% endif %}
                     </td>
                 </tr>

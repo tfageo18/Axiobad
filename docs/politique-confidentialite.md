@@ -33,6 +33,12 @@ Les données sont conservées tant que le compte est actif. Un licencié (ou le 
 d'un mineur) peut à tout moment demander la suppression de son compte depuis son profil
 (« Demander la suppression de mon compte »).
 
+Un compte **désactivé** (non supprimé) est conservé **3 ans**, puis **anonymisé
+automatiquement** : son identité et ses données personnelles sont effacées, mais les données
+comptables qui lui sont liées (adhésions, paiements) sont conservées pour les obligations légales
+de conservation comptable. Le détail par catégorie de données figure dans le [registre des
+traitements](/registre-traitements).
+
 ## Vos droits
 
 Conformément au RGPD, vous disposez d'un droit d'accès, de rectification, d'effacement et de

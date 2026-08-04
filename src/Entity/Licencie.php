@@ -84,6 +84,21 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private bool $actif = true;
 
+    /**
+     * Date de désactivation du compte — sert de point de départ à la durée de conservation avant
+     * anonymisation automatique (RGPD).
+     */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $desactiveLe = null;
+
+    /**
+     * Un compte anonymisé (RGPD art. 17, purge après durée de conservation) garde son
+     * identifiant et ses données comptables liées (adhésions, paiements), mais son identité et
+     * ses données personnelles ont été effacées.
+     */
+    #[ORM\Column]
+    private bool $anonymise = false;
+
     #[ORM\Column(length: 100, unique: true, nullable: true)]
     private ?string $activationToken = null;
 
@@ -394,6 +409,30 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     public function setActif(bool $actif): static
     {
         $this->actif = $actif;
+
+        return $this;
+    }
+
+    public function getDesactiveLe(): ?\DateTimeImmutable
+    {
+        return $this->desactiveLe;
+    }
+
+    public function setDesactiveLe(?\DateTimeImmutable $desactiveLe): static
+    {
+        $this->desactiveLe = $desactiveLe;
+
+        return $this;
+    }
+
+    public function isAnonymise(): bool
+    {
+        return $this->anonymise;
+    }
+
+    public function setAnonymise(bool $anonymise): static
+    {
+        $this->anonymise = $anonymise;
 
         return $this;
     }

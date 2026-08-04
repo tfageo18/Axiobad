@@ -19,6 +19,8 @@ class AuditLogger
     public const SANTE_MODIFIEE = 'sante.modifiee';
     public const RESPONSABLE_LEGAL_CHANGE = 'responsable_legal.change';
     public const COMPTE_SUPPRIME = 'compte.supprime';
+    public const COMPTE_ANONYMISE = 'compte.anonymise';
+    public const CONSENTEMENT_SANTE_CHANGE = 'consentement_sante.change';
     public const ROLE_CHANGE = 'role.change';
     public const STOCK_CORRECTION = 'stock.correction';
     public const CRENEAU_ANNULE = 'creneau.annule';
@@ -30,6 +32,8 @@ class AuditLogger
         self::SANTE_MODIFIEE => 'Informations de santé modifiées',
         self::RESPONSABLE_LEGAL_CHANGE => 'Responsable légal modifié',
         self::COMPTE_SUPPRIME => 'Compte supprimé',
+        self::COMPTE_ANONYMISE => 'Compte anonymisé',
+        self::CONSENTEMENT_SANTE_CHANGE => 'Consentement santé modifié',
         self::ROLE_CHANGE => 'Rôle modifié',
         self::STOCK_CORRECTION => 'Correction de stock',
         self::CRENEAU_ANNULE => 'Créneau annulé',

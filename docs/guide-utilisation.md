@@ -317,6 +317,21 @@ Menu **Club → Interclubs**.
 
 Menu **Bureau → Tableau de bord**, réservé au bureau.
 
+### Centre de tâches
+
+En haut de la page, une liste d'alertes signale ce qui mérite l'attention du bureau — cliquer
+dessus mène directement à la page concernée :
+- adhésions impayées ou en attente sur la saison en cours ;
+- demandes de suppression de compte à traiter ;
+- invitations expirées (licencié jamais activé) ;
+- promotions de liste d'attente en attente de confirmation ;
+- cordages prêts depuis plus de 7 jours, non récupérés ;
+- fiches avec une information de santé renseignée sans consentement valide ;
+- licenciés sans compte et sans responsable légal renseigné (mineur mal rattaché) ;
+- absence d'ouvreur assigné pour un créneau dans les 2 prochains jours.
+
+Aucune alerte ne s'affiche si rien ne nécessite d'action.
+
 Vue d'ensemble du club en un coup d'œil :
 - Nombre de licenciés, répartition hommes/femmes (basée sur le genre renseigné par chacun dans
   son profil, optionnel), répartition adultes/enfants.

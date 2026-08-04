@@ -3,10 +3,13 @@
 namespace App\Controller;
 
 use App\Entity\Adhesion;
+use App\Entity\DemandeCordage;
 use App\Entity\Licencie;
 use App\Entity\Presence;
 use App\Repository\AdhesionRepository;
+use App\Repository\CreneauOuvertureRepository;
 use App\Repository\CreneauRepository;
+use App\Repository\DemandeCordageRepository;
 use App\Repository\LicencieRepository;
 use App\Repository\PresenceRepository;
 use App\Repository\SaisonRepository;
@@ -32,6 +35,8 @@ class DashboardController extends AbstractController
         StockVetementRepository $vetementRepository,
         StockVolantRepository $volantRepository,
         StockMouvementVolantRepository $mouvementVolantRepository,
+        DemandeCordageRepository $demandeCordageRepository,
+        CreneauOuvertureRepository $creneauOuvertureRepository,
     ): Response {
         $licencies = array_values(array_filter(
             $licencieRepository->findAll(),
@@ -135,7 +140,18 @@ class DashboardController extends AbstractController
             $valeurStock += $volant->getValeurStock();
         }
 
+        $alertes = $this->construireAlertes(
+            $licencies,
+            $saisonEnCours,
+            $adhesionRepository,
+            $presenceRepository,
+            $creneauRepository,
+            $demandeCordageRepository,
+            $creneauOuvertureRepository
+        );
+
         return $this->render('dashboard/index.html.twig', [
+            'alertes' => $alertes,
             'nombreLicencies' => count($licencies),
             'repartitionGenre' => $repartitionGenre,
             'repartitionAge' => $repartitionAge,
@@ -151,5 +167,135 @@ class DashboardController extends AbstractController
             'valeurStock' => $valeurStock,
             'comparaisonSaisons' => $comparaisonSaisons,
         ]);
+    }
+
+    /**
+     * @param Licencie[] $licencies
+     *
+     * @return array<int, array{message: string, url: string, gravite: string}>
+     */
+    private function construireAlertes(
+        array $licencies,
+        ?\App\Entity\Saison $saisonEnCours,
+        AdhesionRepository $adhesionRepository,
+        PresenceRepository $presenceRepository,
+        CreneauRepository $creneauRepository,
+        DemandeCordageRepository $demandeCordageRepository,
+        CreneauOuvertureRepository $creneauOuvertureRepository,
+    ): array {
+        $alertes = [];
+        $maintenant = new \DateTimeImmutable();
+
+        if ($saisonEnCours) {
+            $impayes = array_filter(
+                $adhesionRepository->findBy(['saison' => $saisonEnCours]),
+                static fn (Adhesion $a) => !$a->isPayee()
+            );
+            if (count($impayes) > 0) {
+                $alertes[] = [
+                    'message' => sprintf('%d adhésion(s) impayée(s) ou en attente cette saison', count($impayes)),
+                    'url' => $this->generateUrl('app_licencie_index'),
+                    'gravite' => 'warning',
+                ];
+            }
+        }
+
+        $demandesSuppression = array_filter($licencies, static fn (Licencie $l) => null !== $l->getSuppressionDemandeeLe());
+        if (count($demandesSuppression) > 0) {
+            $alertes[] = [
+                'message' => sprintf('%d demande(s) de suppression de compte à traiter', count($demandesSuppression)),
+                'url' => $this->generateUrl('app_licencie_index'),
+                'gravite' => 'error',
+            ];
+        }
+
+        $invitationsExpirees = array_filter(
+            $licencies,
+            static fn (Licencie $l) => !$l->aUnCompte() && null !== $l->getEmail() && null !== $l->getActivationTokenExpiresAt() && $l->getActivationTokenExpiresAt() < $maintenant
+        );
+        if (count($invitationsExpirees) > 0) {
+            $alertes[] = [
+                'message' => sprintf("%d invitation(s) expirée(s) sans compte activé", count($invitationsExpirees)),
+                'url' => $this->generateUrl('app_licencie_index'),
+                'gravite' => 'warning',
+            ];
+        }
+
+        $promotionsEnAttente = array_filter(
+            $presenceRepository->findAll(),
+            static fn (Presence $p) => $p->estEnAttenteConfirmation()
+        );
+        if (count($promotionsEnAttente) > 0) {
+            $alertes[] = [
+                'message' => sprintf('%d promotion(s) de liste d\'attente en attente de confirmation', count($promotionsEnAttente)),
+                'url' => $this->generateUrl('app_creneau_index'),
+                'gravite' => 'warning',
+            ];
+        }
+
+        $cordagesPretsDepuisLongtemps = array_filter(
+            $demandeCordageRepository->findBy(['statut' => DemandeCordage::STATUT_PRETE]),
+            static fn (DemandeCordage $d) => $d->getDatePrete() && $d->getDatePrete() < $maintenant->modify('-7 days')
+        );
+        if (count($cordagesPretsDepuisLongtemps) > 0) {
+            $alertes[] = [
+                'message' => sprintf('%d cordage(s) prêt(s) depuis plus de 7 jours, non récupéré(s)', count($cordagesPretsDepuisLongtemps)),
+                'url' => $this->generateUrl('app_cordage_index'),
+                'gravite' => 'warning',
+            ];
+        }
+
+        $santeSansConsentement = array_filter(
+            $licencies,
+            static fn (Licencie $l) => $l->getInformationsSante() && !$l->isConsentementDonneesSante()
+        );
+        if (count($santeSansConsentement) > 0) {
+            $alertes[] = [
+                'message' => sprintf('%d fiche(s) avec information de santé sans consentement valide', count($santeSansConsentement)),
+                'url' => $this->generateUrl('app_licencie_index'),
+                'gravite' => 'error',
+            ];
+        }
+
+        $mineursSansResponsable = array_filter(
+            $licencies,
+            static fn (Licencie $l) => !$l->aUnCompte() && 0 === count($l->getResponsablesLegaux())
+        );
+        if (count($mineursSansResponsable) > 0) {
+            $alertes[] = [
+                'message' => sprintf('%d licencié(s) sans compte et sans responsable légal renseigné', count($mineursSansResponsable)),
+                'url' => $this->generateUrl('app_licencie_index'),
+                'gravite' => 'warning',
+            ];
+        }
+
+        $dansDeuxJours = $maintenant->modify('+2 days');
+        foreach ($creneauRepository->findAll() as $creneau) {
+            if (!$creneau->isActif()) {
+                continue;
+            }
+            for ($date = new \DateTimeImmutable('today'); $date <= $dansDeuxJours; $date = $date->modify('+1 day')) {
+                if (self::nomJourFrancais($date) !== $creneau->getJourSemaine()) {
+                    continue;
+                }
+                $ouverture = $creneauOuvertureRepository->findOneByCreneauEtDate($creneau, $date);
+                if (!$ouverture || !$ouverture->getLicencieOuverture()) {
+                    $alertes[] = [
+                        'message' => sprintf("Pas d'ouvreur assigné pour « %s » le %s", $creneau->getNom(), $date->format('d/m')),
+                        'url' => $this->generateUrl('app_calendrier'),
+                        'gravite' => 'warning',
+                    ];
+                }
+            }
+        }
+
+        return $alertes;
+    }
+
+    private static function nomJourFrancais(\DateTimeImmutable $date): string
+    {
+        $jours = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+
+        return $jours[((int) $date->format('N')) - 1];
     }
 }

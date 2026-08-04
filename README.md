@@ -111,6 +111,11 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
 
 ### Tableau de bord (bureau)
 
+- **Centre de tâches** : liste d'alertes actionnables en haut de page (cliquables vers la page
+  concernée) — adhésions impayées, demandes de suppression de compte à traiter, invitations
+  expirées, promotions de liste d'attente en attente de confirmation, cordages prêts depuis plus
+  de 7 jours, informations de santé sans consentement valide, licenciés sans compte et sans
+  responsable légal, absence d'ouvreur assigné dans les 2 prochains jours.
 - Vue d'ensemble du club : nombre de licenciés, répartition hommes/femmes, adultes/enfants,
   répartition des classements, adhésions payées sur la saison en cours, taux de présence du mois
   et occupation détaillée de chaque créneau, volants consommés, valeur du stock (à partir d'un

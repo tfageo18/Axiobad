@@ -19,7 +19,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/stock')]
-#[IsGranted('ROLE_BUREAU')]
+#[IsGranted('ROLE_STOCK')]
 class StockController extends AbstractController
 {
     #[Route('', name: 'app_stock_index', methods: ['GET'])]

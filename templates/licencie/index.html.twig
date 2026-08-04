@@ -85,11 +85,22 @@
                 {% set adhesion = saison and adhesions[licencie.id] is defined ? adhesions[licencie.id] : null %}
                 <tr class="{{ licencie.actif ? '' : 'ligne-inactive' }}" data-payee="{{ (licencie.email == constant('App\\Entity\\Licencie::EMAIL_ADMIN_DEFAUT') or (adhesion and adhesion.statut in ['PAYEE', 'EXONEREE'])) ? '1' : '0' }}">
                     <td data-label="Nom">{{ licencie.nomComplet }}</td>
-                    <td data-label="Email">{{ licencie.email }}</td>
+                    <td data-label="Email">
+                        {% if licencie.email %}
+                            {{ licencie.email }}
+                        {% else %}
+                            <span style="color: var(--color-text-muted);">Sans compte</span>
+                            {% if licencie.responsablesLegaux|length %}
+                                <br><small style="color: var(--color-text-muted);">Resp. {{ licencie.responsablesLegaux|map(r => r.nomComplet)|join(', ') }}</small>
+                            {% endif %}
+                        {% endif %}
+                    </td>
                     <td data-label="Rôles">{{ licencie.roles|join(', ') }}</td>
                     <td data-label="Compte">{{ (licencie.actif ? '<span class="badge-actif">Actif</span>' : '<span class="badge-inactif">Désactivé</span>')|raw }}</td>
                     <td data-label="Activation">
-                        {% if not licencie.mustChangePassword %}
+                        {% if not licencie.aUnCompte %}
+                            <span style="color: var(--color-text-muted);">Rattaché à un responsable</span>
+                        {% elseif not licencie.mustChangePassword %}
                             Activé
                         {% elseif licencie.activationTokenValid %}
                             En attente d'activation
@@ -125,7 +136,7 @@
                     </td>
                     <td class="td-actions">
                         <a href="{{ path('app_licencie_edit', {id: licencie.id}) }}">Modifier</a>
-                        {% if licencie.mustChangePassword %}
+                        {% if licencie.aUnCompte and licencie.mustChangePassword %}
                             <form method="post" action="{{ path('app_licencie_renvoyer_invitation', {id: licencie.id}) }}" style="display:inline">
                                 <button type="submit">Renvoyer l'invitation</button>
                             </form>

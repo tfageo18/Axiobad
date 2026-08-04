@@ -28,6 +28,25 @@
 
     <h1>Présences de {{ licencie.nomComplet }}</h1>
 
+    {% if licencie.estMineur or licencie.responsablesLegaux|length or licencie.contactUrgenceNom or licencie.informationsSante or licencie.personnesAutoriseesRecuperation %}
+        <div class="recap-presence" style="display: block;">
+            <h3 style="margin-top: 0;">Informations utiles (mineur)</h3>
+            {% if licencie.responsablesLegaux|length %}
+                <p><strong>Responsable(s) légal(aux)</strong> : {{ licencie.responsablesLegaux|map(r => r.nomComplet ~ (r.telephone ? ' (' ~ r.telephone ~ ')' : ''))|join(', ') }}</p>
+            {% endif %}
+            {% if licencie.personnesAutoriseesRecuperation %}
+                <p><strong>Personnes autorisées à récupérer l'enfant</strong> : {{ licencie.personnesAutoriseesRecuperation }}</p>
+            {% endif %}
+            {% if licencie.contactUrgenceNom or licencie.contactUrgenceTelephone %}
+                <p><strong>Contact d'urgence</strong> : {{ licencie.contactUrgenceNom ?? '-' }} {{ licencie.contactUrgenceTelephone ? '(' ~ licencie.contactUrgenceTelephone ~ ')' : '' }}</p>
+            {% endif %}
+            <p><strong>Autorisation de sortie seul(e)</strong> : {{ licencie.autorisationSortieSeul ? 'Oui' : 'Non' }} · <strong>Droit à l'image</strong> : {{ licencie.droitImage ? 'Oui' : 'Non' }}</p>
+            {% if licencie.informationsSante %}
+                <p style="color: var(--color-error);"><strong>Allergies / santé</strong> : {{ licencie.informationsSante }}</p>
+            {% endif %}
+        </div>
+    {% endif %}
+
     <div class="recap-presence">
         <div><small>Séances (présent)</small><strong>{{ nombreSeances }}</strong></div>
         <div><small>Réponses données</small><strong>{{ nombreReponses }}</strong></div>

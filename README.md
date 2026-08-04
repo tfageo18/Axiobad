@@ -39,7 +39,24 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
   - **Membre du bureau** : rôle administrateur de l'application.
   - **Entraîneur** : peut être associé aux créneaux encadrés, accède à l'historique des présences.
   - **Cordeur** : gère les demandes de cordage du club.
+  - **Accès au stock** : accède au module stock sans être membre du bureau (les membres du bureau
+    y ont accès automatiquement).
 - Menu masqué tant que l'utilisateur n'est pas connecté.
+
+### Mineurs et responsables légaux
+
+- L'email est **optionnel** à la création d'un licencié : le laisser vide crée un licencié **sans
+  compte de connexion** (typiquement un enfant mineur), rattaché à un ou deux **responsables
+  légaux** choisis parmi les licenciés existants — ça évite de créer une adresse email
+  artificielle pour un enfant.
+- Pour un mineur : personnes autorisées à venir le récupérer, contact d'urgence (nom, téléphone),
+  autorisation de sortie seul(e), droit à l'image, et des informations de santé/allergies
+  (donnée sensible, visible uniquement du bureau, des entraîneurs et des responsables légaux —
+  affichée sur la fiche présence).
+- Chaque licencié voit dans **« Ma famille »** (menu) les fiches des mineurs dont il est
+  responsable légal : prochains créneaux (avec réponse présence en son nom), et statut/paiement
+  de leur adhésion.
+- Le bouton « Renvoyer l'invitation » n'apparaît que pour les licenciés ayant un compte.
 
 ### Saisons et adhésions
 
@@ -62,6 +79,7 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
   **capitaine** parmi les licenciés. Un licencié peut appartenir à plusieurs équipes.
 - Le capitaine (même sans être du bureau) peut gérer le nom/la catégorie de son équipe et ses
   membres, mais pas supprimer l'équipe ni changer le capitaine.
+- Le bureau peut **désactiver/réactiver** ou **supprimer** une équipe.
 
 ### Championnats / Interclubs
 

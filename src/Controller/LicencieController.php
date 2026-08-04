@@ -306,19 +306,28 @@ class LicencieController extends AbstractController
         InvitationMailer $invitationMailer,
     ): Response {
         if ($request->isMethod('POST')) {
-            $email = (string) $request->request->get('email');
+            $email = trim((string) $request->request->get('email')) ?: null;
             $prenom = (string) $request->request->get('prenom');
             $nom = (string) $request->request->get('nom');
             $roles = $request->request->all('roles');
+
+            if (null !== $email && $entityManager->getRepository(Licencie::class)->findOneBy(['email' => $email])) {
+                $this->addFlash('error', 'Cet email est déjà utilisé par un autre compte.');
+
+                return $this->redirectToRoute('app_licencie_new');
+            }
 
             $licencie = (new Licencie())
                 ->setEmail($email)
                 ->setPrenom($prenom)
                 ->setNom($nom)
-                ->setRoles(array_values(array_intersect($roles, [Licencie::ROLE_BUREAU, Licencie::ROLE_ENTRAINEUR, Licencie::ROLE_CORDEUR])))
+                ->setRoles(array_values(array_intersect($roles, [Licencie::ROLE_BUREAU, Licencie::ROLE_ENTRAINEUR, Licencie::ROLE_CORDEUR, Licencie::ROLE_STOCK])))
                 ->setMustChangePassword(true);
 
-            // Mot de passe temporaire inutilisable : le licencié le définit lui-même via le lien d'activation.
+            $this->appliquerChampsMineur($licencie, $request, $entityManager);
+
+            // Mot de passe temporaire inutilisable : le licencié le définit lui-même via le lien d'activation
+            // (ou, pour un mineur sans compte propre, n'est jamais utilisé).
             $licencie->setPassword($passwordHasher->hashPassword($licencie, bin2hex(random_bytes(32))));
 
             $token = $licencie->generateActivationToken();
@@ -326,7 +335,9 @@ class LicencieController extends AbstractController
             $entityManager->persist($licencie);
             $entityManager->flush();
 
-            if ($invitationMailer->envoyerInvitation($licencie, $token)) {
+            if (null === $email) {
+                $this->addFlash('success', 'Licencié créé (sans compte de connexion, rattaché à son/ses responsable(s) légal(aux)).');
+            } elseif ($invitationMailer->envoyerInvitation($licencie, $token)) {
                 $this->addFlash('success', sprintf('Licencié créé, un email d\'activation a été envoyé à %s.', $email));
             } else {
                 $this->addFlash('error', sprintf(
@@ -340,6 +351,7 @@ class LicencieController extends AbstractController
 
         return $this->render('licencie/form.html.twig', [
             'licencie' => null,
+            'responsablesPossibles' => $entityManager->getRepository(Licencie::class)->findBy([], ['nom' => 'ASC']),
         ]);
     }
 
@@ -356,17 +368,29 @@ class LicencieController extends AbstractController
 
             $anciensClassements = [$licencie->getClassementSimple(), $licencie->getClassementDouble(), $licencie->getClassementMixte()];
 
+            $email = trim((string) $request->request->get('email')) ?: null;
+            if (null !== $email && $email !== $licencie->getEmail()) {
+                $existant = $entityManager->getRepository(Licencie::class)->findOneBy(['email' => $email]);
+                if ($existant && $existant->getId() !== $licencie->getId()) {
+                    $this->addFlash('error', 'Cet email est déjà utilisé par un autre compte.');
+
+                    return $this->redirectToRoute('app_licencie_edit', ['id' => $licencie->getId()]);
+                }
+            }
+
             $licencie
-                ->setEmail((string) $request->request->get('email'))
+                ->setEmail($email)
                 ->setPrenom((string) $request->request->get('prenom'))
                 ->setNom((string) $request->request->get('nom'))
-                ->setRoles(array_values(array_intersect($roles, [Licencie::ROLE_BUREAU, Licencie::ROLE_ENTRAINEUR, Licencie::ROLE_CORDEUR])))
+                ->setRoles(array_values(array_intersect($roles, [Licencie::ROLE_BUREAU, Licencie::ROLE_ENTRAINEUR, Licencie::ROLE_CORDEUR, Licencie::ROLE_STOCK])))
                 ->setDateNaissance($dateNaissance ? new \DateTimeImmutable($dateNaissance) : null)
                 ->setNumeroLicence($numeroLicence ?: null)
                 ->setGenre((string) $request->request->get('genre') ?: null)
                 ->setClassementSimple($classementSimple)
                 ->setClassementDouble($classementDouble)
                 ->setClassementMixte($classementMixte);
+
+            $this->appliquerChampsMineur($licencie, $request, $entityManager);
 
             $nouveauxClassements = [$licencie->getClassementSimple(), $licencie->getClassementDouble(), $licencie->getClassementMixte()];
             if ($anciensClassements !== $nouveauxClassements) {
@@ -382,12 +406,39 @@ class LicencieController extends AbstractController
 
         return $this->render('licencie/form.html.twig', [
             'licencie' => $licencie,
+            'responsablesPossibles' => $entityManager->getRepository(Licencie::class)->findBy([], ['nom' => 'ASC']),
         ]);
+    }
+
+    private function appliquerChampsMineur(Licencie $licencie, Request $request, EntityManagerInterface $entityManager): void
+    {
+        $responsable1Id = $request->request->get('responsableLegal1');
+        $responsable2Id = $request->request->get('responsableLegal2');
+        $repository = $entityManager->getRepository(Licencie::class);
+
+        $responsable1 = $responsable1Id ? $repository->find($responsable1Id) : null;
+        $responsable2 = $responsable2Id ? $repository->find($responsable2Id) : null;
+
+        $licencie
+            ->setResponsableLegal1($responsable1 !== $licencie ? $responsable1 : null)
+            ->setResponsableLegal2($responsable2 !== $licencie ? $responsable2 : null)
+            ->setPersonnesAutoriseesRecuperation((string) $request->request->get('personnesAutoriseesRecuperation') ?: null)
+            ->setContactUrgenceNom((string) $request->request->get('contactUrgenceNom') ?: null)
+            ->setContactUrgenceTelephone((string) $request->request->get('contactUrgenceTelephone') ?: null)
+            ->setAutorisationSortieSeul((bool) $request->request->get('autorisationSortieSeul'))
+            ->setDroitImage((bool) $request->request->get('droitImage'))
+            ->setInformationsSante((string) $request->request->get('informationsSante') ?: null);
     }
 
     #[Route('/{id}/renvoyer-invitation', name: 'app_licencie_renvoyer_invitation', methods: ['POST'])]
     public function renvoyerInvitation(Licencie $licencie, EntityManagerInterface $entityManager, InvitationMailer $invitationMailer): Response
     {
+        if (!$licencie->aUnCompte()) {
+            $this->addFlash('error', "Ce licencié n'a pas de compte de connexion (rattaché à un responsable légal).");
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
         if (!$licencie->mustChangePassword()) {
             $this->addFlash('error', 'Ce compte est déjà activé.');
 

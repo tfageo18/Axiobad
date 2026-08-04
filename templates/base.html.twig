@@ -433,6 +433,7 @@
             </a>
             {% if app.user %}
                 <a class="nav-link" href="{{ path('app_mon_espace') }}">Mon espace</a>
+                <a class="nav-link" href="{{ path('app_famille_index') }}">Ma famille</a>
 
                 <div class="nav-dropdown">
                     <button type="button" class="nav-link nav-dropdown-bouton" onclick="toggleNavDropdown(this)">Jouer <span class="chevron">▼</span></button>
@@ -463,8 +464,13 @@
                             <a class="nav-dropdown-item" href="{{ path('app_stock_index') }}">Stock</a>
                         </div>
                     </div>
-                {% elseif is_granted('ROLE_ENTRAINEUR') %}
-                    <a class="nav-link" href="{{ path('app_presence_index') }}">Présences</a>
+                {% else %}
+                    {% if is_granted('ROLE_ENTRAINEUR') %}
+                        <a class="nav-link" href="{{ path('app_presence_index') }}">Présences</a>
+                    {% endif %}
+                    {% if is_granted('ROLE_STOCK') %}
+                        <a class="nav-link" href="{{ path('app_stock_index') }}">Stock</a>
+                    {% endif %}
                 {% endif %}
             {% endif %}
             <span class="spacer">

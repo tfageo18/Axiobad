@@ -16,6 +16,7 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     public const ROLE_BUREAU = 'ROLE_BUREAU';
     public const ROLE_ENTRAINEUR = 'ROLE_ENTRAINEUR';
     public const ROLE_CORDEUR = 'ROLE_CORDEUR';
+    public const ROLE_STOCK = 'ROLE_STOCK';
 
     public const EMAIL_ADMIN_DEFAUT = 'admin@axiobad.local';
 
@@ -32,7 +33,7 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180, unique: true)]
+    #[ORM\Column(length: 180, unique: true, nullable: true)]
     private ?string $email = null;
 
     /**
@@ -89,6 +90,36 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $activationTokenExpiresAt = null;
 
+    #[ORM\ManyToOne(targetEntity: self::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?self $responsableLegal1 = null;
+
+    #[ORM\ManyToOne(targetEntity: self::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?self $responsableLegal2 = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $personnesAutoriseesRecuperation = null;
+
+    #[ORM\Column(length: 150, nullable: true)]
+    private ?string $contactUrgenceNom = null;
+
+    #[ORM\Column(length: 30, nullable: true)]
+    private ?string $contactUrgenceTelephone = null;
+
+    #[ORM\Column]
+    private bool $autorisationSortieSeul = false;
+
+    #[ORM\Column]
+    private bool $droitImage = false;
+
+    /**
+     * Allergies ou informations de santé utiles. Donnée sensible : visible uniquement du bureau,
+     * des entraîneurs et des responsables légaux du licencié — jamais des autres licenciés.
+     */
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $informationsSante = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -99,11 +130,19 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->email;
     }
 
-    public function setEmail(string $email): static
+    public function setEmail(?string $email): static
     {
-        $this->email = $email;
+        $this->email = $email ?: null;
 
         return $this;
+    }
+
+    /**
+     * Un mineur géré par un responsable légal n'a pas de compte de connexion propre.
+     */
+    public function aUnCompte(): bool
+    {
+        return null !== $this->email;
     }
 
     public function getUserIdentifier(): string
@@ -145,6 +184,11 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     public function isCordeur(): bool
     {
         return in_array(self::ROLE_CORDEUR, $this->roles, true);
+    }
+
+    public function isStock(): bool
+    {
+        return in_array(self::ROLE_STOCK, $this->roles, true);
     }
 
     public function getPassword(): ?string
@@ -408,6 +452,126 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->activationToken = null;
         $this->activationTokenExpiresAt = null;
+
+        return $this;
+    }
+
+    public function estMineur(): bool
+    {
+        $age = $this->getAge();
+
+        return null !== $age && $age < 18;
+    }
+
+    public function getResponsableLegal1(): ?self
+    {
+        return $this->responsableLegal1;
+    }
+
+    public function setResponsableLegal1(?self $responsableLegal1): static
+    {
+        $this->responsableLegal1 = $responsableLegal1;
+
+        return $this;
+    }
+
+    public function getResponsableLegal2(): ?self
+    {
+        return $this->responsableLegal2;
+    }
+
+    public function setResponsableLegal2(?self $responsableLegal2): static
+    {
+        $this->responsableLegal2 = $responsableLegal2;
+
+        return $this;
+    }
+
+    /**
+     * @return list<self>
+     */
+    public function getResponsablesLegaux(): array
+    {
+        return array_values(array_filter([$this->responsableLegal1, $this->responsableLegal2]));
+    }
+
+    public function estResponsableDe(?self $licencie): bool
+    {
+        if (null === $licencie) {
+            return false;
+        }
+
+        return $licencie->responsableLegal1 === $this || $licencie->responsableLegal2 === $this;
+    }
+
+    public function getPersonnesAutoriseesRecuperation(): ?string
+    {
+        return $this->personnesAutoriseesRecuperation;
+    }
+
+    public function setPersonnesAutoriseesRecuperation(?string $personnesAutoriseesRecuperation): static
+    {
+        $this->personnesAutoriseesRecuperation = $personnesAutoriseesRecuperation;
+
+        return $this;
+    }
+
+    public function getContactUrgenceNom(): ?string
+    {
+        return $this->contactUrgenceNom;
+    }
+
+    public function setContactUrgenceNom(?string $contactUrgenceNom): static
+    {
+        $this->contactUrgenceNom = $contactUrgenceNom;
+
+        return $this;
+    }
+
+    public function getContactUrgenceTelephone(): ?string
+    {
+        return $this->contactUrgenceTelephone;
+    }
+
+    public function setContactUrgenceTelephone(?string $contactUrgenceTelephone): static
+    {
+        $this->contactUrgenceTelephone = $contactUrgenceTelephone;
+
+        return $this;
+    }
+
+    public function isAutorisationSortieSeul(): bool
+    {
+        return $this->autorisationSortieSeul;
+    }
+
+    public function setAutorisationSortieSeul(bool $autorisationSortieSeul): static
+    {
+        $this->autorisationSortieSeul = $autorisationSortieSeul;
+
+        return $this;
+    }
+
+    public function isDroitImage(): bool
+    {
+        return $this->droitImage;
+    }
+
+    public function setDroitImage(bool $droitImage): static
+    {
+        $this->droitImage = $droitImage;
+
+        return $this;
+    }
+
+    public function getInformationsSante(): ?string
+    {
+        return $this->informationsSante;
+    }
+
+    public function setInformationsSante(?string $informationsSante): static
+    {
+        $this->informationsSante = $informationsSante;
 
         return $this;
     }

@@ -1,0 +1,75 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ma famille — Axiobad{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .fiche-enfant { background: var(--color-surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
+        .fiche-enfant h2 { margin-top: 0; }
+        .badge-statut-adhesion { padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.8rem; font-weight: 700; }
+        .badge-PAYEE { background: var(--color-success-bg); color: var(--color-success); }
+        .badge-EN_ATTENTE { background: #fff7ed; color: var(--color-accent-dark); }
+        .badge-EXONEREE { background: var(--color-bg); color: var(--color-text-muted); }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <h1>Ma famille</h1>
+
+    {% if fiches|length == 0 %}
+        <p>Aucun enfant n'est rattaché à votre compte. Contactez le bureau pour associer un mineur à votre profil comme responsable légal.</p>
+    {% endif %}
+
+    {% for fiche in fiches %}
+        <div class="fiche-enfant">
+            <h2>{{ fiche.enfant.nomComplet }}</h2>
+
+            <p>
+                Adhésion{{ saisonEnCours ? ' — ' ~ saisonEnCours.libelle : '' }} :
+                {% if not saisonEnCours %}
+                    <em>Aucune saison en cours.</em>
+                {% else %}
+                    {% set statut = fiche.adhesion ? fiche.adhesion.statut : 'EN_ATTENTE' %}
+                    {% set libelle = fiche.adhesion ? fiche.adhesion.statutLabel : 'En attente' %}
+                    <span class="badge-statut-adhesion badge-{{ statut }}">{{ libelle }}</span>
+                    {% if fiche.adhesion and fiche.adhesion.montantRestant is not null and fiche.adhesion.montantRestant > 0 %}
+                        — reste {{ fiche.adhesion.montantRestant|number_format(2, ',', ' ') }} €
+                    {% endif %}
+                    <a href="{{ path('app_famille_adhesion', {id: fiche.enfant.id}) }}" style="margin-left: 0.5rem;">Voir / payer l'adhésion</a>
+                {% endif %}
+            </p>
+
+            <h3>Prochains créneaux</h3>
+            {% if fiche.prochainsCreneaux|length %}
+                <table class="table-cards">
+                    <thead>
+                        <tr><th>Date</th><th>Créneau</th><th>Réponse</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for ligne in fiche.prochainsCreneaux %}
+                            <tr>
+                                <td data-label="Date">{{ ligne.date|date('d/m/Y') }} ({{ ligne.creneau.jourSemaine }})</td>
+                                <td data-label="Créneau">{{ ligne.creneau.nom }}</td>
+                                <td data-label="Réponse">
+                                    <form method="post" action="{{ path('app_famille_presence', {id: fiche.enfant.id, creneauId: ligne.creneau.id}) }}" class="presence-form">
+                                        <input type="hidden" name="date" value="{{ ligne.date|date('Y-m-d') }}">
+                                        <button type="submit" name="present" value="1" class="btn-presence btn-presence-oui {{ ligne.presence and ligne.presence.present ? 'selectionne' : '' }}">✓ Vient</button>
+                                        <button type="submit" name="present" value="0" class="btn-presence btn-presence-non {{ ligne.presence and not ligne.presence.present ? 'selectionne' : '' }}">✗ Non</button>
+                                    </form>
+                                    {% if ligne.presence and ligne.presence.estEnListeAttente %}
+                                        <small>⏳ Liste d'attente</small>
+                                    {% elseif ligne.presence and ligne.presence.estEnAttenteConfirmation %}
+                                        <small>⚠ À confirmer avant {{ ligne.presence.promotionExpiresAt|date('d/m H:i') }}</small>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>Aucun créneau à venir correspondant au profil de {{ fiche.enfant.prenom }}.</p>
+            {% endif %}
+        </div>
+    {% endfor %}
+{% endblock %}

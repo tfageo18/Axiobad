@@ -8,6 +8,7 @@ en ligne, une fois connecté, via le menu du compte (en haut à droite) → **Do
 - [Se connecter](#se-connecter)
 - [Rôles et permissions](#rôles-et-permissions)
 - [Gérer les licenciés (bureau)](#gérer-les-licenciés-bureau)
+- [Mineurs et responsables légaux](#mineurs-et-responsables-légaux)
 - [Importer des licenciés en masse (CSV)](#importer-des-licenciés-en-masse-csv)
 - [Saisons et adhésions (bureau)](#saisons-et-adhésions-bureau)
 - [Gérer les gymnases (bureau)](#gérer-les-gymnases-bureau)
@@ -50,6 +51,7 @@ Chaque licencié peut cumuler plusieurs rôles :
 | **Membre du bureau** | Rôle administrateur | Tout ce que peut faire un licencié + gestion des licenciés, saisons, gymnases, créneaux et stock |
 | **Entraîneur** | Peut encadrer des créneaux | Peut être sélectionné comme entraîneur sur un créneau encadré ; accède à l'historique des présences |
 | **Cordeur** | Gère les demandes de cordage | Voit toutes les demandes de cordage et fait avancer leur statut |
+| **Accès au stock** | Accède au module stock | Comme un membre du bureau, mais uniquement pour le stock (les membres du bureau y accèdent déjà) |
 
 Les rôles se gèrent depuis la fiche de création ou de modification d'un licencié (page **Licenciés**,
 bureau uniquement).
@@ -67,6 +69,26 @@ Menu **Bureau → Licenciés** (visible uniquement par les membres du bureau).
 
 Tant que le licencié n'a pas cliqué sur le lien et défini son mot de passe, son statut apparaît
 comme **"En attente d'activation"** dans la liste. Une fois activé, il apparaît comme **"Actif"**.
+
+## Mineurs et responsables légaux
+
+L'email est **optionnel** à la création d'un licencié. Le laisser vide crée un licencié
+**sans compte de connexion** — typiquement un enfant mineur — qui n'apparaît jamais dans les
+statuts d'activation (il affiche **"Sans compte"**) et ne peut jamais se connecter lui-même.
+
+1. Cliquer sur **+ Nouveau licencié**, renseigner prénom/nom, laisser l'email vide.
+2. Dans la section **Mineur et responsables légaux**, choisir un ou deux **responsables légaux**
+   parmi les licenciés existants (il faut donc créer le·s parent·s en premier).
+3. Compléter les champs utiles à la sécurité de l'enfant : personnes autorisées à venir le
+   récupérer, contact d'urgence (nom, téléphone), autorisation de sortie seul(e), droit à l'image.
+4. Le champ **allergies / informations de santé** est une donnée sensible : il n'est visible que
+   du bureau, des entraîneurs et des responsables légaux (affiché sur la fiche présence du
+   licencié). Ne le renseigner que si c'est utile pour la sécurité de l'enfant.
+
+Un responsable légal retrouve tous ses enfants mineurs dans le menu **Ma famille** : leurs
+prochains créneaux (avec possibilité de répondre présent/absent en leur nom) et le statut/
+paiement de leur adhésion. « Ma famille » est visible de tous les licenciés connectés, même sans
+enfant à charge (la liste est alors vide).
 
 ### Rechercher, trier, désactiver, supprimer
 

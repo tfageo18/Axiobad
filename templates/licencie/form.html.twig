@@ -5,7 +5,12 @@
 {% block body %}
     <h1>{{ licencie ? 'Modifier le licencié' : 'Nouveau licencié' }}</h1>
     {% if not licencie %}
-        <p>Un email d'activation sera envoyé au licencié pour qu'il définisse son mot de passe.</p>
+        <p>
+            Si un email est renseigné, un lien d'activation lui sera envoyé pour définir son mot de
+            passe. Laissez l'email vide pour un <strong>mineur sans compte propre</strong> (rattaché
+            à un ou deux responsables légaux ci-dessous) — ça évite de créer une adresse email
+            artificielle pour un enfant.
+        </p>
     {% endif %}
 
     <form method="post" action="{{ licencie ? path('app_licencie_edit', {id: licencie.id}) : path('app_licencie_new') }}">
@@ -18,8 +23,8 @@
             <input type="text" name="nom" id="nom" value="{{ licencie ? licencie.nom : '' }}" required>
         </div>
         <div>
-            <label for="email">Email</label>
-            <input type="email" name="email" id="email" value="{{ licencie ? licencie.email : '' }}" required>
+            <label for="email">Email {{ licencie ? '' : '(optionnel — vide = mineur sans compte)' }}</label>
+            <input type="email" name="email" id="email" value="{{ licencie ? licencie.email : '' }}">
         </div>
         <div>
             <label>
@@ -37,6 +42,12 @@
             <label>
                 <input type="checkbox" name="roles[]" value="ROLE_CORDEUR" {{ licencie and licencie.isCordeur ? 'checked' : '' }}>
                 Cordeur
+            </label>
+        </div>
+        <div>
+            <label>
+                <input type="checkbox" name="roles[]" value="ROLE_STOCK" {{ licencie and licencie.isStock ? 'checked' : '' }}>
+                Accès au stock
             </label>
         </div>
         {% if licencie %}
@@ -85,6 +96,63 @@
                 </select>
             </div>
         {% endif %}
-        <button type="submit">{{ licencie ? 'Enregistrer' : "Créer et envoyer l'invitation" }}</button>
+
+        <h2>Mineur et responsables légaux</h2>
+        <div>
+            <label for="responsableLegal1">Responsable légal 1 (optionnel)</label>
+            <select name="responsableLegal1" id="responsableLegal1">
+                <option value="">-</option>
+                {% for r in responsablesPossibles %}
+                    {% if not licencie or r.id != licencie.id %}
+                        <option value="{{ r.id }}" {{ licencie and licencie.responsableLegal1 and licencie.responsableLegal1.id == r.id ? 'selected' : '' }}>{{ r.nomComplet }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="responsableLegal2">Responsable légal 2 (optionnel)</label>
+            <select name="responsableLegal2" id="responsableLegal2">
+                <option value="">-</option>
+                {% for r in responsablesPossibles %}
+                    {% if not licencie or r.id != licencie.id %}
+                        <option value="{{ r.id }}" {{ licencie and licencie.responsableLegal2 and licencie.responsableLegal2.id == r.id ? 'selected' : '' }}>{{ r.nomComplet }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="personnesAutoriseesRecuperation">Personnes autorisées à récupérer l'enfant (optionnel)</label>
+            <textarea name="personnesAutoriseesRecuperation" id="personnesAutoriseesRecuperation" rows="2">{{ licencie ? licencie.personnesAutoriseesRecuperation : '' }}</textarea>
+        </div>
+        <div>
+            <label for="contactUrgenceNom">Contact d'urgence — nom (optionnel)</label>
+            <input type="text" name="contactUrgenceNom" id="contactUrgenceNom" value="{{ licencie ? licencie.contactUrgenceNom : '' }}">
+        </div>
+        <div>
+            <label for="contactUrgenceTelephone">Contact d'urgence — téléphone (optionnel)</label>
+            <input type="tel" name="contactUrgenceTelephone" id="contactUrgenceTelephone" value="{{ licencie ? licencie.contactUrgenceTelephone : '' }}">
+        </div>
+        <div>
+            <label>
+                <input type="checkbox" name="autorisationSortieSeul" value="1" {{ licencie and licencie.autorisationSortieSeul ? 'checked' : '' }}>
+                Autorisation de sortie seul(e)
+            </label>
+        </div>
+        <div>
+            <label>
+                <input type="checkbox" name="droitImage" value="1" {{ licencie and licencie.droitImage ? 'checked' : '' }}>
+                Droit à l'image accordé
+            </label>
+        </div>
+        <div>
+            <label for="informationsSante">Allergies / informations de santé utiles (optionnel)</label>
+            <textarea name="informationsSante" id="informationsSante" rows="3">{{ licencie ? licencie.informationsSante : '' }}</textarea>
+            <small style="color: var(--color-text-muted);">
+                Donnée sensible : visible uniquement du bureau, des entraîneurs et des responsables
+                légaux. À ne renseigner que si c'est utile pour la sécurité de l'enfant.
+            </small>
+        </div>
+
+        <button type="submit">{{ licencie ? 'Enregistrer' : "Créer" }}</button>
     </form>
 {% endblock %}

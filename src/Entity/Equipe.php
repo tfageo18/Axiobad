@@ -21,6 +21,9 @@ class Equipe
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $categorie = null;
 
+    #[ORM\Column]
+    private bool $actif = true;
+
     #[ORM\ManyToOne(targetEntity: Licencie::class)]
     #[ORM\JoinColumn(nullable: true)]
     private ?Licencie $capitaine = null;
@@ -62,6 +65,18 @@ class Equipe
     public function setCategorie(?string $categorie): static
     {
         $this->categorie = $categorie;
+
+        return $this;
+    }
+
+    public function isActif(): bool
+    {
+        return $this->actif;
+    }
+
+    public function setActif(bool $actif): static
+    {
+        $this->actif = $actif;
 
         return $this;
     }

@@ -119,6 +119,18 @@ class EquipeController extends AbstractController
         return $this->redirectToRoute('app_equipe_edit', ['id' => $equipe->getId()]);
     }
 
+    #[Route('/{id}/activer', name: 'app_equipe_toggle_actif', methods: ['POST'])]
+    #[IsGranted('ROLE_BUREAU')]
+    public function toggleActif(Equipe $equipe, EntityManagerInterface $entityManager): Response
+    {
+        $equipe->setActif(!$equipe->isActif());
+        $entityManager->flush();
+
+        $this->addFlash('success', $equipe->isActif() ? 'Équipe réactivée.' : 'Équipe désactivée.');
+
+        return $this->redirectToRoute('app_equipe_index');
+    }
+
     #[Route('/{id}/supprimer', name: 'app_equipe_delete', methods: ['POST'])]
     #[IsGranted('ROLE_BUREAU')]
     public function delete(Request $request, Equipe $equipe, EntityManagerInterface $entityManager): Response

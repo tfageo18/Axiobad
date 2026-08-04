@@ -143,6 +143,7 @@ Menu **Club → Équipes**, visible par tous les connectés.
 - Le **capitaine** d'une équipe (même sans rôle bureau) peut lui aussi cliquer sur **Gérer** pour
   modifier le nom/la catégorie de son équipe et ajouter ou retirer des membres — mais il ne peut
   ni supprimer l'équipe, ni changer qui en est le capitaine.
+- Le bureau peut **désactiver/réactiver** ou **supprimer** une équipe depuis la liste.
 
 ## Gérer les créneaux (bureau)
 

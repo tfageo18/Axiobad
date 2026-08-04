@@ -17,24 +17,35 @@
                 <th>Catégorie</th>
                 <th>Capitaine</th>
                 <th>Membres</th>
+                <th>Statut</th>
                 <th></th>
             </tr>
         </thead>
         <tbody>
             {% for equipe in equipes %}
-                <tr>
+                <tr class="{{ equipe.actif ? '' : 'ligne-inactive' }}">
                     <td data-label="Nom">{{ equipe.nom }}</td>
                     <td data-label="Catégorie">{{ equipe.categorie ?? '-' }}</td>
                     <td data-label="Capitaine">{{ equipe.capitaine ? equipe.capitaine.nomComplet : '-' }}</td>
                     <td data-label="Membres">{{ equipe.membres|length }}</td>
+                    <td data-label="Statut">{{ (equipe.actif ? '<span class="badge-actif">Active</span>' : '<span class="badge-inactif">Inactive</span>')|raw }}</td>
                     <td class="td-actions">
                         {% if is_granted('ROLE_BUREAU') or equipe.estCapitaine(app.user) %}
                             <a href="{{ path('app_equipe_edit', {id: equipe.id}) }}">Gérer</a>
                         {% endif %}
+                        {% if is_granted('ROLE_BUREAU') %}
+                            <form method="post" action="{{ path('app_equipe_toggle_actif', {id: equipe.id}) }}" style="display:inline">
+                                <button type="submit">{{ equipe.actif ? 'Désactiver' : 'Réactiver' }}</button>
+                            </form>
+                            <form method="post" action="{{ path('app_equipe_delete', {id: equipe.id}) }}" onsubmit="return confirm('Supprimer cette équipe ?');" style="display:inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete-equipe-' ~ equipe.id) }}">
+                                <button type="submit">Supprimer</button>
+                            </form>
+                        {% endif %}
                     </td>
                 </tr>
             {% else %}
-                <tr><td colspan="5">Aucune équipe.</td></tr>
+                <tr><td colspan="6">Aucune équipe.</td></tr>
             {% endfor %}
         </tbody>
     </table>

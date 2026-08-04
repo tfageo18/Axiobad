@@ -33,6 +33,13 @@
                     <td data-label="Score">{{ rencontre.aUnScore ? rencontre.scoreEquipe ~ ' - ' ~ rencontre.scoreAdversaire : '-' }}</td>
                     <td class="td-actions">
                         <a href="{{ path('app_interclub_detail', {id: rencontre.id}) }}">Voir</a>
+                        {% if is_granted('ROLE_BUREAU') %}
+                            <a href="{{ path('app_interclub_edit', {id: rencontre.id}) }}">Modifier</a>
+                            <form method="post" action="{{ path('app_interclub_delete', {id: rencontre.id}) }}" onsubmit="return confirm('Supprimer cette rencontre ?');" style="display:inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete-rencontre-' ~ rencontre.id) }}">
+                                <button type="submit">Supprimer</button>
+                            </form>
+                        {% endif %}
                     </td>
                 </tr>
             {% else %}

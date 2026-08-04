@@ -146,6 +146,14 @@ class NotificationMailer
         );
     }
 
+    /**
+     * Envoi d'une communication libre (sujet/corps saisis par le bureau) à un destinataire.
+     */
+    public function communicationCiblee(Licencie $destinataire, string $sujet, string $corps): bool
+    {
+        return $this->envoyer($destinataire, $sujet, $corps);
+    }
+
     private function envoyer(?Licencie $destinataire, string $sujet, string $corps): bool
     {
         if (!$destinataire || !$destinataire->getEmail()) {

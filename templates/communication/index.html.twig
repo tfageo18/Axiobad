@@ -1,0 +1,93 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Communication ciblée — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>Communication ciblée</h1>
+    <p>Envoie un email à un groupe de licenciés (ceux ayant un compte de connexion actif).</p>
+
+    <form method="get" action="{{ path('app_communication_index') }}">
+        <div>
+            <label for="cible">Destinataires</label>
+            <select name="cible" id="cible" onchange="this.form.submit()">
+                <option value="">— Choisir —</option>
+                <option value="TOUS" {{ cibleChoisie == 'TOUS' ? 'selected' : '' }}>Tous les licenciés</option>
+                <option value="RESPONSABLES_LEGAUX" {{ cibleChoisie == 'RESPONSABLES_LEGAUX' ? 'selected' : '' }}>Responsables légaux</option>
+                <option value="IMPAYES" {{ cibleChoisie == 'IMPAYES' ? 'selected' : '' }}>Adhésions impayées (saison en cours)</option>
+                <option value="CATEGORIE:ADULTE" {{ cibleChoisie == 'CATEGORIE:ADULTE' ? 'selected' : '' }}>Adultes</option>
+                <option value="CATEGORIE:ENFANT" {{ cibleChoisie == 'CATEGORIE:ENFANT' ? 'selected' : '' }}>Enfants</option>
+                {% for equipe in equipes %}
+                    <option value="EQUIPE:{{ equipe.id }}" {{ cibleChoisie == 'EQUIPE:' ~ equipe.id ? 'selected' : '' }}>Équipe — {{ equipe.nom }}</option>
+                {% endfor %}
+                {% for creneau in creneaux %}
+                    <option value="CRENEAU:{{ creneau.id }}" {{ cibleChoisie == 'CRENEAU:' ~ creneau.id ? 'selected' : '' }}>Créneau — {{ creneau.nom }} ({{ creneau.jourSemaine }})</option>
+                    <option value="NON_REPONDANTS:{{ creneau.id }}" {{ cibleChoisie == 'NON_REPONDANTS:' ~ creneau.id ? 'selected' : '' }}>Non-répondants — {{ creneau.nom }} ({{ creneau.jourSemaine }})</option>
+                {% endfor %}
+                {% for evenement in evenements %}
+                    <option value="EVENEMENT:{{ evenement.id }}" {{ cibleChoisie == 'EVENEMENT:' ~ evenement.id ? 'selected' : '' }}>Participants — {{ evenement.titre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+
+    {% if destinataires is not null %}
+        <div style="background: var(--color-surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+            <strong>{{ cibleLibelle }}</strong> — {{ destinataires|length }} destinataire(s)
+            {% if destinataires|length %}
+                <p style="color: var(--color-text-muted); font-size: 0.88rem;">{{ destinataires|map(l => l.nomComplet)|join(', ') }}</p>
+            {% endif %}
+        </div>
+
+        {% if destinataires|length %}
+            <form method="post" action="{{ path('app_communication_envoyer') }}" onsubmit="return confirm('Envoyer ce message à ' ~ destinataires|length ~ ' destinataire(s) ?');">
+                <input type="hidden" name="cible" value="{{ cibleChoisie }}">
+                <div>
+                    <label for="sujet">Sujet</label>
+                    <input type="text" name="sujet" id="sujet" required style="max-width: 100%;">
+                </div>
+                <div>
+                    <label for="corps">Message</label>
+                    <textarea name="corps" id="corps" rows="8" required></textarea>
+                </div>
+                <button type="submit">Envoyer à {{ destinataires|length }} destinataire(s)</button>
+            </form>
+        {% endif %}
+    {% endif %}
+
+    <h2>Historique des envois</h2>
+    <div class="table-scroll">
+    <table class="table-cards">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Sujet</th>
+                <th>Cible</th>
+                <th>Destinataires</th>
+                <th>Échecs</th>
+                <th>Auteur</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for envoi in envois %}
+                <tr>
+                    <td data-label="Date">{{ envoi.envoyeLe|date('d/m/Y H:i') }}</td>
+                    <td data-label="Sujet">{{ envoi.sujet }}</td>
+                    <td data-label="Cible">{{ envoi.cibleLibelle }}</td>
+                    <td data-label="Destinataires">{{ envoi.nombreDestinataires }}</td>
+                    <td data-label="Échecs">
+                        {% if envoi.nombreEchecs %}
+                            <span class="badge-inactif">{{ envoi.nombreEchecs }}</span>
+                            <small title="{{ envoi.emailsEnEchec }}">({{ envoi.emailsEnEchec }})</small>
+                        {% else %}
+                            0
+                        {% endif %}
+                    </td>
+                    <td data-label="Auteur">{{ envoi.auteur ? envoi.auteur.nomComplet : '—' }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="6">Aucun envoi pour l'instant.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+{% endblock %}

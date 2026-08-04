@@ -197,6 +197,18 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
 - Pas encore de notifications push (prévu une fois les notifications automatiques par email en
   place côté serveur).
 
+### Communication ciblée
+
+- Menu **Bureau → Communication** : envoi d'un email libre (sujet + message) à un groupe de
+  licenciés ayant un compte actif — tous les licenciés, une équipe, les licenciés d'un créneau,
+  les non-répondants à la prochaine occurrence d'un créneau, les participants confirmés d'un
+  évènement, les adhésions impayées de la saison en cours, les responsables légaux, ou par
+  catégorie d'âge (adultes/enfants).
+- **Aperçu des destinataires** (nombre et noms) avant envoi.
+- **Historique** des envois (sujet, cible, nombre de destinataires, échecs détaillés, auteur,
+  date), consultable sur la même page.
+- Pas encore de modèles réutilisables, de programmation différée, ni de pièces jointes.
+
 ### Notifications automatiques
 
 - **Emails immédiats** pour les évènements importants : raquette prête à récupérer (cordage),

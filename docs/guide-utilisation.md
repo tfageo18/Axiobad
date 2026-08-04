@@ -25,6 +25,7 @@ en ligne, une fois connecté, via le menu du compte (en haut à droite) → **Do
 - [Mon espace (tous les licenciés)](#mon-espace-tous-les-licenciés)
 - [Mon profil](#mon-profil)
 - [Mes données personnelles (RGPD)](#mes-données-personnelles-rgpd)
+- [Communication ciblée (bureau)](#communication-ciblée-bureau)
 - [Notifications automatiques](#notifications-automatiques)
 - [Configuration email (production)](#configuration-email-production)
 
@@ -334,6 +335,20 @@ Menu **Club → Interclubs**.
   créneau ; le bureau voit l'état des réponses de toute l'équipe convoquée.
 - Chaque rencontre (journée) apparaît aussi dans le [calendrier](#le-calendrier), visible par le
   bureau et par les membres de l'équipe concernée.
+
+## Communication ciblée (bureau)
+
+Menu **Bureau → Communication**.
+
+1. Choisir la **cible** dans le menu déroulant : tous les licenciés, une équipe, les licenciés
+   d'un créneau, les non-répondants à la prochaine occurrence d'un créneau, les participants
+   confirmés d'un évènement, les adhésions impayées de la saison en cours, les responsables
+   légaux, ou par catégorie d'âge (adultes/enfants).
+2. Le nombre et la liste des destinataires s'affichent immédiatement — seuls les licenciés ayant
+   un compte de connexion actif sont comptés.
+3. Saisir le sujet et le message, puis valider.
+4. L'envoi et ses résultats (succès, échecs éventuels avec le détail des adresses en échec)
+   apparaissent dans l'**historique des envois**, en bas de la page.
 
 ## Tableau de bord (bureau)
 

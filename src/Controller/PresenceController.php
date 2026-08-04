@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Licencie;
 use App\Repository\LicencieRepository;
 use App\Repository\PresenceRepository;
+use App\Service\AuditLogger;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -48,9 +49,13 @@ class PresenceController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_presence_detail', methods: ['GET'])]
-    public function detail(Licencie $licencie, PresenceRepository $presenceRepository): Response
+    public function detail(Licencie $licencie, PresenceRepository $presenceRepository, AuditLogger $auditLogger): Response
     {
         $this->refuserSiPasBureauNiEntraineur();
+
+        if ($licencie->getInformationsSante()) {
+            $auditLogger->log(AuditLogger::SANTE_CONSULTEE, 'Licencie', $licencie->getNomComplet());
+        }
 
         $presences = $presenceRepository->findBy(['licencie' => $licencie], ['date' => 'DESC']);
         $total = count($presences);

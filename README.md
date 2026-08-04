@@ -239,6 +239,16 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
 - Pas encore d'historique des notifications envoyées, ni de notifications push (prévues via la
   PWA, voir ci-dessous).
 
+### Journal d'audit
+
+- Menu **Bureau → Journal d'audit** : trace les actions sensibles — paiement ajouté/supprimé,
+  consultation ou modification des informations de santé, changement de responsable légal,
+  suppression de compte (simple ou forcée), changement de rôle, correction de stock (inventaire),
+  annulation de créneau, modification d'adhésion.
+- Chaque entrée indique l'auteur, la date, l'objet concerné, et l'ancienne/nouvelle valeur quand
+  c'est pertinent (jamais le contenu des données de santé elles-mêmes, pour ne pas dupliquer une
+  donnée sensible). Filtrable par type d'action et par auteur.
+
 ### RGPD
 
 - Pages publiques **Politique de confidentialité** et **Mentions légales** (liens en pied de

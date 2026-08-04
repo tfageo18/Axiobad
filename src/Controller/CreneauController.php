@@ -14,6 +14,7 @@ use App\Repository\CreneauRepository;
 use App\Repository\GymnaseRepository;
 use App\Repository\LicencieRepository;
 use App\Repository\PresenceRepository;
+use App\Service\AuditLogger;
 use App\Service\GestionInscriptionCreneau;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -133,6 +134,7 @@ class CreneauController extends AbstractController
         GymnaseRepository $gymnaseRepository,
         LicencieRepository $licencieRepository,
         EntityManagerInterface $entityManager,
+        AuditLogger $auditLogger,
     ): Response {
         $dateObjet = new \DateTimeImmutable($date);
         $exception = $exceptionRepository->findOneByCreneauEtDate($creneau, $dateObjet) ?? (new CreneauException())->setCreneau($creneau)->setDate($dateObjet);
@@ -162,6 +164,10 @@ class CreneauController extends AbstractController
 
             $entityManager->persist($exception);
             $entityManager->flush();
+
+            if (CreneauException::TYPE_ANNULEE === $exception->getType()) {
+                $auditLogger->log(AuditLogger::CRENEAU_ANNULE, 'Creneau', sprintf('%s — %s', $creneau->getNom(), $dateObjet->format('d/m/Y')));
+            }
 
             $this->addFlash('success', sprintf('Occurrence du %s modifiée.', $dateObjet->format('d/m/Y')));
 
@@ -204,6 +210,7 @@ class CreneauController extends AbstractController
         CreneauRepository $creneauRepository,
         CreneauExceptionRepository $exceptionRepository,
         EntityManagerInterface $entityManager,
+        AuditLogger $auditLogger,
     ): Response {
         if ($request->isMethod('POST')) {
             $debut = new \DateTimeImmutable((string) $request->request->get('debut'));
@@ -242,6 +249,16 @@ class CreneauController extends AbstractController
             }
 
             $entityManager->flush();
+
+            if ($nombre > 0) {
+                $auditLogger->log(
+                    AuditLogger::CRENEAU_ANNULE,
+                    'Creneau',
+                    sprintf('Fermeture par période du %s au %s (%d occurrence(s))', $debut->format('d/m/Y'), $fin->format('d/m/Y'), $nombre),
+                    null,
+                    $motif
+                );
+            }
 
             $this->addFlash('success', sprintf('%d occurrence(s) annulée(s) du %s au %s.', $nombre, $debut->format('d/m/Y'), $fin->format('d/m/Y')));
 

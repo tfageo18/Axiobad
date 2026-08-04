@@ -24,6 +24,7 @@ en ligne, une fois connecté, via le menu du compte (en haut à droite) → **Do
 - [Tableau de bord (bureau)](#tableau-de-bord-bureau)
 - [Mon espace (tous les licenciés)](#mon-espace-tous-les-licenciés)
 - [Mon profil](#mon-profil)
+- [Journal d'audit (bureau)](#journal-daudit-bureau)
 - [Mes données personnelles (RGPD)](#mes-données-personnelles-rgpd)
 - [Communication ciblée (bureau)](#communication-ciblée-bureau)
 - [Notifications automatiques](#notifications-automatiques)
@@ -437,6 +438,20 @@ droite → **Modifier mon profil** :
   licencié](#modifier-le-classement-dun-licencié)).
 
 Le menu du compte propose aussi un accès direct à la **documentation** et à la **déconnexion**.
+
+## Journal d'audit (bureau)
+
+Menu **Bureau → Journal d'audit**.
+
+Trace les actions sensibles effectuées dans l'application : paiement ajouté ou supprimé,
+consultation ou modification des informations de santé d'un licencié, changement de responsable
+légal, suppression de compte (simple ou forcée), changement de rôle, correction de stock lors
+d'un inventaire, annulation de créneau, modification d'adhésion.
+
+Chaque entrée indique la date, l'auteur de l'action, l'objet concerné et, quand c'est pertinent,
+l'ancienne et la nouvelle valeur — **jamais le contenu réel des informations de santé**, pour ne
+pas dupliquer une donnée sensible dans le journal lui-même. Deux filtres sont disponibles : par
+type d'action et par auteur.
 
 ## Mes données personnelles (RGPD)
 

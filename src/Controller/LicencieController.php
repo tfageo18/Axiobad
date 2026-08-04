@@ -19,6 +19,7 @@ use App\Repository\LicencieRepository;
 use App\Repository\PaiementAdhesionRepository;
 use App\Repository\PresenceRepository;
 use App\Repository\SaisonRepository;
+use App\Service\AuditLogger;
 use App\Service\InvitationMailer;
 use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\ORM\EntityManagerInterface;
@@ -67,7 +68,7 @@ class LicencieController extends AbstractController
     }
 
     #[Route('/{id}/adhesion', name: 'app_licencie_adhesion', methods: ['GET', 'POST'])]
-    public function adhesion(Request $request, Licencie $licencie, EntityManagerInterface $entityManager, SaisonRepository $saisonRepository, AdhesionRepository $adhesionRepository): Response
+    public function adhesion(Request $request, Licencie $licencie, EntityManagerInterface $entityManager, SaisonRepository $saisonRepository, AdhesionRepository $adhesionRepository, AuditLogger $auditLogger): Response
     {
         $saisonId = $request->query->get('saison') ?? $request->request->get('saison');
         $saison = $saisonId ? $saisonRepository->find($saisonId) : $saisonRepository->findEnCours();
@@ -84,6 +85,9 @@ class LicencieController extends AbstractController
             ?? (new Adhesion())->setLicencie($licencie)->setSaison($saison);
 
         if ($request->isMethod('POST')) {
+            $ancienStatut = $adhesion->getStatut();
+            $ancienMontant = $adhesion->getMontantTotal();
+
             $statut = (string) $request->request->get('statut');
             if (!array_key_exists($statut, Adhesion::STATUTS)) {
                 $statut = Adhesion::STATUT_EN_ATTENTE;
@@ -96,6 +100,14 @@ class LicencieController extends AbstractController
 
             $entityManager->persist($adhesion);
             $entityManager->flush();
+
+            $auditLogger->log(
+                AuditLogger::ADHESION_MODIFIEE,
+                'Adhesion',
+                sprintf('%s — %s', $licencie->getNomComplet(), $saison->getLibelle()),
+                sprintf('%s / %s €', $ancienStatut, $ancienMontant ?? '-'),
+                sprintf('%s / %s €', $statut, $adhesion->getMontantTotal() ?? '-')
+            );
 
             $this->addFlash('success', 'Adhésion mise à jour.');
 
@@ -111,7 +123,7 @@ class LicencieController extends AbstractController
     }
 
     #[Route('/{id}/adhesion/paiements', name: 'app_licencie_adhesion_paiement_new', methods: ['POST'])]
-    public function ajouterPaiement(Request $request, Licencie $licencie, EntityManagerInterface $entityManager, SaisonRepository $saisonRepository, AdhesionRepository $adhesionRepository): Response
+    public function ajouterPaiement(Request $request, Licencie $licencie, EntityManagerInterface $entityManager, SaisonRepository $saisonRepository, AdhesionRepository $adhesionRepository, AuditLogger $auditLogger): Response
     {
         $saison = $saisonRepository->find($request->request->get('saison'));
         if (!$saison) {
@@ -153,20 +165,38 @@ class LicencieController extends AbstractController
 
         $entityManager->flush();
 
+        $auditLogger->log(
+            AuditLogger::PAIEMENT_MODIFIE,
+            'PaiementAdhesion',
+            sprintf('%s — %s', $licencie->getNomComplet(), $saison->getLibelle()),
+            null,
+            sprintf('+%.2f € (%s)', $montant, PaiementAdhesion::MOYENS[$moyen] ?? $moyen)
+        );
+
         $this->addFlash('success', 'Versement enregistré.');
 
         return $this->redirectToRoute('app_licencie_adhesion', ['id' => $licencie->getId(), 'saison' => $saison->getId()]);
     }
 
     #[Route('/{id}/adhesion/paiements/{paiementId}/supprimer', name: 'app_licencie_adhesion_paiement_delete', methods: ['POST'])]
-    public function supprimerPaiement(Request $request, Licencie $licencie, int $paiementId, EntityManagerInterface $entityManager, PaiementAdhesionRepository $paiementRepository): Response
+    public function supprimerPaiement(Request $request, Licencie $licencie, int $paiementId, EntityManagerInterface $entityManager, PaiementAdhesionRepository $paiementRepository, AuditLogger $auditLogger): Response
     {
         $paiement = $paiementRepository->find($paiementId);
         if ($paiement && $paiement->getAdhesion()->getLicencie()->getId() === $licencie->getId()
             && $this->isCsrfTokenValid('delete-paiement-'.$paiementId, (string) $request->request->get('_token'))) {
             $saisonId = $paiement->getAdhesion()->getSaison()->getId();
+            $ancienneValeur = sprintf('%.2f € (%s)', $paiement->getMontant(), PaiementAdhesion::MOYENS[$paiement->getMoyen()] ?? $paiement->getMoyen());
             $entityManager->remove($paiement);
             $entityManager->flush();
+
+            $auditLogger->log(
+                AuditLogger::PAIEMENT_MODIFIE,
+                'PaiementAdhesion',
+                $licencie->getNomComplet(),
+                $ancienneValeur,
+                'Supprimé'
+            );
+
             $this->addFlash('success', 'Versement supprimé.');
 
             return $this->redirectToRoute('app_licencie_adhesion', ['id' => $licencie->getId(), 'saison' => $saisonId]);
@@ -372,9 +402,14 @@ class LicencieController extends AbstractController
     }
 
     #[Route('/{id}/modifier', name: 'app_licencie_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Licencie $licencie, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Licencie $licencie, EntityManagerInterface $entityManager, AuditLogger $auditLogger): Response
     {
         if ($request->isMethod('POST')) {
+            $anciensRoles = $licencie->getRoles();
+            $ancienResponsable1 = $licencie->getResponsableLegal1();
+            $ancienResponsable2 = $licencie->getResponsableLegal2();
+            $ancienneSante = $licencie->getInformationsSante();
+
             $roles = $request->request->all('roles');
             $dateNaissance = (string) $request->request->get('dateNaissance');
             $numeroLicence = (string) $request->request->get('numeroLicence');
@@ -420,6 +455,22 @@ class LicencieController extends AbstractController
             }
 
             $entityManager->flush();
+
+            if ($anciensRoles !== $licencie->getRoles()) {
+                $auditLogger->log(AuditLogger::ROLE_CHANGE, 'Licencie', $licencie->getNomComplet(), implode(', ', $anciensRoles), implode(', ', $licencie->getRoles()));
+            }
+            if ($ancienResponsable1 !== $licencie->getResponsableLegal1() || $ancienResponsable2 !== $licencie->getResponsableLegal2()) {
+                $auditLogger->log(
+                    AuditLogger::RESPONSABLE_LEGAL_CHANGE,
+                    'Licencie',
+                    $licencie->getNomComplet(),
+                    implode(', ', array_filter([$ancienResponsable1?->getNomComplet(), $ancienResponsable2?->getNomComplet()])) ?: 'Aucun',
+                    implode(', ', array_filter([$licencie->getResponsableLegal1()?->getNomComplet(), $licencie->getResponsableLegal2()?->getNomComplet()])) ?: 'Aucun'
+                );
+            }
+            if ($ancienneSante !== $licencie->getInformationsSante()) {
+                $auditLogger->log(AuditLogger::SANTE_MODIFIEE, 'Licencie', $licencie->getNomComplet());
+            }
 
             $this->addFlash('success', 'Licencié modifié.');
 
@@ -524,7 +575,7 @@ class LicencieController extends AbstractController
     }
 
     #[Route('/{id}/supprimer', name: 'app_licencie_delete', methods: ['POST'])]
-    public function delete(Request $request, Licencie $licencie, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, Licencie $licencie, EntityManagerInterface $entityManager, AuditLogger $auditLogger): Response
     {
         /** @var Licencie $moi */
         $moi = $this->getUser();
@@ -544,9 +595,12 @@ class LicencieController extends AbstractController
             return $this->redirectToRoute('app_licencie_index');
         }
 
+        $nomLicencie = $licencie->getNomComplet();
+
         try {
             $entityManager->remove($licencie);
             $entityManager->flush();
+            $auditLogger->log(AuditLogger::COMPTE_SUPPRIME, 'Licencie', $nomLicencie);
             $this->addFlash('success', 'Licencié supprimé.');
         } catch (ForeignKeyConstraintViolationException) {
             $this->addFlash('error', 'Impossible de supprimer ce licencié : des données lui sont liées (présences, créneaux encadrés, mouvements de stock...). Désactivez plutôt son compte, ou utilisez « Forcer la suppression ».');
@@ -563,7 +617,7 @@ class LicencieController extends AbstractController
      * cordeur) sont détachées plutôt que supprimées.
      */
     #[Route('/{id}/supprimer-de-force', name: 'app_licencie_force_delete', methods: ['POST'])]
-    public function forceDelete(Request $request, Licencie $licencie, EntityManagerInterface $entityManager): Response
+    public function forceDelete(Request $request, Licencie $licencie, EntityManagerInterface $entityManager, AuditLogger $auditLogger): Response
     {
         /** @var Licencie $moi */
         $moi = $this->getUser();
@@ -629,10 +683,13 @@ class LicencieController extends AbstractController
             $entityManager->remove($adhesion);
         }
 
+        $nomLicencie = $licencie->getNomComplet();
         $entityManager->remove($licencie);
         $entityManager->flush();
 
-        $this->addFlash('success', sprintf('%s a été supprimé, avec toutes les données qui lui étaient liées.', $licencie->getNomComplet()));
+        $auditLogger->log(AuditLogger::COMPTE_SUPPRIME, 'Licencie', $nomLicencie, null, 'Suppression forcée (avec données liées)');
+
+        $this->addFlash('success', sprintf('%s a été supprimé, avec toutes les données qui lui étaient liées.', $nomLicencie));
 
         return $this->redirectToRoute('app_licencie_index');
     }

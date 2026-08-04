@@ -10,6 +10,7 @@ use App\Entity\StockMouvementVolant;
 use App\Repository\InventaireCampagneRepository;
 use App\Repository\StockVetementRepository;
 use App\Repository\StockVolantRepository;
+use App\Service\AuditLogger;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -103,7 +104,7 @@ class InventaireController extends AbstractController
     }
 
     #[Route('/{id}/valider', name: 'app_inventaire_valider', methods: ['POST'])]
-    public function valider(Request $request, InventaireCampagne $campagne, EntityManagerInterface $entityManager): Response
+    public function valider(Request $request, InventaireCampagne $campagne, EntityManagerInterface $entityManager, AuditLogger $auditLogger): Response
     {
         if (!$this->isCsrfTokenValid('valider-inventaire-'.$campagne->getId(), (string) $request->request->get('_token'))) {
             return $this->redirectToRoute('app_inventaire_detail', ['id' => $campagne->getId()]);
@@ -144,6 +145,14 @@ class InventaireController extends AbstractController
                 $ligne->getVolant()->ajusterQuantite($ecart);
                 $entityManager->persist($mouvement);
             }
+
+            $auditLogger->log(
+                AuditLogger::STOCK_CORRECTION,
+                'InventaireLigne',
+                $ligne->getLibelleArticle(),
+                (string) $ligne->getQuantiteTheorique(),
+                sprintf('%d (écart %+d)', $ligne->getQuantiteComptee(), $ecart)
+            );
 
             ++$regularisations;
         }

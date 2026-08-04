@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ campagne.nom }} — Inventaire — Axiobad{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('app_inventaire_index') }}">&laquo; Retour aux campagnes d'inventaire</a></p>
+
+    <h1>{{ campagne.nom }}</h1>
+    <p>
+        Créée le {{ campagne.creeLe|date('d/m/Y') }} par {{ campagne.auteur ? campagne.auteur.nomComplet : '—' }}
+        — {{ campagne.estValidee ? 'Validée le ' ~ campagne.valideeLe|date('d/m/Y') : 'En cours' }}
+        · <a href="{{ path('app_inventaire_export', {id: campagne.id}) }}">Exporter en CSV</a>
+    </p>
+
+    <div class="table-scroll">
+    <table class="table-cards">
+        <thead>
+            <tr>
+                <th>Article</th>
+                <th>Théorique</th>
+                <th>Comptée</th>
+                <th>Écart</th>
+                <th>Motif</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ligne in campagne.lignes %}
+                <tr>
+                    <td data-label="Article">{{ ligne.libelleArticle }}</td>
+                    <td data-label="Théorique">{{ ligne.quantiteTheorique }}</td>
+                    <td data-label="Comptée">
+                        {% if campagne.estValidee %}
+                            {{ ligne.quantiteComptee ?? '-' }}
+                        {% else %}
+                            <form method="post" action="{{ path('app_inventaire_ligne_saisir', {id: campagne.id, ligneId: ligne.id}) }}" style="display: flex; gap: 0.4rem; align-items: center;">
+                                <input type="number" name="quantiteComptee" min="0" value="{{ ligne.quantiteComptee }}" style="max-width: 90px;">
+                                <input type="text" name="motif" value="{{ ligne.motif }}" placeholder="Motif si écart (optionnel)" style="max-width: 180px;">
+                                <button type="submit">OK</button>
+                            </form>
+                        {% endif %}
+                    </td>
+                    <td data-label="Écart">
+                        {% if ligne.ecart is null %}
+                            —
+                        {% elseif ligne.ecart == 0 %}
+                            <span class="badge-actif">0</span>
+                        {% else %}
+                            <span class="badge-inactif">{{ ligne.ecart > 0 ? '+' : '' }}{{ ligne.ecart }}</span>
+                        {% endif %}
+                    </td>
+                    <td data-label="Motif">{{ campagne.estValidee ? (ligne.motif ?? '-') : '' }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+
+    {% if not campagne.estValidee %}
+        <form method="post" action="{{ path('app_inventaire_valider', {id: campagne.id}) }}" onsubmit="return confirm('Valider cet inventaire ? Chaque écart constaté régularisera automatiquement le stock (mouvement d\'entrée/sortie tracé). Cette action est irréversible.');">
+            <input type="hidden" name="_token" value="{{ csrf_token('valider-inventaire-' ~ campagne.id) }}">
+            <button type="submit">Valider l'inventaire et régulariser le stock ({{ campagne.nombreEcarts }} écart(s))</button>
+        </form>
+    {% endif %}
+{% endblock %}

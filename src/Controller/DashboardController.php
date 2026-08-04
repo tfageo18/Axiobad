@@ -147,7 +147,9 @@ class DashboardController extends AbstractController
             $presenceRepository,
             $creneauRepository,
             $demandeCordageRepository,
-            $creneauOuvertureRepository
+            $creneauOuvertureRepository,
+            $vetementRepository,
+            $volantRepository
         );
 
         return $this->render('dashboard/index.html.twig', [
@@ -182,6 +184,8 @@ class DashboardController extends AbstractController
         CreneauRepository $creneauRepository,
         DemandeCordageRepository $demandeCordageRepository,
         CreneauOuvertureRepository $creneauOuvertureRepository,
+        StockVetementRepository $vetementRepository,
+        StockVolantRepository $volantRepository,
     ): array {
         $alertes = [];
         $maintenant = new \DateTimeImmutable();
@@ -287,6 +291,18 @@ class DashboardController extends AbstractController
                     ];
                 }
             }
+        }
+
+        $articlesSousLeSeuil = array_merge(
+            array_values(array_filter($vetementRepository->findAll(), static fn ($v) => $v->estSousLeSeuil())),
+            array_values(array_filter($volantRepository->findAll(), static fn ($v) => $v->estSousLeSeuil()))
+        );
+        if (count($articlesSousLeSeuil) > 0) {
+            $alertes[] = [
+                'message' => sprintf('%d article(s) de stock sous le seuil d\'alerte', count($articlesSousLeSeuil)),
+                'url' => $this->generateUrl('app_stock_index'),
+                'gravite' => 'warning',
+            ];
         }
 
         return $alertes;

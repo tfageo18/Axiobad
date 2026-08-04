@@ -186,11 +186,17 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
 
 ### Stock (mini-WMS)
 
-- Réservé au bureau.
+- Réservé au rôle **Accès au stock** (ou au bureau).
 - Vêtements (type, taille, marque) et volants (type, vitesse, destination, marque, modèle),
   avec les marques/modèles courants suggérés.
 - Vrais mouvements de stock (entrées/sorties tracées avec motif et historique), pas une simple
   quantité éditable.
+- **Seuil d'alerte** optionnel par article : badge d'alerte sur la liste du stock (et alerte sur
+  le tableau de bord) quand la quantité descend à ce niveau ou en dessous.
+- **Inventaire physique** : une campagne fige la quantité théorique de chaque article ; le bureau
+  saisit la quantité comptée pour chacun, puis **valide** — ce qui **régularise automatiquement le
+  stock** (mouvement d'entrée/sortie tracé pour chaque écart) et fige la campagne. **Export CSV**
+  de chaque campagne (théorique, comptée, écart, motif).
 - Recherche instantanée sur les deux catégories.
 
 ### Progressive Web App (PWA)

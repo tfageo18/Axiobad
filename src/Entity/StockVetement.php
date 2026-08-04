@@ -54,6 +54,9 @@ class StockVetement
     #[ORM\Column(precision: 6, scale: 2, nullable: true)]
     private ?string $prixUnitaire = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $seuilAlerte = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -149,5 +152,22 @@ class StockVetement
     public function getValeurStock(): float
     {
         return $this->quantite * ($this->getPrixUnitaire() ?? 0.0);
+    }
+
+    public function getSeuilAlerte(): ?int
+    {
+        return $this->seuilAlerte;
+    }
+
+    public function setSeuilAlerte(?int $seuilAlerte): static
+    {
+        $this->seuilAlerte = $seuilAlerte;
+
+        return $this;
+    }
+
+    public function estSousLeSeuil(): bool
+    {
+        return null !== $this->seuilAlerte && $this->quantite <= $this->seuilAlerte;
     }
 }

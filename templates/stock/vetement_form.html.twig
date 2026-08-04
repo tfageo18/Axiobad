@@ -39,6 +39,11 @@
             <input type="number" step="0.01" min="0" name="prixUnitaire" id="prixUnitaire" value="{{ vetement ? vetement.prixUnitaire : '' }}">
         </div>
         <div>
+            <label for="seuilAlerte">Seuil d'alerte (optionnel)</label>
+            <input type="number" min="0" name="seuilAlerte" id="seuilAlerte" value="{{ vetement ? vetement.seuilAlerte : '' }}" placeholder="ex: 5">
+            <small style="color: var(--color-text-muted);">Une alerte s'affiche sur la liste du stock quand la quantité descend à ce niveau ou en dessous.</small>
+        </div>
+        <div>
             <label for="commentaire">Commentaire</label>
             <textarea name="commentaire" id="commentaire">{{ vetement ? vetement.commentaire : '' }}</textarea>
         </div>

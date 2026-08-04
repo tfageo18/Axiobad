@@ -177,13 +177,15 @@ class StockController extends AbstractController
     {
         if ($request->isMethod('POST')) {
             $prixUnitaire = $request->request->get('prixUnitaire');
+            $seuilAlerte = $request->request->get('seuilAlerte');
 
             $vetement
                 ->setType((string) $request->request->get('type'))
                 ->setTaille((string) $request->request->get('taille'))
                 ->setMarque((string) $request->request->get('marque') ?: null)
                 ->setCommentaire((string) $request->request->get('commentaire') ?: null)
-                ->setPrixUnitaire(null !== $prixUnitaire && '' !== $prixUnitaire ? (float) $prixUnitaire : null);
+                ->setPrixUnitaire(null !== $prixUnitaire && '' !== $prixUnitaire ? (float) $prixUnitaire : null)
+                ->setSeuilAlerte(null !== $seuilAlerte && '' !== $seuilAlerte ? (int) $seuilAlerte : null);
 
             $entityManager->persist($vetement);
             $entityManager->flush();
@@ -202,6 +204,7 @@ class StockController extends AbstractController
     {
         if ($request->isMethod('POST')) {
             $prixUnitaire = $request->request->get('prixUnitaire');
+            $seuilAlerte = $request->request->get('seuilAlerte');
 
             $volant
                 ->setType((string) $request->request->get('type'))
@@ -210,7 +213,8 @@ class StockController extends AbstractController
                 ->setMarque((string) $request->request->get('marque') ?: null)
                 ->setModele((string) $request->request->get('modele') ?: null)
                 ->setCommentaire((string) $request->request->get('commentaire') ?: null)
-                ->setPrixUnitaire(null !== $prixUnitaire && '' !== $prixUnitaire ? (float) $prixUnitaire : null);
+                ->setPrixUnitaire(null !== $prixUnitaire && '' !== $prixUnitaire ? (float) $prixUnitaire : null)
+                ->setSeuilAlerte(null !== $seuilAlerte && '' !== $seuilAlerte ? (int) $seuilAlerte : null);
 
             $entityManager->persist($volant);
             $entityManager->flush();

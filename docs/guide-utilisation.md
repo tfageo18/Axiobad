@@ -272,6 +272,23 @@ Menu **Bureau → Stock** (réservé au bureau).
   motif optionnel), pas une simple valeur modifiable — un historique de tous les mouvements est
   consultable par article. Une sortie ne peut pas faire passer le stock sous zéro.
 - Une **recherche instantanée** filtre les deux catégories à la fois.
+- **Seuil d'alerte** (optionnel, en modifiant un article) : quand la quantité descend à ce niveau
+  ou en dessous, un badge d'alerte apparaît sur la liste et une alerte est ajoutée au [centre de
+  tâches du tableau de bord](#tableau-de-bord-bureau).
+
+### Inventaire physique
+
+Menu **Stock → Inventaire du stock**.
+
+1. **Nouvelle campagne** : fige la quantité théorique de chaque article (vêtements et volants) au
+   moment de la création.
+2. Pour chaque ligne, saisir la **quantité comptée** lors de l'inventaire physique, et un motif
+   optionnel en cas d'écart (utile pour comprendre plus tard).
+3. **Valider l'inventaire** : chaque écart constaté (comptée ≠ théorique) régularise
+   automatiquement le stock — un vrai mouvement d'entrée ou de sortie est créé (motif « Régularisation
+   inventaire »), visible dans l'historique de l'article. Une fois validée, la campagne est figée
+   et ne peut plus être modifiée.
+4. **Exporter en CSV** à tout moment (théorique, comptée, écart, motif).
 
 ## Historique des présences (bureau, entraîneurs)
 

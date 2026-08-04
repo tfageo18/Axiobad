@@ -29,6 +29,16 @@
 {% block body %}
     <h1>Gestion du stock</h1>
 
+    <p><a href="{{ path('app_inventaire_index') }}">Inventaire du stock</a></p>
+
+    {% set articlesSousLeSeuil = (vetements|filter(v => v.estSousLeSeuil))|merge(volants|filter(v => v.estSousLeSeuil)) %}
+    {% if articlesSousLeSeuil|length %}
+        <p class="flash-error">
+            ⚠ {{ articlesSousLeSeuil|length }} article(s) sous le seuil d'alerte : voir le badge
+            rouge ci-dessous.
+        </p>
+    {% endif %}
+
     <div>
         <label for="recherche-stock">Rechercher (vêtements et volants)</label>
         <input type="search" id="recherche-stock" class="recherche-stock" placeholder="Type, taille, marque, modèle...">
@@ -54,7 +64,10 @@
                     <td data-label="Type">{{ vetement.typeLabel }}</td>
                     <td data-label="Taille">{{ vetement.taille }}</td>
                     <td data-label="Marque">{{ vetement.marque ?? '-' }}</td>
-                    <td data-label="En stock"><span class="quantite-badge {{ vetement.quantite == 0 ? 'zero' : '' }}">{{ vetement.quantite }}</span></td>
+                    <td data-label="En stock">
+                        <span class="quantite-badge {{ vetement.quantite == 0 or vetement.estSousLeSeuil ? 'zero' : '' }}">{{ vetement.quantite }}</span>
+                        {% if vetement.estSousLeSeuil %}<small title="Seuil d'alerte : {{ vetement.seuilAlerte }}">⚠ sous le seuil</small>{% endif %}
+                    </td>
                     <td class="td-mouvement">
                         <form method="post" action="{{ path('app_stock_vetement_mouvement', {id: vetement.id}) }}" class="mouvement-form">
                             <input type="number" name="quantite" min="1" value="1" required>
@@ -103,7 +116,10 @@
                     <td data-label="Destination">{{ volant.destinationLabel }}</td>
                     <td data-label="Marque">{{ volant.marque ?? '-' }}</td>
                     <td data-label="Modèle">{{ volant.modele ?? '-' }}</td>
-                    <td data-label="Tubes en stock"><span class="quantite-badge {{ volant.quantiteTubes == 0 ? 'zero' : '' }}">{{ volant.quantiteTubes }}</span></td>
+                    <td data-label="Tubes en stock">
+                        <span class="quantite-badge {{ volant.quantiteTubes == 0 or volant.estSousLeSeuil ? 'zero' : '' }}">{{ volant.quantiteTubes }}</span>
+                        {% if volant.estSousLeSeuil %}<small title="Seuil d'alerte : {{ volant.seuilAlerte }}">⚠ sous le seuil</small>{% endif %}
+                    </td>
                     <td class="td-mouvement">
                         <form method="post" action="{{ path('app_stock_volant_mouvement', {id: volant.id}) }}" class="mouvement-form">
                             <input type="number" name="quantite" min="1" value="1" required>

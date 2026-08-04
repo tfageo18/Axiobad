@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inventaire du stock — Axiobad{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('app_stock_index') }}">&laquo; Retour au stock</a></p>
+
+    <h1>Inventaire du stock</h1>
+    <p>
+        Une campagne d'inventaire fige la quantité théorique de chaque article. Vous saisissez
+        ensuite la quantité réellement comptée, et la validation régularise automatiquement le
+        stock (mouvements d'entrée/sortie tracés) pour chaque écart constaté.
+    </p>
+
+    <form method="post" action="{{ path('app_inventaire_new') }}" style="margin-bottom: 1.5rem;">
+        <div>
+            <label for="nom">Nom de la campagne (optionnel)</label>
+            <input type="text" name="nom" id="nom" placeholder="ex: Inventaire de rentrée 2026">
+        </div>
+        <button type="submit">+ Nouvelle campagne d'inventaire</button>
+    </form>
+
+    <div class="table-scroll">
+    <table class="table-cards">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Créée le</th>
+                <th>Statut</th>
+                <th>Écarts</th>
+                <th>Auteur</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for campagne in campagnes %}
+                <tr>
+                    <td data-label="Nom">{{ campagne.nom }}</td>
+                    <td data-label="Créée le">{{ campagne.creeLe|date('d/m/Y') }}</td>
+                    <td data-label="Statut">
+                        {{ (campagne.estValidee ? '<span class="badge-actif">Validée</span>' : '<span class="badge-inactif">En cours</span>')|raw }}
+                    </td>
+                    <td data-label="Écarts">{{ campagne.nombreEcarts }}</td>
+                    <td data-label="Auteur">{{ campagne.auteur ? campagne.auteur.nomComplet : '—' }}</td>
+                    <td class="td-actions">
+                        <a href="{{ path('app_inventaire_detail', {id: campagne.id}) }}">Voir</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="6">Aucune campagne d'inventaire pour l'instant.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+{% endblock %}

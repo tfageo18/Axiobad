@@ -52,3 +52,44 @@ self.addEventListener('fetch', (event) => {
     );
   }
 });
+
+// Notifications push (Web Push) : le payload JSON envoyé par le serveur contient
+// { title, body, url }.
+self.addEventListener('push', (event) => {
+  let donnees = { title: 'Axiobad', body: '', url: '/' };
+  if (event.data) {
+    try {
+      donnees = { ...donnees, ...event.data.json() };
+    } catch (e) {
+      donnees.body = event.data.text();
+    }
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(donnees.title, {
+      body: donnees.body,
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
+      data: { url: donnees.url || '/' },
+    })
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || '/';
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientsList) => {
+      for (const client of clientsList) {
+        const clientUrl = new URL(client.url);
+        if (clientUrl.pathname === url && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(url);
+      }
+    })
+  );
+});

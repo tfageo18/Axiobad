@@ -208,8 +208,10 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
   rapide, et affiche une page dédiée en cas de perte de connexion. Les pages dynamiques (créneaux,
   présences, adhésions...) ne sont jamais mises en cache, pour garantir des données toujours à
   jour et ne jamais servir un jeton CSRF périmé.
-- Pas encore de notifications push (prévu une fois les notifications automatiques par email en
-  place côté serveur).
+- **Notifications push navigateur** (Web Push) : chaque licencié peut activer les notifications
+  push sur un appareil depuis « Mon compte » (indépendamment de la préférence email). Repose sur
+  des clés VAPID générées côté serveur (`app:push:generer-cles-vapid`) ; sans clé configurée, la
+  fonctionnalité est simplement absente (pas d'erreur).
 
 ### Communication ciblée
 
@@ -236,8 +238,9 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
   lui-même depuis « Mon compte » (case à cocher), et le **bureau peut aussi changer ce réglage**
   pour n'importe quel licencié depuis sa fiche. N'affecte ni les emails essentiels (activation de
   compte), ni les communications ciblées envoyées manuellement par le bureau.
-- Pas encore d'historique des notifications envoyées, ni de notifications push (prévues via la
-  PWA, voir ci-dessous).
+- Chaque notification automatique (et communication ciblée) est aussi envoyée en **notification
+  push navigateur** aux appareils sur lesquels le destinataire l'a activée (voir PWA ci-dessous).
+  Pas encore d'historique des notifications envoyées.
 
 ### Journal d'audit
 
@@ -320,6 +323,10 @@ euros par mois (instance + volume EBS), contre un coût bien plus élevé avec E
    secrets aléatoires ; éditer `MAILER_DSN`/`MAILER_FROM` pour un vrai envoi d'emails — voir la
    section [Configuration email](docs/guide-utilisation.md#configuration-email-production) du
    guide).
+3. Générer une paire de clés VAPID (`php bin/console app:push:generer-cles-vapid` dans le
+   conteneur `app`) et renseigner `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY`/`VAPID_SUBJECT` dans
+   `.env.prod.local` pour activer les notifications push navigateur (sinon la fonctionnalité est
+   simplement absente, sans erreur).
 
 Le fichier `compose.prod.yaml` est un overlay du `compose.yaml` de dev : pas de bind-mount du code,
 `APP_ENV=prod`, redémarrage automatique des conteneurs, port PostgreSQL non exposé publiquement.
@@ -349,8 +356,6 @@ Tous les modules listés dans [Modules](#modules) sont en production. Ce qui n'a
   quelque chose de plus.
 - **Sauvegarde automatisée** de la base (snapshot EBS ou `pg_dump` planifié) : documentée
   ci-dessus mais pas encore mise en place concrètement.
-- **Notifications push** (via la PWA) : les notifications automatiques existent par email
-  seulement pour l'instant ; le push est prévu une fois ce backend éprouvé en production.
 - Les notifications n'ont pas encore d'historique consultable (le réglage marche/arrêt existe).
 - Pas d'**application mobile native** — le site est une PWA installable (icône, plein écran, cache
   hors-ligne des assets), pas une app iOS/Android compilée.

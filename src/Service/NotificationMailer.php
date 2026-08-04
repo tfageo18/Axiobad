@@ -26,12 +26,14 @@ class NotificationMailer
         private readonly UrlGeneratorInterface $urlGenerator,
         private readonly string $mailerFrom,
         private readonly LoggerInterface $logger,
+        private readonly PushNotifier $pushNotifier,
     ) {
     }
 
     public function cordagePret(DemandeCordage $demande): bool
     {
         $lieu = $demande->getLieuRetour() ? sprintf(' (%s)', $demande->getLieuRetour()) : '';
+        $url = $this->urlGenerator->generate('app_cordage_index', [], UrlGeneratorInterface::ABSOLUTE_URL);
 
         return $this->envoyer(
             $demande->getLicencie(),
@@ -40,13 +42,16 @@ class NotificationMailer
                 "Bonjour %s,\n\nVotre raquette est prête à être récupérée%s.\n\nRetrouvez le détail sur Axiobad : %s",
                 $demande->getLicencie()->getPrenom(),
                 $lieu,
-                $this->urlGenerator->generate('app_cordage_index', [], UrlGeneratorInterface::ABSOLUTE_URL)
-            )
+                $url
+            ),
+            url: $url
         );
     }
 
     public function promotionListeAttente(Creneau $creneau, Licencie $licencie, \DateTimeImmutable $date): bool
     {
+        $url = $this->urlGenerator->generate('app_calendrier', [], UrlGeneratorInterface::ABSOLUTE_URL);
+
         return $this->envoyer(
             $licencie,
             sprintf('Une place s\'est libérée — %s', $creneau->getNom()),
@@ -55,13 +60,16 @@ class NotificationMailer
                 $licencie->getPrenom(),
                 $creneau->getNom(),
                 $date->format('d/m/Y'),
-                $this->urlGenerator->generate('app_calendrier', [], UrlGeneratorInterface::ABSOLUTE_URL)
-            )
+                $url
+            ),
+            url: $url
         );
     }
 
     public function rappelReponseCreneau(Licencie $licencie, Creneau $creneau, \DateTimeImmutable $date): bool
     {
+        $url = $this->urlGenerator->generate('app_calendrier', [], UrlGeneratorInterface::ABSOLUTE_URL);
+
         return $this->envoyer(
             $licencie,
             sprintf('Pensez à répondre — %s le %s', $creneau->getNom(), $date->format('d/m')),
@@ -70,13 +78,16 @@ class NotificationMailer
                 $licencie->getPrenom(),
                 $creneau->getNom(),
                 $date->format('d/m/Y'),
-                $this->urlGenerator->generate('app_calendrier', [], UrlGeneratorInterface::ABSOLUTE_URL)
-            )
+                $url
+            ),
+            url: $url
         );
     }
 
     public function promotionBientotExpiree(Licencie $licencie, Creneau $creneau, \DateTimeImmutable $date): bool
     {
+        $url = $this->urlGenerator->generate('app_calendrier', [], UrlGeneratorInterface::ABSOLUTE_URL);
+
         return $this->envoyer(
             $licencie,
             sprintf('Dernier rappel — confirmez votre place pour %s', $creneau->getNom()),
@@ -85,8 +96,9 @@ class NotificationMailer
                 $licencie->getPrenom(),
                 $creneau->getNom(),
                 $date->format('d/m/Y'),
-                $this->urlGenerator->generate('app_calendrier', [], UrlGeneratorInterface::ABSOLUTE_URL)
-            )
+                $url
+            ),
+            url: $url
         );
     }
 
@@ -104,6 +116,8 @@ class NotificationMailer
 
     public function adhesionImpayee(Licencie $licencie, Adhesion $adhesion): bool
     {
+        $url = $this->urlGenerator->generate('app_mon_profil', [], UrlGeneratorInterface::ABSOLUTE_URL);
+
         return $this->envoyer(
             $licencie,
             'Rappel — adhésion en attente de paiement',
@@ -111,13 +125,16 @@ class NotificationMailer
                 "Bonjour %s,\n\nVotre adhésion pour la saison %s est encore en attente de paiement. Retrouvez le détail sur Axiobad : %s",
                 $licencie->getPrenom(),
                 $adhesion->getSaison()?->getLibelle(),
-                $this->urlGenerator->generate('app_mon_profil', [], UrlGeneratorInterface::ABSOLUTE_URL)
-            )
+                $url
+            ),
+            url: $url
         );
     }
 
     public function evenementAVenir(Licencie $licencie, Evenement $evenement): bool
     {
+        $url = $this->urlGenerator->generate('app_evenement_index', [], UrlGeneratorInterface::ABSOLUTE_URL);
+
         return $this->envoyer(
             $licencie,
             sprintf('Rappel — %s approche', $evenement->getTitre()),
@@ -126,13 +143,16 @@ class NotificationMailer
                 $licencie->getPrenom(),
                 $evenement->getTitre(),
                 $evenement->getDateDebut()?->format('d/m/Y'),
-                $this->urlGenerator->generate('app_evenement_index', [], UrlGeneratorInterface::ABSOLUTE_URL)
-            )
+                $url
+            ),
+            url: $url
         );
     }
 
     public function convocationInterclub(Licencie $licencie, RencontreInterclub $rencontre): bool
     {
+        $url = $this->urlGenerator->generate('app_calendrier', [], UrlGeneratorInterface::ABSOLUTE_URL);
+
         return $this->envoyer(
             $licencie,
             'Rappel — convocation interclubs à venir',
@@ -141,8 +161,9 @@ class NotificationMailer
                 $licencie->getPrenom(),
                 $rencontre->getAdversaire(),
                 $rencontre->getDateRencontre()?->format('d/m/Y'),
-                $this->urlGenerator->generate('app_calendrier', [], UrlGeneratorInterface::ABSOLUTE_URL)
-            )
+                $url
+            ),
+            url: $url
         );
     }
 
@@ -161,7 +182,7 @@ class NotificationMailer
      *                          destinataire — utilisé pour tous les rappels/alertes automatiques,
      *                          jamais pour les communications ciblées envoyées manuellement
      */
-    private function envoyer(?Licencie $destinataire, string $sujet, string $corps, bool $automatique = true): bool
+    private function envoyer(?Licencie $destinataire, string $sujet, string $corps, bool $automatique = true, ?string $url = null): bool
     {
         if (!$destinataire || !$destinataire->getEmail()) {
             return false;
@@ -171,6 +192,17 @@ class NotificationMailer
             return false;
         }
 
+        $envoye = $this->envoyerEmail($destinataire, $sujet, $corps);
+
+        // Best-effort, ne doit jamais faire échouer la notification email : un abonnement push
+        // absent/expiré ou une clé VAPID non configurée est silencieusement ignoré.
+        $this->pushNotifier->notifier($destinataire, $sujet, $this->resumerPourPush($corps), $url);
+
+        return $envoye;
+    }
+
+    private function envoyerEmail(Licencie $destinataire, string $sujet, string $corps): bool
+    {
         $email = (new Email())
             ->from($this->mailerFrom)
             ->to($destinataire->getEmail())
@@ -189,5 +221,12 @@ class NotificationMailer
 
             return false;
         }
+    }
+
+    private function resumerPourPush(string $corps): string
+    {
+        $premiereLigne = trim(explode("\n", trim($corps))[2] ?? $corps);
+
+        return mb_strlen($premiereLigne) > 150 ? mb_substr($premiereLigne, 0, 147).'...' : $premiereLigne;
     }
 }

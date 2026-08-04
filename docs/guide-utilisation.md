@@ -506,6 +506,23 @@ rappels automatiques.
 Il n'y a pas encore d'historique des notifications reçues, ni de réglage plus fin (choisir quels
 types de rappels recevoir).
 
+### Notifications push sur un appareil
+
+En complément de l'email, chaque licencié peut activer les **notifications push navigateur** sur
+un ou plusieurs de ses appareils (téléphone, ordinateur), depuis la page **Mon compte** → section
+« Notifications push sur cet appareil » → bouton **« Activer les notifications push sur cet
+appareil »**. Le navigateur demande alors l'autorisation d'afficher des notifications ; une fois
+accordée, cet appareil reçoit désormais les mêmes évènements que ceux envoyés par email (raquette
+prête, rappels quotidiens...), même quand Axiobad n'est pas ouvert. Le bouton se transforme en
+**« Désactiver »** pour couper les notifications sur cet appareil précis — les autres appareils
+éventuellement abonnés ne sont pas affectés.
+
+Cette activation est **par appareil et par navigateur**, indépendante de la préférence email
+ci-dessus : un licencié peut par exemple ne recevoir que du push sur son téléphone et couper les
+emails, ou l'inverse. Si le serveur n'a pas de clé VAPID configurée, la section l'indique et le
+push reste simplement indisponible (voir la section [Mise en place](README.md#mise-en-place) du
+README pour l'activer en production).
+
 ## Configuration email (production)
 
 Pour que les emails d'invitation partent réellement en production, la variable d'environnement

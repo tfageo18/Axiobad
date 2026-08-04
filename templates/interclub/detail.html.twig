@@ -16,12 +16,31 @@
 
     <h1>Journée {{ rencontre.journee }} — {{ rencontre.equipe.nom }} vs {{ rencontre.adversaire }}</h1>
     <p style="color: var(--color-text-muted);">
-        {{ rencontre.dateRencontre|date('d/m/Y H:i') }} — {{ rencontre.lieu }}
+        {{ rencontre.dateRencontre|date('d/m/Y H:i') }}{{ rencontre.heureRdv ? ' (RDV ' ~ rencontre.heureRdv|date('H:i') ~ ')' : '' }}
+        — {{ rencontre.lieu }} — {{ rencontre.domicile ? 'Domicile' : 'Extérieur' }}
+        {% if rencontre.equipe.championnat or rencontre.equipe.division %}
+            — {{ [rencontre.equipe.championnat, rencontre.equipe.division]|filter(v => v)|join(' — ') }}
+        {% endif %}
         {% if rencontre.aUnScore %} — Score : <strong>{{ rencontre.scoreEquipe }} - {{ rencontre.scoreAdversaire }}</strong>{% endif %}
     </p>
+    <p>
+        <strong>Capitaine de la rencontre</strong> :
+        {{ rencontre.capitaineRencontre ? rencontre.capitaineRencontre.nomComplet : (rencontre.equipe.capitaine ? rencontre.equipe.capitaine.nomComplet ~ ' (capitaine d\'équipe)' : 'Non désigné') }}
+    </p>
+    {% if rencontre.covoiturage %}
+        <p><strong>Covoiturage</strong> : {{ rencontre.covoiturage }}</p>
+    {% endif %}
 
     {% if is_granted('ROLE_BUREAU') %}
         <p><a href="{{ path('app_interclub_edit', {id: rencontre.id}) }}">Modifier la rencontre</a></p>
+    {% endif %}
+
+    <h2>Composition (joueurs présents)</h2>
+    {% set presents = rencontre.convocations|filter(c => c.present) %}
+    {% if presents|length %}
+        <p>{{ presents|map(c => c.licencie.nomComplet)|join(', ') }}</p>
+    {% else %}
+        <p>Aucun joueur confirmé présent pour l'instant.</p>
     {% endif %}
 
     {% if maConvocation %}
@@ -95,6 +114,102 @@
                 </select>
             </div>
             <button type="submit">+ Convoquer</button>
+        </form>
+    {% endif %}
+
+    <h2>Feuille de rencontre ({{ rencontre.matchs|length }} match(s))</h2>
+    {% if rencontre.matchs|length %}
+        <div class="table-scroll">
+        <table class="table-cards">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Nos joueurs</th>
+                    <th>Adversaires</th>
+                    <th>Score</th>
+                    <th>Résultat</th>
+                    {% if is_granted('ROLE_BUREAU') %}<th></th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for match in rencontre.matchs %}
+                    <tr>
+                        <td data-label="Type">{{ match.typeLabel }}</td>
+                        <td data-label="Nos joueurs">{{ match.joueurs|map(j => j.nomComplet)|join(' / ') ?: '-' }}</td>
+                        <td data-label="Adversaires">{{ match.adversaires ?? '-' }}</td>
+                        <td data-label="Score">{{ match.score ?? '-' }}</td>
+                        <td data-label="Résultat">
+                            {% if match.gagne is null %}
+                                <span class="badge-attente">-</span>
+                            {% elseif match.gagne %}
+                                <span class="badge-present">Gagné</span>
+                            {% else %}
+                                <span class="badge-absent">Perdu</span>
+                            {% endif %}
+                        </td>
+                        {% if is_granted('ROLE_BUREAU') %}
+                            <td class="td-actions">
+                                <form method="post" action="{{ path('app_interclub_match_delete', {id: rencontre.id, matchId: match.id}) }}" onsubmit="return confirm('Supprimer ce match ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete-match-' ~ match.id) }}">
+                                    <button type="submit">Supprimer</button>
+                                </form>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    {% else %}
+        <p>Aucun match enregistré pour l'instant.</p>
+    {% endif %}
+
+    {% if is_granted('ROLE_BUREAU') %}
+        <h3>Ajouter un match</h3>
+        <form method="post" action="{{ path('app_interclub_match_new', {id: rencontre.id}) }}">
+            <div>
+                <label for="type">Type de match</label>
+                <select name="type" id="type" required>
+                    {% for code, libelle in constant('App\\Entity\\MatchInterclub::TYPES_LABELS') %}
+                        <option value="{{ code }}">{{ libelle }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="joueur1">Notre joueur 1</label>
+                <select name="joueur1" id="joueur1">
+                    <option value="">-</option>
+                    {% for licencie in membresEquipe %}
+                        <option value="{{ licencie.id }}">{{ licencie.nomComplet }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="joueur2">Notre joueur 2 (double uniquement)</label>
+                <select name="joueur2" id="joueur2">
+                    <option value="">-</option>
+                    {% for licencie in membresEquipe %}
+                        <option value="{{ licencie.id }}">{{ licencie.nomComplet }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="adversaires">Adversaire(s) (optionnel, texte libre)</label>
+                <input type="text" name="adversaires" id="adversaires" placeholder="ex: Dupont / Martin">
+            </div>
+            <div>
+                <label for="score">Score (optionnel)</label>
+                <input type="text" name="score" id="score" placeholder="ex: 21-15, 18-21, 21-19">
+            </div>
+            <div>
+                <label for="gagne">Résultat</label>
+                <select name="gagne" id="gagne">
+                    <option value="">Pas encore joué</option>
+                    <option value="1">Gagné</option>
+                    <option value="0">Perdu</option>
+                </select>
+            </div>
+            <button type="submit">+ Ajouter le match</button>
         </form>
     {% endif %}
 {% endblock %}

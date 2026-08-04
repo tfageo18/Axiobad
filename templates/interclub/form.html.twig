@@ -34,6 +34,29 @@
             <input type="text" name="lieu" id="lieu" value="{{ rencontre ? rencontre.lieu : '' }}" placeholder="ex: Domicile - gymnase Moulin" required>
         </div>
         <div>
+            <label>
+                <input type="checkbox" name="domicile" value="1" {{ not rencontre or rencontre.domicile ? 'checked' : '' }}>
+                À domicile (décocher si à l'extérieur)
+            </label>
+        </div>
+        <div>
+            <label for="heureRdv">Heure de rendez-vous (optionnel)</label>
+            <input type="time" name="heureRdv" id="heureRdv" value="{{ rencontre and rencontre.heureRdv ? rencontre.heureRdv|date('H:i') : '' }}">
+        </div>
+        <div>
+            <label for="capitaineRencontre">Capitaine de la rencontre (optionnel — sinon celui de l'équipe)</label>
+            <select name="capitaineRencontre" id="capitaineRencontre">
+                <option value="">-</option>
+                {% for licencie in licencies %}
+                    <option value="{{ licencie.id }}" {{ rencontre and rencontre.capitaineRencontre and rencontre.capitaineRencontre.id == licencie.id ? 'selected' : '' }}>{{ licencie.nomComplet }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="covoiturage">Covoiturage (optionnel)</label>
+            <textarea name="covoiturage" id="covoiturage" rows="3" placeholder="ex: Départ 13h30 parking du club, 2 places dispo chez Marc...">{{ rencontre ? rencontre.covoiturage : '' }}</textarea>
+        </div>
+        <div>
             <label for="scoreEquipe">Score de l'équipe (optionnel)</label>
             <input type="number" name="scoreEquipe" id="scoreEquipe" min="0" value="{{ rencontre ? rencontre.scoreEquipe : '' }}">
         </div>

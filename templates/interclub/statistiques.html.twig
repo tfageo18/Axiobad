@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Statistiques interclubs — Axiobad{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('app_interclub_index') }}">&laquo; Retour aux interclubs</a></p>
+
+    <h1>Statistiques interclubs</h1>
+
+    <h2>Par équipe</h2>
+    {% if statsEquipes|length %}
+        <div class="table-scroll">
+        <table class="table-cards">
+            <thead>
+                <tr>
+                    <th>Équipe</th>
+                    <th>Rencontres jouées</th>
+                    <th>Gagnées</th>
+                    <th>Perdues</th>
+                    <th>Nulles</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in statsEquipes %}
+                    <tr>
+                        <td data-label="Équipe">{{ stat.equipe.nom }}</td>
+                        <td data-label="Rencontres jouées">{{ stat.jouees }}</td>
+                        <td data-label="Gagnées">{{ stat.gagnees }}</td>
+                        <td data-label="Perdues">{{ stat.perdues }}</td>
+                        <td data-label="Nulles">{{ stat.nulles }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    {% else %}
+        <p>Aucune rencontre avec un score enregistré pour l'instant.</p>
+    {% endif %}
+
+    <h2>Par joueur</h2>
+    {% if statsJoueurs|length %}
+        <div class="table-scroll">
+        <table class="table-cards">
+            <thead>
+                <tr>
+                    <th>Joueur</th>
+                    <th>Matchs joués</th>
+                    <th>Gagnés</th>
+                    <th>Perdus</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in statsJoueurs %}
+                    <tr>
+                        <td data-label="Joueur">{{ stat.joueur.nomComplet }}</td>
+                        <td data-label="Matchs joués">{{ stat.joues }}</td>
+                        <td data-label="Gagnés">{{ stat.gagnes }}</td>
+                        <td data-label="Perdus">{{ stat.perdus }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    {% else %}
+        <p>Aucun match enregistré pour l'instant.</p>
+    {% endif %}
+{% endblock %}

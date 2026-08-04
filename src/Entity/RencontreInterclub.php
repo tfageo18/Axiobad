@@ -37,15 +37,35 @@ class RencontreInterclub
     #[ORM\Column(nullable: true)]
     private ?int $scoreAdversaire = null;
 
+    #[ORM\Column]
+    private bool $domicile = true;
+
+    #[ORM\Column(type: 'time_immutable', nullable: true)]
+    private ?\DateTimeImmutable $heureRdv = null;
+
+    #[ORM\ManyToOne(targetEntity: Licencie::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Licencie $capitaineRencontre = null;
+
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $covoiturage = null;
+
     /**
      * @var Collection<int, Convocation>
      */
     #[ORM\OneToMany(targetEntity: Convocation::class, mappedBy: 'rencontre', orphanRemoval: true)]
     private Collection $convocations;
 
+    /**
+     * @var Collection<int, MatchInterclub>
+     */
+    #[ORM\OneToMany(targetEntity: MatchInterclub::class, mappedBy: 'rencontre', orphanRemoval: true)]
+    private Collection $matchs;
+
     public function __construct()
     {
         $this->convocations = new ArrayCollection();
+        $this->matchs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -142,12 +162,68 @@ class RencontreInterclub
         return null !== $this->scoreEquipe && null !== $this->scoreAdversaire;
     }
 
+    public function isDomicile(): bool
+    {
+        return $this->domicile;
+    }
+
+    public function setDomicile(bool $domicile): static
+    {
+        $this->domicile = $domicile;
+
+        return $this;
+    }
+
+    public function getHeureRdv(): ?\DateTimeImmutable
+    {
+        return $this->heureRdv;
+    }
+
+    public function setHeureRdv(?\DateTimeImmutable $heureRdv): static
+    {
+        $this->heureRdv = $heureRdv;
+
+        return $this;
+    }
+
+    public function getCapitaineRencontre(): ?Licencie
+    {
+        return $this->capitaineRencontre;
+    }
+
+    public function setCapitaineRencontre(?Licencie $capitaineRencontre): static
+    {
+        $this->capitaineRencontre = $capitaineRencontre;
+
+        return $this;
+    }
+
+    public function getCovoiturage(): ?string
+    {
+        return $this->covoiturage;
+    }
+
+    public function setCovoiturage(?string $covoiturage): static
+    {
+        $this->covoiturage = $covoiturage;
+
+        return $this;
+    }
+
     /**
      * @return Collection<int, Convocation>
      */
     public function getConvocations(): Collection
     {
         return $this->convocations;
+    }
+
+    /**
+     * @return Collection<int, MatchInterclub>
+     */
+    public function getMatchs(): Collection
+    {
+        return $this->matchs;
     }
 
     public function getConvocationDe(?Licencie $licencie): ?Convocation

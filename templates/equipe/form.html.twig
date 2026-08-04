@@ -16,6 +16,14 @@
             <label for="categorie">Catégorie (optionnel)</label>
             <input type="text" name="categorie" id="categorie" value="{{ equipe ? equipe.categorie : '' }}" placeholder="ex: R1, PR, Vétérans">
         </div>
+        <div>
+            <label for="championnat">Championnat (optionnel)</label>
+            <input type="text" name="championnat" id="championnat" value="{{ equipe ? equipe.championnat : '' }}" placeholder="ex: Championnat départemental">
+        </div>
+        <div>
+            <label for="division">Division (optionnel)</label>
+            <input type="text" name="division" id="division" value="{{ equipe ? equipe.division : '' }}" placeholder="ex: D1, Poule A">
+        </div>
         {% if not equipe or estBureau %}
             <div>
                 <label for="capitaine">Capitaine (optionnel)</label>

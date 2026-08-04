@@ -329,10 +329,19 @@ Menu **Club → Interclubs**.
 
 - Le **bureau** crée une **rencontre** pour une équipe existante (voir [Gérer les
   équipes](#gérer-les-équipes-bureau-capitaines)) : numéro de **journée**, date/heure, adversaire,
-  lieu, et peut renseigner le **score** une fois le match joué.
+  lieu, **domicile ou extérieur**, **heure de rendez-vous**, **capitaine de la rencontre**
+  (optionnel, sinon celui de l'équipe est affiché), **covoiturage** (texte libre), et peut
+  renseigner le **score global** une fois le match joué.
 - Sur la page d'une rencontre, le bureau **convoque** les joueurs parmi les membres de l'équipe.
 - Chaque joueur convoqué peut indiquer s'il est **présent ou non** à la rencontre, comme pour un
-  créneau ; le bureau voit l'état des réponses de toute l'équipe convoquée.
+  créneau ; le bureau voit l'état des réponses de toute l'équipe convoquée, et la **composition**
+  (joueurs confirmés présents) s'affiche automatiquement.
+- **Feuille de rencontre** : le bureau ajoute chaque match individuel — type (**SH, SD, DH, DD,
+  MX**), un ou deux joueurs de l'équipe (double), les adversaires (texte libre, pas besoin d'un
+  compte), le score détaillé et le résultat (gagné/perdu). Un match peut être supprimé si besoin.
+- Menu **Interclubs → Statistiques** : par équipe (rencontres jouées/gagnées/perdues/nulles, basé
+  sur le score global des rencontres) et par joueur (matchs joués/gagnés/perdus, basé sur les
+  matchs individuels de la feuille de rencontre).
 - Chaque rencontre (journée) apparaît aussi dans le [calendrier](#le-calendrier), visible par le
   bureau et par les membres de l'équipe concernée.
 

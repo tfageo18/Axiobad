@@ -6,7 +6,10 @@
     <h1>Championnats / Interclubs</h1>
 
     {% if is_granted('ROLE_BUREAU') %}
-        <p><a class="btn-cta" href="{{ path('app_interclub_new') }}">+ Nouvelle rencontre</a></p>
+        <p>
+            <a class="btn-cta" href="{{ path('app_interclub_new') }}">+ Nouvelle rencontre</a>
+            <a href="{{ path('app_interclub_statistiques') }}">Statistiques</a>
+        </p>
     {% endif %}
 
     <div class="table-scroll">

@@ -75,8 +75,9 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
 
 ### Équipes
 
-- Le bureau crée des équipes (nom libre, ex. « Equipe 1 R1 », « Equipe vétérans ») et désigne un
-  **capitaine** parmi les licenciés. Un licencié peut appartenir à plusieurs équipes.
+- Le bureau crée des équipes (nom libre, ex. « Equipe 1 R1 », « Equipe vétérans »), avec
+  **championnat** et **division** optionnels, et désigne un **capitaine** parmi les licenciés. Un
+  licencié peut appartenir à plusieurs équipes.
 - Le capitaine (même sans être du bureau) peut gérer le nom/la catégorie de son équipe et ses
   membres, mais pas supprimer l'équipe ni changer le capitaine.
 - Le bureau peut **désactiver/réactiver** ou **supprimer** une équipe.
@@ -84,9 +85,15 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
 ### Championnats / Interclubs
 
 - Le bureau crée des rencontres pour une équipe : numéro de **journée**, date, adversaire, lieu,
-  et le score une fois jouée.
+  **domicile ou extérieur**, **heure de rendez-vous**, **capitaine de la rencontre** (par défaut
+  celui de l'équipe), **covoiturage** (texte libre), et le score global une fois jouée.
 - Les joueurs de l'équipe sont **convoqués** et peuvent indiquer s'ils sont présents ou non à la
-  rencontre, comme pour un créneau.
+  rencontre, comme pour un créneau. La **composition** (joueurs confirmés présents) est affichée
+  sur la page de la rencontre.
+- **Feuille de rencontre** : le bureau ajoute chaque match individuel (SH, SD, DH, DD, MX) avec
+  les joueurs de l'équipe engagés, les adversaires (texte libre), le score détaillé et le résultat.
+- **Statistiques** (menu dédié) : par équipe (rencontres jouées/gagnées/perdues/nulles à partir du
+  score global) et par joueur (matchs joués/gagnés/perdus à partir des matchs individuels).
 - Chaque rencontre apparaît aussi dans le calendrier, visible par le bureau et les membres de
   l'équipe concernée.
 

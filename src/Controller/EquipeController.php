@@ -31,7 +31,9 @@ class EquipeController extends AbstractController
         if ($request->isMethod('POST')) {
             $equipe = (new Equipe())
                 ->setNom((string) $request->request->get('nom'))
-                ->setCategorie((string) $request->request->get('categorie') ?: null);
+                ->setCategorie((string) $request->request->get('categorie') ?: null)
+                ->setChampionnat((string) $request->request->get('championnat') ?: null)
+                ->setDivision((string) $request->request->get('division') ?: null);
 
             $capitaine = $request->request->get('capitaine');
             if ($capitaine) {
@@ -61,7 +63,9 @@ class EquipeController extends AbstractController
         if ($request->isMethod('POST')) {
             $equipe
                 ->setNom((string) $request->request->get('nom'))
-                ->setCategorie((string) $request->request->get('categorie') ?: null);
+                ->setCategorie((string) $request->request->get('categorie') ?: null)
+                ->setChampionnat((string) $request->request->get('championnat') ?: null)
+                ->setDivision((string) $request->request->get('division') ?: null);
 
             if ($estBureau) {
                 $capitaine = $request->request->get('capitaine');

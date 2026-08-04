@@ -15,6 +15,7 @@
             <tr>
                 <th>Nom</th>
                 <th>Catégorie</th>
+                <th>Championnat / Division</th>
                 <th>Capitaine</th>
                 <th>Membres</th>
                 <th>Statut</th>
@@ -26,6 +27,7 @@
                 <tr class="{{ equipe.actif ? '' : 'ligne-inactive' }}">
                     <td data-label="Nom">{{ equipe.nom }}</td>
                     <td data-label="Catégorie">{{ equipe.categorie ?? '-' }}</td>
+                    <td data-label="Championnat / Division">{{ [equipe.championnat, equipe.division]|filter(v => v)|join(' — ') ?: '-' }}</td>
                     <td data-label="Capitaine">{{ equipe.capitaine ? equipe.capitaine.nomComplet : '-' }}</td>
                     <td data-label="Membres">{{ equipe.membres|length }}</td>
                     <td data-label="Statut">{{ (equipe.actif ? '<span class="badge-actif">Active</span>' : '<span class="badge-inactif">Inactive</span>')|raw }}</td>
@@ -45,7 +47,7 @@
                     </td>
                 </tr>
             {% else %}
-                <tr><td colspan="6">Aucune équipe.</td></tr>
+                <tr><td colspan="7">Aucune équipe.</td></tr>
             {% endfor %}
         </tbody>
     </table>

@@ -21,6 +21,12 @@ class Equipe
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $categorie = null;
 
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $championnat = null;
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $division = null;
+
     #[ORM\Column]
     private bool $actif = true;
 
@@ -65,6 +71,30 @@ class Equipe
     public function setCategorie(?string $categorie): static
     {
         $this->categorie = $categorie;
+
+        return $this;
+    }
+
+    public function getChampionnat(): ?string
+    {
+        return $this->championnat;
+    }
+
+    public function setChampionnat(?string $championnat): static
+    {
+        $this->championnat = $championnat;
+
+        return $this;
+    }
+
+    public function getDivision(): ?string
+    {
+        return $this->division;
+    }
+
+    public function setDivision(?string $division): static
+    {
+        $this->division = $division;
 
         return $this;
     }

@@ -152,6 +152,14 @@
                 légaux. À ne renseigner que si c'est utile pour la sécurité de l'enfant.
             </small>
         </div>
+        <div>
+            <label>
+                <input type="checkbox" name="consentementDonneesSante" value="1" {{ licencie and licencie.consentementDonneesSante ? 'checked' : '' }}>
+                Le licencié (ou son responsable légal) consent explicitement au traitement de cette
+                donnée de santé, conformément à l'article 9 du RGPD — obligatoire si le champ
+                ci-dessus est rempli.
+            </label>
+        </div>
 
         <button type="submit">{{ licencie ? 'Enregistrer' : "Créer" }}</button>
     </form>

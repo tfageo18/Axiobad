@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Documentation — Axiobad{% endblock %}
+{% block title %}{{ titre|default('Documentation') }} — Axiobad{% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
@@ -40,7 +40,7 @@
 {% endblock %}
 
 {% block body %}
-    <h1>Documentation</h1>
+    <h1>{{ titre|default('Documentation') }}</h1>
     <div class="doc-contenu">
         {{ contenu|raw }}
     </div>

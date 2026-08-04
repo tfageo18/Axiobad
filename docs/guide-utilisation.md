@@ -24,6 +24,7 @@ en ligne, une fois connecté, via le menu du compte (en haut à droite) → **Do
 - [Tableau de bord (bureau)](#tableau-de-bord-bureau)
 - [Mon espace (tous les licenciés)](#mon-espace-tous-les-licenciés)
 - [Mon profil](#mon-profil)
+- [Mes données personnelles (RGPD)](#mes-données-personnelles-rgpd)
 - [Configuration email (production)](#configuration-email-production)
 
 ## Se connecter
@@ -356,6 +357,23 @@ droite → **Modifier mon profil** :
   licencié](#modifier-le-classement-dun-licencié)).
 
 Le menu du compte propose aussi un accès direct à la **documentation** et à la **déconnexion**.
+
+## Mes données personnelles (RGPD)
+
+Depuis **Mon compte** :
+
+- **Télécharger mes données** : génère un export au format JSON de toutes les données vous
+  concernant (profil, présences, convocations interclubs, inscriptions aux évènements, raquettes,
+  demandes de cordage, adhésions et paiements) — droit à la portabilité.
+- **Demander la suppression de mon compte** : transmet une demande de suppression au bureau, qui
+  la traite (badge visible sur votre fiche dans la liste des licenciés) via le bouton **« Forcer
+  la suppression »**, qui efface le compte et toutes les données qui lui sont liées.
+
+La saisie d'une information de santé (allergies) sur la fiche d'un licencié ou d'un mineur exige
+de cocher la case de **consentement explicite** — sans cette case, l'enregistrement est refusé.
+
+Les liens **Politique de confidentialité** et **Mentions légales**, en pied de page de chaque
+écran, détaillent les données collectées et vos droits.
 
 ## Configuration email (production)
 

@@ -84,7 +84,12 @@
             {% for licencie in licencies %}
                 {% set adhesion = saison and adhesions[licencie.id] is defined ? adhesions[licencie.id] : null %}
                 <tr class="{{ licencie.actif ? '' : 'ligne-inactive' }}" data-payee="{{ (licencie.email == constant('App\\Entity\\Licencie::EMAIL_ADMIN_DEFAUT') or (adhesion and adhesion.statut in ['PAYEE', 'EXONEREE'])) ? '1' : '0' }}">
-                    <td data-label="Nom">{{ licencie.nomComplet }}</td>
+                    <td data-label="Nom">
+                        {{ licencie.nomComplet }}
+                        {% if licencie.suppressionDemandeeLe %}
+                            <br><span style="font-size: 0.78rem; color: var(--color-error); font-weight: 700;">Demande de suppression ({{ licencie.suppressionDemandeeLe|date('d/m/Y') }})</span>
+                        {% endif %}
+                    </td>
                     <td data-label="Email">
                         {% if licencie.email %}
                             {{ licencie.email }}

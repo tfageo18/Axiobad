@@ -176,6 +176,19 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
   quantité éditable.
 - Recherche instantanée sur les deux catégories.
 
+### RGPD
+
+- Pages publiques **Politique de confidentialité** et **Mentions légales** (liens en pied de
+  page), décrivant les données collectées, les finalités et les droits des utilisateurs.
+- La saisie d'une **information de santé** (allergies) exige de cocher un **consentement
+  explicite** (RGPD art. 9) ; sans consentement, l'enregistrement est refusé.
+- Chaque licencié peut, depuis **« Mon compte »** :
+  - **télécharger l'ensemble de ses données** (droit à la portabilité, export JSON : profil,
+    présences, convocations, inscriptions, raquettes, demandes de cordage, adhésions et
+    paiements) ;
+  - **demander la suppression de son compte** (droit à l'effacement). La demande est signalée au
+    bureau (badge dans la liste des licenciés), qui la traite via **« Forcer la suppression »**.
+
 ## Stack technique
 
 - [Symfony](https://symfony.com/) 8.1 (PHP 8.4)

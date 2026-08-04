@@ -83,4 +83,23 @@
     </div>
 
     <p><a href="{{ path('app_change_password') }}">Changer mon mot de passe</a></p>
+
+    <h2>Mes données personnelles (RGPD)</h2>
+    <p>
+        <a href="{{ path('app_mon_profil_export') }}">Télécharger mes données</a> (droit à la
+        portabilité) — export au format JSON de toutes les données vous concernant.
+    </p>
+    {% if licencie.suppressionDemandeeLe %}
+        <p style="color: var(--color-text-muted);">
+            Vous avez demandé la suppression de votre compte le
+            {{ licencie.suppressionDemandeeLe|date('d/m/Y') }}. Le bureau traitera votre demande
+            prochainement.
+        </p>
+    {% else %}
+        <form method="post" action="{{ path('app_mon_profil_demander_suppression') }}" onsubmit="return confirm('Demander la suppression définitive de votre compte et de toutes vos données ? Le bureau devra valider cette demande.');">
+            <input type="hidden" name="_token" value="{{ csrf_token('demander-suppression') }}">
+            <button type="submit">Demander la suppression de mon compte</button>
+        </form>
+    {% endif %}
+    <p><a href="{{ path('app_confidentialite') }}">Politique de confidentialité</a></p>
 {% endblock %}

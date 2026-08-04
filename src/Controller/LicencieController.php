@@ -334,7 +334,12 @@ class LicencieController extends AbstractController
                 ->setDateNaissance($dateNaissance ? new \DateTimeImmutable($dateNaissance) : null)
                 ->setMustChangePassword(true);
 
-            $this->appliquerChampsMineur($licencie, $request, $entityManager);
+            $erreurMineur = $this->appliquerChampsMineur($licencie, $request, $entityManager);
+            if (null !== $erreurMineur) {
+                $this->addFlash('error', $erreurMineur);
+
+                return $this->redirectToRoute('app_licencie_new');
+            }
 
             // Mot de passe temporaire inutilisable : le licencié le définit lui-même via le lien d'activation
             // (ou, pour un mineur sans compte propre, n'est jamais utilisé).
@@ -400,7 +405,12 @@ class LicencieController extends AbstractController
                 ->setClassementDouble($classementDouble)
                 ->setClassementMixte($classementMixte);
 
-            $this->appliquerChampsMineur($licencie, $request, $entityManager);
+            $erreurMineur = $this->appliquerChampsMineur($licencie, $request, $entityManager);
+            if (null !== $erreurMineur) {
+                $this->addFlash('error', $erreurMineur);
+
+                return $this->redirectToRoute('app_licencie_edit', ['id' => $licencie->getId()]);
+            }
 
             $nouveauxClassements = [$licencie->getClassementSimple(), $licencie->getClassementDouble(), $licencie->getClassementMixte()];
             if ($anciensClassements !== $nouveauxClassements) {
@@ -420,7 +430,11 @@ class LicencieController extends AbstractController
         ]);
     }
 
-    private function appliquerChampsMineur(Licencie $licencie, Request $request, EntityManagerInterface $entityManager): void
+    /**
+     * @return string|null message d'erreur si la sauvegarde doit être bloquée (ex : donnée de santé
+     *                      sans consentement), null si tout est valide et a été appliqué
+     */
+    private function appliquerChampsMineur(Licencie $licencie, Request $request, EntityManagerInterface $entityManager): ?string
     {
         $responsable1Id = $request->request->get('responsableLegal1');
         $responsable2Id = $request->request->get('responsableLegal2');
@@ -428,6 +442,18 @@ class LicencieController extends AbstractController
 
         $responsable1 = $responsable1Id ? $repository->find($responsable1Id) : null;
         $responsable2 = $responsable2Id ? $repository->find($responsable2Id) : null;
+
+        $informationsSante = (string) $request->request->get('informationsSante') ?: null;
+        $consentementSante = (bool) $request->request->get('consentementDonneesSante');
+
+        if (null !== $informationsSante && !$consentementSante) {
+            return "Le consentement explicite est obligatoire pour enregistrer une information de santé (donnée sensible, RGPD art. 9).";
+        }
+
+        if (null === $informationsSante) {
+            // Pas de donnée de santé : pas de consentement à conserver.
+            $consentementSante = false;
+        }
 
         $licencie
             ->setResponsableLegal1($responsable1 !== $licencie ? $responsable1 : null)
@@ -437,7 +463,10 @@ class LicencieController extends AbstractController
             ->setContactUrgenceTelephone((string) $request->request->get('contactUrgenceTelephone') ?: null)
             ->setAutorisationSortieSeul((bool) $request->request->get('autorisationSortieSeul'))
             ->setDroitImage((bool) $request->request->get('droitImage'))
-            ->setInformationsSante((string) $request->request->get('informationsSante') ?: null);
+            ->setInformationsSante($informationsSante)
+            ->setConsentementDonneesSante($consentementSante);
+
+        return null;
     }
 
     #[Route('/{id}/renvoyer-invitation', name: 'app_licencie_renvoyer_invitation', methods: ['POST'])]

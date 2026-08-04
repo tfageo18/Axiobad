@@ -120,6 +120,20 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $informationsSante = null;
 
+    /**
+     * Consentement explicite (RGPD, art. 9) au traitement des informations de santé, donné par le
+     * licencié lui-même ou son responsable légal. Requis pour renseigner informationsSante.
+     */
+    #[ORM\Column]
+    private bool $consentementDonneesSante = false;
+
+    /**
+     * Date à laquelle le licencié (ou son responsable légal) a demandé la suppression de son
+     * compte (droit à l'effacement, RGPD art. 17). Null tant qu'aucune demande n'est en cours.
+     */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $suppressionDemandeeLe = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -572,6 +586,30 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     public function setInformationsSante(?string $informationsSante): static
     {
         $this->informationsSante = $informationsSante;
+
+        return $this;
+    }
+
+    public function isConsentementDonneesSante(): bool
+    {
+        return $this->consentementDonneesSante;
+    }
+
+    public function setConsentementDonneesSante(bool $consentementDonneesSante): static
+    {
+        $this->consentementDonneesSante = $consentementDonneesSante;
+
+        return $this;
+    }
+
+    public function getSuppressionDemandeeLe(): ?\DateTimeImmutable
+    {
+        return $this->suppressionDemandeeLe;
+    }
+
+    public function setSuppressionDemandeeLe(?\DateTimeImmutable $suppressionDemandeeLe): static
+    {
+        $this->suppressionDemandeeLe = $suppressionDemandeeLe;
 
         return $this;
     }

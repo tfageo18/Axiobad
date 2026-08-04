@@ -185,7 +185,8 @@ class StockController extends AbstractController
                 ->setMarque((string) $request->request->get('marque') ?: null)
                 ->setCommentaire((string) $request->request->get('commentaire') ?: null)
                 ->setPrixUnitaire(null !== $prixUnitaire && '' !== $prixUnitaire ? (float) $prixUnitaire : null)
-                ->setSeuilAlerte(null !== $seuilAlerte && '' !== $seuilAlerte ? (int) $seuilAlerte : null);
+                ->setSeuilAlerte(null !== $seuilAlerte && '' !== $seuilAlerte ? (int) $seuilAlerte : null)
+                ->setLieuStockage((string) $request->request->get('lieuStockage') ?: null);
 
             $entityManager->persist($vetement);
             $entityManager->flush();
@@ -214,7 +215,8 @@ class StockController extends AbstractController
                 ->setModele((string) $request->request->get('modele') ?: null)
                 ->setCommentaire((string) $request->request->get('commentaire') ?: null)
                 ->setPrixUnitaire(null !== $prixUnitaire && '' !== $prixUnitaire ? (float) $prixUnitaire : null)
-                ->setSeuilAlerte(null !== $seuilAlerte && '' !== $seuilAlerte ? (int) $seuilAlerte : null);
+                ->setSeuilAlerte(null !== $seuilAlerte && '' !== $seuilAlerte ? (int) $seuilAlerte : null)
+                ->setLieuStockage((string) $request->request->get('lieuStockage') ?: null);
 
             $entityManager->persist($volant);
             $entityManager->flush();

@@ -133,7 +133,7 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
      * compte, ni les communications ciblées envoyées manuellement par le bureau.
      */
     #[ORM\Column]
-    private bool $notificationsActivees = true;
+    private bool $notificationsActivees = false;
 
     /**
      * Date à laquelle le licencié (ou son responsable légal) a demandé la suppression de son

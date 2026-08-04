@@ -71,6 +71,9 @@ class StockVolant
     #[ORM\Column(nullable: true)]
     private ?int $seuilAlerte = null;
 
+    #[ORM\Column(length: 150, nullable: true)]
+    private ?string $lieuStockage = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -212,5 +215,17 @@ class StockVolant
     public function estSousLeSeuil(): bool
     {
         return null !== $this->seuilAlerte && $this->quantiteTubes <= $this->seuilAlerte;
+    }
+
+    public function getLieuStockage(): ?string
+    {
+        return $this->lieuStockage;
+    }
+
+    public function setLieuStockage(?string $lieuStockage): static
+    {
+        $this->lieuStockage = $lieuStockage;
+
+        return $this;
     }
 }

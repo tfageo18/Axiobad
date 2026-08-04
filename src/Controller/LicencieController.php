@@ -332,6 +332,7 @@ class LicencieController extends AbstractController
                 ->setNom($nom)
                 ->setRoles(array_values(array_intersect($roles, [Licencie::ROLE_BUREAU, Licencie::ROLE_ENTRAINEUR, Licencie::ROLE_CORDEUR, Licencie::ROLE_STOCK])))
                 ->setDateNaissance($dateNaissance ? new \DateTimeImmutable($dateNaissance) : null)
+                ->setNotificationsActivees((bool) $request->request->get('notificationsActivees'))
                 ->setMustChangePassword(true);
 
             $erreurMineur = $this->appliquerChampsMineur($licencie, $request, $entityManager);
@@ -403,7 +404,8 @@ class LicencieController extends AbstractController
                 ->setGenre((string) $request->request->get('genre') ?: null)
                 ->setClassementSimple($classementSimple)
                 ->setClassementDouble($classementDouble)
-                ->setClassementMixte($classementMixte);
+                ->setClassementMixte($classementMixte)
+                ->setNotificationsActivees((bool) $request->request->get('notificationsActivees'));
 
             $erreurMineur = $this->appliquerChampsMineur($licencie, $request, $entityManager);
             if (null !== $erreurMineur) {

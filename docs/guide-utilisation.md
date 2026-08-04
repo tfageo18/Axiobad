@@ -268,6 +268,8 @@ Menu **Bureau → Stock** (réservé au bureau).
 
 - **Vêtements** : type, taille, marque (suggestions de marques sport courantes).
 - **Volants** : type, vitesse, destination, marque, modèle (suggestions de marques courantes).
+- **Lieu de stockage** (optionnel, texte libre) : où trouver physiquement l'article, affiché dans
+  la liste.
 - Chaque article a une quantité en stock, gérée via de vrais **mouvements d'entrée/sortie** (avec
   motif optionnel), pas une simple valeur modifiable — un historique de tous les mouvements est
   consultable par article. Une sortie ne peut pas faire passer le stock sous zéro.
@@ -466,10 +468,12 @@ Axiobad envoie des emails automatiquement, sans action du bureau :
   rappel d'une convocation interclubs dans 3 jours si vous n'avez pas répondu, et — chaque lundi —
   rappel des adhésions impayées de la saison en cours.
 
-Pour arrêter de recevoir ces emails automatiques, décocher **« Recevoir les notifications
-automatiques par email »** sur la page **Mon compte**. Cela n'affecte pas l'email d'activation de
-compte (essentiel), ni les communications ciblées envoyées manuellement par le bureau (voir
-ci-dessus) — seulement ces rappels automatiques.
+Ces notifications sont **désactivées par défaut** pour tout nouveau licencié. Pour les activer,
+cocher **« Recevoir les notifications automatiques par email »** sur la page **Mon compte**. Le
+**bureau peut aussi changer ce réglage** pour n'importe quel licencié depuis sa fiche (page
+Licenciés → Modifier). Cela n'affecte pas l'email d'activation de compte (essentiel), ni les
+communications ciblées envoyées manuellement par le bureau (voir ci-dessus) — seulement ces
+rappels automatiques.
 
 Il n'y a pas encore d'historique des notifications reçues, ni de réglage plus fin (choisir quels
 types de rappels recevoir).

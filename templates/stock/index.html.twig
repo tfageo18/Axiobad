@@ -53,6 +53,7 @@
                 <th>Type</th>
                 <th>Taille</th>
                 <th>Marque</th>
+                <th>Lieu de stockage</th>
                 <th>En stock</th>
                 <th>Mouvement</th>
                 <th></th>
@@ -64,6 +65,7 @@
                     <td data-label="Type">{{ vetement.typeLabel }}</td>
                     <td data-label="Taille">{{ vetement.taille }}</td>
                     <td data-label="Marque">{{ vetement.marque ?? '-' }}</td>
+                    <td data-label="Lieu de stockage">{{ vetement.lieuStockage ?? '-' }}</td>
                     <td data-label="En stock">
                         <span class="quantite-badge {{ vetement.quantite == 0 or vetement.estSousLeSeuil ? 'zero' : '' }}">{{ vetement.quantite }}</span>
                         {% if vetement.estSousLeSeuil %}<small title="Seuil d'alerte : {{ vetement.seuilAlerte }}">⚠ sous le seuil</small>{% endif %}
@@ -86,7 +88,7 @@
                     </td>
                 </tr>
             {% else %}
-                <tr><td colspan="6">Aucun article.</td></tr>
+                <tr><td colspan="7">Aucun article.</td></tr>
             {% endfor %}
         </tbody>
     </table>
@@ -102,6 +104,7 @@
                 <th>Vitesse</th>
                 <th>Destination</th>
                 <th>Marque</th>
+                <th>Lieu de stockage</th>
                 <th>Modèle</th>
                 <th>Tubes en stock</th>
                 <th>Mouvement</th>
@@ -115,6 +118,7 @@
                     <td data-label="Vitesse">{{ volant.vitesse }}</td>
                     <td data-label="Destination">{{ volant.destinationLabel }}</td>
                     <td data-label="Marque">{{ volant.marque ?? '-' }}</td>
+                    <td data-label="Lieu de stockage">{{ volant.lieuStockage ?? '-' }}</td>
                     <td data-label="Modèle">{{ volant.modele ?? '-' }}</td>
                     <td data-label="Tubes en stock">
                         <span class="quantite-badge {{ volant.quantiteTubes == 0 or volant.estSousLeSeuil ? 'zero' : '' }}">{{ volant.quantiteTubes }}</span>
@@ -138,7 +142,7 @@
                     </td>
                 </tr>
             {% else %}
-                <tr><td colspan="8">Aucun tube en stock.</td></tr>
+                <tr><td colspan="9">Aucun tube en stock.</td></tr>
             {% endfor %}
         </tbody>
     </table>

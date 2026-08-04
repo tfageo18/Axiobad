@@ -57,6 +57,9 @@ class StockVetement
     #[ORM\Column(nullable: true)]
     private ?int $seuilAlerte = null;
 
+    #[ORM\Column(length: 150, nullable: true)]
+    private ?string $lieuStockage = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -169,5 +172,17 @@ class StockVetement
     public function estSousLeSeuil(): bool
     {
         return null !== $this->seuilAlerte && $this->quantite <= $this->seuilAlerte;
+    }
+
+    public function getLieuStockage(): ?string
+    {
+        return $this->lieuStockage;
+    }
+
+    public function setLieuStockage(?string $lieuStockage): static
+    {
+        $this->lieuStockage = $lieuStockage;
+
+        return $this;
     }
 }

@@ -56,6 +56,10 @@
             <small style="color: var(--color-text-muted);">Une alerte s'affiche sur la liste du stock quand la quantité descend à ce niveau ou en dessous.</small>
         </div>
         <div>
+            <label for="lieuStockage">Lieu de stockage (optionnel)</label>
+            <input type="text" name="lieuStockage" id="lieuStockage" value="{{ volant ? volant.lieuStockage : '' }}" placeholder="ex: Local matériel, étagère volants">
+        </div>
+        <div>
             <label for="commentaire">Commentaire</label>
             <textarea name="commentaire" id="commentaire">{{ volant ? volant.commentaire : '' }}</textarea>
         </div>

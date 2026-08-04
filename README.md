@@ -188,7 +188,8 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
 
 - Réservé au rôle **Accès au stock** (ou au bureau).
 - Vêtements (type, taille, marque) et volants (type, vitesse, destination, marque, modèle),
-  avec les marques/modèles courants suggérés.
+  avec les marques/modèles courants suggérés, et un **lieu de stockage** optionnel (texte libre,
+  ex. « Local matériel, armoire 2 »).
 - Vrais mouvements de stock (entrées/sorties tracées avec motif et historique), pas une simple
   quantité éditable.
 - **Seuil d'alerte** optionnel par article : badge d'alerte sur la liste du stock (et alerte sur
@@ -231,9 +232,10 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
   invitation de compte bientôt expirée, évènement à venir (J-2, inscrits confirmés), convocation
   interclubs à venir sans réponse (J-3), et — chaque lundi — rappel des adhésions impayées de la
   saison en cours.
-- Chaque licencié peut **désactiver la réception de ces notifications automatiques** depuis « Mon
-  compte » (case à cocher) — n'affecte ni les emails essentiels (activation de compte), ni les
-  communications ciblées envoyées manuellement par le bureau.
+- **Désactivées par défaut** (opt-in) pour tout nouveau licencié. Chaque licencié peut les activer
+  lui-même depuis « Mon compte » (case à cocher), et le **bureau peut aussi changer ce réglage**
+  pour n'importe quel licencié depuis sa fiche. N'affecte ni les emails essentiels (activation de
+  compte), ni les communications ciblées envoyées manuellement par le bureau.
 - Pas encore d'historique des notifications envoyées, ni de notifications push (prévues via la
   PWA, voir ci-dessous).
 

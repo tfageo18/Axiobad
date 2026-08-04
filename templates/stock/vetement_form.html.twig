@@ -44,6 +44,10 @@
             <small style="color: var(--color-text-muted);">Une alerte s'affiche sur la liste du stock quand la quantité descend à ce niveau ou en dessous.</small>
         </div>
         <div>
+            <label for="lieuStockage">Lieu de stockage (optionnel)</label>
+            <input type="text" name="lieuStockage" id="lieuStockage" value="{{ vetement ? vetement.lieuStockage : '' }}" placeholder="ex: Local matériel, armoire 2">
+        </div>
+        <div>
             <label for="commentaire">Commentaire</label>
             <textarea name="commentaire" id="commentaire">{{ vetement ? vetement.commentaire : '' }}</textarea>
         </div>

@@ -345,17 +345,3 @@ La base de données étant dans un conteneur avec un volume Docker (donc sur l'E
 il n'y a pas de sauvegarde automatique gérée par AWS. Il est recommandé de planifier :
 - un snapshot EBS régulier de l'instance (via AWS Backup, quelques centimes par Go/mois), et/ou
 - un `pg_dump` régulier (cron) vers un bucket S3 (stockage très peu coûteux).
-
-## État actuel et pistes d'évolution
-
-Tous les modules listés dans [Modules](#modules) sont en production. Ce qui n'a **pas** encore
-été construit, à considérer pour la suite :
-
-- **Vue calendrier hebdomadaire dédiée** : la vue mensuelle (desktop) et l'agenda journalier
-  (mobile) couvrent le besoin aujourd'hui — à évaluer si une vue semaine apporterait vraiment
-  quelque chose de plus.
-- **Sauvegarde automatisée** de la base (snapshot EBS ou `pg_dump` planifié) : documentée
-  ci-dessus mais pas encore mise en place concrètement.
-- Les notifications n'ont pas encore d'historique consultable (le réglage marche/arrêt existe).
-- Pas d'**application mobile native** — le site est une PWA installable (icône, plein écran, cache
-  hors-ligne des assets), pas une app iOS/Android compilée.

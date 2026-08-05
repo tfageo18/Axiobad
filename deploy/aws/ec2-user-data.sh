@@ -119,3 +119,10 @@ EOF
 cat > /etc/cron.d/axiobad-rgpd-purge <<EOF
 0 4 1 * * root cd $APP_DIR && docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local exec -T php bin/console app:rgpd:purger-comptes-inactifs >> /var/log/axiobad-rgpd-purge.log 2>&1
 EOF
+
+# Sauvegarde de la base vers S3 (pg_dump compressé), tous les jours à 2h. Le bucket purge
+# automatiquement les sauvegardes de plus de 30 jours (règle de cycle de vie S3).
+chmod +x "$APP_DIR/deploy/aws/backup-database.sh"
+cat > /etc/cron.d/axiobad-backup-db <<EOF
+0 2 * * * root $APP_DIR/deploy/aws/backup-database.sh >> /var/log/axiobad-backup-db.log 2>&1
+EOF

@@ -148,6 +148,10 @@
                             <form method="post" action="{{ path('app_licencie_renvoyer_invitation', {id: licencie.id}) }}" style="display:inline">
                                 <button type="submit">Renvoyer l'invitation</button>
                             </form>
+                        {% elseif licencie.aUnCompte %}
+                            <form method="post" action="{{ path('app_licencie_reinitialiser_mot_de_passe', {id: licencie.id}) }}" style="display:inline">
+                                <button type="submit">Réinitialiser le mot de passe</button>
+                            </form>
                         {% endif %}
                         {% if licencie.email == constant('App\\Entity\\Licencie::EMAIL_ADMIN_DEFAUT') %}
                             <span style="font-size: 0.82rem; color: var(--color-text-muted);">Compte administrateur par défaut (protégé)</span>

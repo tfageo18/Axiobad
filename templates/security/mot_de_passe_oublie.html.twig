@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mot de passe oublié — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>Mot de passe oublié</h1>
+
+    <p>Indiquez l'adresse email de votre compte : si elle correspond à un compte actif, un lien
+    pour définir un nouveau mot de passe vous sera envoyé (valable 7 jours).</p>
+
+    <form method="post">
+        <div>
+            <label for="email">Email</label>
+            <input type="email" name="email" id="email" required autofocus>
+        </div>
+
+        <button type="submit">Envoyer le lien de réinitialisation</button>
+    </form>
+
+    <p><a href="{{ path('app_login') }}">Retour à la connexion</a></p>
+{% endblock %}

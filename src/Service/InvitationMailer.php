@@ -51,4 +51,37 @@ class InvitationMailer
             return false;
         }
     }
+
+    /**
+     * Envoie l'email de réinitialisation de mot de passe. Réutilise le même lien/jeton
+     * d'activation que l'invitation initiale : la page d'activation permet de définir un nouveau
+     * mot de passe que le compte soit déjà activé ou non.
+     */
+    public function envoyerReinitialisationMotDePasse(Licencie $licencie, string $token): bool
+    {
+        $lien = $this->urlGenerator->generate('app_activation', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
+
+        $email = (new Email())
+            ->from($this->mailerFrom)
+            ->to($licencie->getEmail())
+            ->subject('Axiobad — réinitialisation de votre mot de passe')
+            ->text(sprintf(
+                "Bonjour %s,\n\nUne réinitialisation de mot de passe a été demandée pour votre compte Axiobad.\n\nPour définir un nouveau mot de passe, cliquez sur le lien suivant :\n%s\n\nCe lien expire dans 7 jours. Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet email : votre mot de passe actuel reste inchangé tant que vous ne cliquez pas sur le lien.",
+                $licencie->getPrenom(),
+                $lien
+            ));
+
+        try {
+            $this->mailer->send($email);
+
+            return true;
+        } catch (TransportExceptionInterface $exception) {
+            $this->logger->error('Échec d\'envoi de l\'email de réinitialisation à {email} : {message}', [
+                'email' => $licencie->getEmail(),
+                'message' => $exception->getMessage(),
+            ]);
+
+            return false;
+        }
+    }
 }

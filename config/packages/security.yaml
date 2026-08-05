@@ -39,6 +39,7 @@ security:
     access_control:
         - { path: ^/login, roles: PUBLIC_ACCESS }
         - { path: ^/activation, roles: PUBLIC_ACCESS }
+        - { path: ^/mot-de-passe-oublie, roles: PUBLIC_ACCESS }
         - { path: ^/confidentialite, roles: PUBLIC_ACCESS }
         - { path: ^/mentions-legales, roles: PUBLIC_ACCESS }
         - { path: ^/registre-traitements, roles: PUBLIC_ACCESS }

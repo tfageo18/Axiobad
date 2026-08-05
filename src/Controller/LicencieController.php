@@ -560,6 +560,27 @@ class LicencieController extends AbstractController
         return $this->redirectToRoute('app_licencie_index');
     }
 
+    #[Route('/{id}/reinitialiser-mot-de-passe', name: 'app_licencie_reinitialiser_mot_de_passe', methods: ['POST'])]
+    public function reinitialiserMotDePasse(Licencie $licencie, EntityManagerInterface $entityManager, InvitationMailer $invitationMailer): Response
+    {
+        if (!$licencie->aUnCompte()) {
+            $this->addFlash('error', "Ce licencié n'a pas de compte de connexion (rattaché à un responsable légal).");
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        $token = $licencie->generateActivationToken();
+        $entityManager->flush();
+
+        if ($invitationMailer->envoyerReinitialisationMotDePasse($licencie, $token)) {
+            $this->addFlash('success', sprintf('Lien de réinitialisation envoyé à %s.', $licencie->getEmail()));
+        } else {
+            $this->addFlash('error', sprintf("L'email n'a pas pu être envoyé à %s. Réessayez plus tard.", $licencie->getEmail()));
+        }
+
+        return $this->redirectToRoute('app_licencie_index');
+    }
+
     #[Route('/{id}/activer', name: 'app_licencie_toggle_actif', methods: ['POST'])]
     public function toggleActif(Licencie $licencie, EntityManagerInterface $entityManager): Response
     {

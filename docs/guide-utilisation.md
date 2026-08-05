@@ -45,6 +45,14 @@ vers la page de changement de mot de passe dès la première connexion, et bloqu
 de l'application tant que ce n'est pas fait. Ce compte administrateur par défaut est protégé :
 il ne peut être ni désactivé ni supprimé, et n'est pas soumis au suivi des adhésions.
 
+**Mot de passe oublié :** cliquer sur **« Mot de passe oublié ? »** sous le formulaire de
+connexion, saisir son email — si un compte actif y correspond, un lien pour définir un nouveau
+mot de passe est envoyé (valable 7 jours). Pour ne pas révéler quels emails ont un compte, le
+message affiché est le même que l'email corresponde ou non à un compte existant.
+
+Le bureau peut aussi déclencher cet envoi directement depuis la fiche d'un licencié (page
+Licenciés → bouton **« Réinitialiser le mot de passe »**, visible pour tout compte déjà activé).
+
 ## Rôles et permissions
 
 Chaque licencié peut cumuler plusieurs rôles :

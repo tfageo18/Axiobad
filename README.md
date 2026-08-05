@@ -40,6 +40,9 @@ Les **issues** et **pull requests** sont les bienvenues, voir [CONTRIBUTING.md](
   réactivation d'un compte (bloque la connexion sans supprimer les données), et la suppression.
 - Le lien d'activation (pour définir son mot de passe) peut être **renvoyé** par le bureau si le
   licencié ne l'a pas reçu ou s'il a expiré (valable 7 jours).
+- **Mot de passe oublié** : lien en self-service sur la page de connexion (email → lien de
+  réinitialisation valable 7 jours, message générique pour ne pas révéler les comptes existants).
+  Le bureau peut aussi déclencher cet envoi depuis la fiche d'un licencié.
 - Rôles cumulables :
   - **Licencié** : rôle de base, tout adhérent du club.
   - **Membre du bureau** : rôle administrateur de l'application.

@@ -13,6 +13,12 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
 
 - 📘 [Guide d'utilisation](docs/guide-utilisation.md) — utilisation au quotidien (aussi consultable
   en ligne, une fois connecté, via le menu du compte → **Documentation**).
+- 📖 [Wiki du projet](../../wiki) — fonctionnalités détaillées, déploiement, notifications, RGPD.
+
+## Licence et contributions
+
+Projet non open source (voir [LICENSE](LICENSE)) — développé et maintenu par une seule personne.
+Les **issues** et **pull requests** sont les bienvenues, voir [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Modules
 

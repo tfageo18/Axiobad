@@ -347,7 +347,19 @@ bash deploy/aws/redeploy.sh
 
 ### Sauvegarde
 
-La base de données étant dans un conteneur avec un volume Docker (donc sur l'EBS de l'instance),
-il n'y a pas de sauvegarde automatique gérée par AWS. Il est recommandé de planifier :
-- un snapshot EBS régulier de l'instance (via AWS Backup, quelques centimes par Go/mois), et/ou
-- un `pg_dump` régulier (cron) vers un bucket S3 (stockage très peu coûteux).
+`pg_dump` compressé de la base, tous les jours à 2h (`deploy/aws/backup-database.sh`, cron installé
+par `ec2-user-data.sh`), envoyé vers un bucket S3 dédié (`axiobad-backups-<compte>`, privé, chiffré).
+Une règle de cycle de vie S3 purge automatiquement les sauvegardes de plus de 30 jours — coût de
+stockage négligeable pour une base de club (quelques Mo par dump).
+
+### Facturation
+
+Un budget AWS (`axiobad-mensuel`, plafond 15 $/mois) envoie une alerte email à 80 % et 100 % de
+dépense réelle, plus une alerte si la dépense prévisionnelle dépasse le plafond. Au-delà de 100 %
+de dépense réelle, une fonction Lambda (`axiobad-budget-autostop`, déclenchée via SNS) **arrête
+automatiquement l'instance EC2** pour éviter tout dépassement supplémentaire — le site devient alors
+inaccessible jusqu'à un redémarrage manuel :
+```bash
+aws ec2 start-instances --instance-ids i-0a06ac04603c07380 --region eu-west-3
+```
+(le service systemd `axiobad.service` relance la stack automatiquement une fois l'instance repartie).

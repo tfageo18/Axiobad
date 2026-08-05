@@ -515,8 +515,9 @@ Licenciés → Modifier). Cela n'affecte pas l'email d'activation de compte (ess
 communications ciblées envoyées manuellement par le bureau (voir ci-dessus) — seulement ces
 rappels automatiques.
 
-Il n'y a pas encore d'historique des notifications reçues, ni de réglage plus fin (choisir quels
-types de rappels recevoir).
+Le bureau peut consulter qui a reçu quoi et quand via **Bureau → Historique des notifications**
+(voir plus bas). Il n'y a pas encore de réglage plus fin côté licencié (choisir quels types de
+rappels recevoir).
 
 ### Notifications push sur un appareil
 
@@ -534,6 +535,13 @@ ci-dessus : un licencié peut par exemple ne recevoir que du push sur son télé
 emails, ou l'inverse. Si le serveur n'a pas de clé VAPID configurée, la section l'indique et le
 push reste simplement indisponible (voir la section [Mise en place](README.md#mise-en-place) du
 README pour l'activer en production).
+
+### Historique des notifications (bureau)
+
+Menu **Bureau → Historique des notifications** : liste chaque notification automatique et chaque
+communication ciblée envoyée, avec la date, le destinataire, le sujet, un court extrait, et si
+l'envoi a réussi par **email** et/ou par **notification push**. Filtrable par destinataire. Ne
+stocke pas le corps intégral du message.
 
 ## Configuration email (production)
 

@@ -249,7 +249,8 @@ Les **issues** et **pull requests** sont les bienvenues, voir [CONTRIBUTING.md](
   compte), ni les communications ciblées envoyées manuellement par le bureau.
 - Chaque notification automatique (et communication ciblée) est aussi envoyée en **notification
   push navigateur** aux appareils sur lesquels le destinataire l'a activée (voir PWA ci-dessous).
-  Pas encore d'historique des notifications envoyées.
+- **Historique des notifications** (menu Bureau) : chaque notification envoyée (destinataire,
+  sujet, extrait, date, succès email/push), filtrable par destinataire.
 
 ### Journal d'audit
 

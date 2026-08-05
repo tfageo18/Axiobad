@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Historique des notifications — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>Historique des notifications</h1>
+    <p>
+        Trace chaque notification automatique (rappels, alertes) et chaque communication ciblée
+        envoyée : destinataire, sujet, date, et si elle a été livrée par email et/ou par
+        notification push.
+    </p>
+
+    <form method="get" action="{{ path('app_notification_historique_index') }}" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+        <div>
+            <label for="destinataire">Destinataire</label>
+            <select name="destinataire" id="destinataire" onchange="this.form.submit()">
+                <option value="">Tous</option>
+                {% for licencie in licencies %}
+                    <option value="{{ licencie.id }}" {{ destinataireChoisi == licencie.id ? 'selected' : '' }}>{{ licencie.nomComplet }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+
+    <div class="table-scroll">
+    <table class="table-cards">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Destinataire</th>
+                <th>Sujet</th>
+                <th>Extrait</th>
+                <th>Email</th>
+                <th>Push</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entree in entrees %}
+                <tr>
+                    <td data-label="Date">{{ entree.envoyeLe|date('d/m/Y H:i') }}</td>
+                    <td data-label="Destinataire">{{ entree.destinataireLibelle ?? 'Compte supprimé' }}</td>
+                    <td data-label="Sujet">{{ entree.sujet }}</td>
+                    <td data-label="Extrait">{{ entree.extrait }}</td>
+                    <td data-label="Email">{{ entree.emailEnvoye ? '✓' : '✗' }}</td>
+                    <td data-label="Push">{{ entree.pushEnvoye ? '✓' : '—' }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="6">Aucune notification envoyée pour l'instant.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+    <p style="color: var(--color-text-muted); font-size: 0.85rem;">Affiche les 200 dernières entrées.</p>
+{% endblock %}

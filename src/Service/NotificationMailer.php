@@ -7,7 +7,9 @@ use App\Entity\Creneau;
 use App\Entity\DemandeCordage;
 use App\Entity\Evenement;
 use App\Entity\Licencie;
+use App\Entity\NotificationEnvoyee;
 use App\Entity\RencontreInterclub;
+use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
@@ -27,6 +29,7 @@ class NotificationMailer
         private readonly string $mailerFrom,
         private readonly LoggerInterface $logger,
         private readonly PushNotifier $pushNotifier,
+        private readonly EntityManagerInterface $entityManager,
     ) {
     }
 
@@ -194,9 +197,20 @@ class NotificationMailer
 
         $envoye = $this->envoyerEmail($destinataire, $sujet, $corps);
 
+        $extrait = $this->resumerPourPush($corps);
+
         // Best-effort, ne doit jamais faire échouer la notification email : un abonnement push
         // absent/expiré ou une clé VAPID non configurée est silencieusement ignoré.
-        $this->pushNotifier->notifier($destinataire, $sujet, $this->resumerPourPush($corps), $url);
+        $pushEnvoye = $this->pushNotifier->notifier($destinataire, $sujet, $extrait, $url);
+
+        $historique = (new NotificationEnvoyee())
+            ->setDestinataire($destinataire)
+            ->setSujet($sujet)
+            ->setExtrait($extrait)
+            ->setEmailEnvoye($envoye)
+            ->setPushEnvoye($pushEnvoye);
+        $this->entityManager->persist($historique);
+        $this->entityManager->flush();
 
         return $envoye;
     }

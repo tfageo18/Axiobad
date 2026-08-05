@@ -31,15 +31,18 @@ class PushNotifier
         return (bool) $this->vapidPublicKey && (bool) $this->vapidPrivateKey;
     }
 
-    public function notifier(Licencie $licencie, string $titre, string $corps, ?string $url = null): void
+    /**
+     * @return bool true si la notification a été livrée avec succès à au moins un appareil
+     */
+    public function notifier(Licencie $licencie, string $titre, string $corps, ?string $url = null): bool
     {
         if (!$this->estConfigure()) {
-            return;
+            return false;
         }
 
         $abonnements = $this->subscriptionRepository->findPourLicencie($licencie);
         if (!$abonnements) {
-            return;
+            return false;
         }
 
         $webPush = new WebPush([
@@ -65,8 +68,12 @@ class PushNotifier
             $webPush->queueNotification($subscription, $payload);
         }
 
+        $succes = false;
+
         foreach ($webPush->flush() as $rapport) {
             if ($rapport->isSuccess()) {
+                $succes = true;
+
                 continue;
             }
 
@@ -86,5 +93,7 @@ class PushNotifier
         }
 
         $this->entityManager->flush();
+
+        return $succes;
     }
 }

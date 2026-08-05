@@ -230,9 +230,13 @@ Les **issues** et **pull requests** sont les bienvenues, voir [CONTRIBUTING.md](
   évènement, les adhésions impayées de la saison en cours, les responsables légaux, ou par
   catégorie d'âge (adultes/enfants).
 - **Aperçu des destinataires** (nombre et noms) avant envoi.
-- **Historique** des envois (sujet, cible, nombre de destinataires, échecs détaillés, auteur,
-  date), consultable sur la même page.
-- Pas encore de modèles réutilisables, de programmation différée, ni de pièces jointes.
+- **Modèles réutilisables** (sujet + message enregistrés, chargeables en un clic).
+- **Pièce jointe** optionnelle, envoyée avec le message à tous les destinataires.
+- **Programmation différée** : envoi à une date/heure future (commande planifiée
+  `app:communication:envoyer-planifiees`, cron toutes les 5 min), annulable tant qu'il n'a pas eu
+  lieu. La liste des destinataires est figée au moment de la programmation.
+- **Historique** des envois (sujet, cible, statut — envoyé/en attente/annulé —, nombre de
+  destinataires, échecs détaillés, pièce jointe, auteur, date), consultable sur la même page.
 
 ### Notifications automatiques
 

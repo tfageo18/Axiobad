@@ -7,21 +7,25 @@ use App\Entity\CommunicationEnvoi;
 use App\Entity\Creneau;
 use App\Entity\Inscription;
 use App\Entity\Licencie;
+use App\Entity\ModeleCommunication;
 use App\Repository\AdhesionRepository;
 use App\Repository\CommunicationEnvoiRepository;
 use App\Repository\CreneauRepository;
 use App\Repository\EquipeRepository;
 use App\Repository\EvenementRepository;
 use App\Repository\LicencieRepository;
+use App\Repository\ModeleCommunicationRepository;
 use App\Repository\PresenceRepository;
 use App\Repository\SaisonRepository;
 use App\Service\NotificationMailer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/communications')]
 #[IsGranted('ROLE_BUREAU')]
@@ -36,6 +40,7 @@ class CommunicationController extends AbstractController
         private readonly SaisonRepository $saisonRepository,
         private readonly PresenceRepository $presenceRepository,
         private readonly CommunicationEnvoiRepository $envoiRepository,
+        private readonly ModeleCommunicationRepository $modeleRepository,
     ) {
     }
 
@@ -53,11 +58,12 @@ class CommunicationController extends AbstractController
             'destinataires' => $resolution['licencies'] ?? null,
             'cibleLibelle' => $resolution['libelle'] ?? null,
             'envois' => $this->envoiRepository->findRecentes(),
+            'modeles' => $this->modeleRepository->findAllTries(),
         ]);
     }
 
     #[Route('/envoyer', name: 'app_communication_envoyer', methods: ['POST'])]
-    public function envoyer(Request $request, NotificationMailer $notificationMailer, EntityManagerInterface $entityManager): Response
+    public function envoyer(Request $request, NotificationMailer $notificationMailer, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         $cible = (string) $request->request->get('cible', '');
         $sujet = trim((string) $request->request->get('sujet'));
@@ -78,12 +84,24 @@ class CommunicationController extends AbstractController
             return $this->redirectToRoute('app_communication_index', ['cible' => $cible]);
         }
 
-        $echecs = [];
-        foreach ($licencies as $destinataire) {
-            if (!$notificationMailer->communicationCiblee($destinataire, $sujet, $corps)) {
-                $echecs[] = $destinataire->getEmail() ?? sprintf('#%d', $destinataire->getId());
+        // Programmation différée : si une date/heure future est indiquée, la communication est
+        // enregistrée en attente et envoyée plus tard par la commande planifiée
+        // app:communication:envoyer-planifiees (cron), pas immédiatement.
+        $dateEnvoi = trim((string) $request->request->get('date_envoi'));
+        $heureEnvoi = trim((string) $request->request->get('heure_envoi'));
+        $planifiePour = null;
+        if ($dateEnvoi && $heureEnvoi) {
+            try {
+                $candidat = new \DateTimeImmutable($dateEnvoi.' '.$heureEnvoi);
+                if ($candidat > new \DateTimeImmutable()) {
+                    $planifiePour = $candidat;
+                }
+            } catch (\Exception) {
+                // date/heure invalide, ignorée : envoi immédiat
             }
         }
+
+        [$pieceJointeChemin, $pieceJointeNom] = $this->traiterPieceJointe($request, $slugger);
 
         /** @var Licencie $auteur */
         $auteur = $this->getUser();
@@ -93,9 +111,29 @@ class CommunicationController extends AbstractController
             ->setCorps($corps)
             ->setCibleLibelle($resolution['libelle'])
             ->setNombreDestinataires(count($licencies))
-            ->setNombreEchecs(count($echecs))
-            ->setEmailsEnEchec($echecs ? implode(', ', $echecs) : null)
-            ->setAuteur($auteur);
+            ->setAuteur($auteur)
+            ->setDestinatairesIds(array_map(static fn (Licencie $l) => $l->getId(), $licencies))
+            ->setPieceJointeChemin($pieceJointeChemin)
+            ->setPieceJointeNom($pieceJointeNom);
+
+        if ($planifiePour) {
+            $envoi->setStatut(CommunicationEnvoi::STATUT_EN_ATTENTE)->setPlanifiePour($planifiePour);
+            $entityManager->persist($envoi);
+            $entityManager->flush();
+
+            $this->addFlash('success', sprintf('Message programmé pour le %s à %d destinataire(s).', $planifiePour->format('d/m/Y à H:i'), count($licencies)));
+
+            return $this->redirectToRoute('app_communication_index');
+        }
+
+        $echecs = [];
+        foreach ($licencies as $destinataire) {
+            if (!$notificationMailer->communicationCiblee($destinataire, $sujet, $corps, $pieceJointeChemin, $pieceJointeNom)) {
+                $echecs[] = $destinataire->getEmail() ?? sprintf('#%d', $destinataire->getId());
+            }
+        }
+
+        $envoi->setNombreEchecs(count($echecs))->setEmailsEnEchec($echecs ? implode(', ', $echecs) : null);
 
         $entityManager->persist($envoi);
         $entityManager->flush();
@@ -107,6 +145,92 @@ class CommunicationController extends AbstractController
         }
 
         return $this->redirectToRoute('app_communication_index');
+    }
+
+    #[Route('/{id}/annuler', name: 'app_communication_annuler', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function annuler(CommunicationEnvoi $envoi, EntityManagerInterface $entityManager): Response
+    {
+        if (!$envoi->estEnAttente()) {
+            $this->addFlash('error', 'Cette communication a déjà été envoyée ou annulée.');
+
+            return $this->redirectToRoute('app_communication_index');
+        }
+
+        $envoi->setStatut(CommunicationEnvoi::STATUT_ANNULE);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Envoi programmé annulé.');
+
+        return $this->redirectToRoute('app_communication_index');
+    }
+
+    #[Route('/modeles', name: 'app_communication_modele_creer', methods: ['POST'])]
+    public function creerModele(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $nom = trim((string) $request->request->get('nom'));
+        $sujet = trim((string) $request->request->get('sujet'));
+        $corps = trim((string) $request->request->get('corps'));
+
+        if ('' === $nom || '' === $sujet || '' === $corps) {
+            $this->addFlash('error', 'Nom, sujet et message sont obligatoires pour enregistrer un modèle.');
+
+            return $this->redirectToRoute('app_communication_index');
+        }
+
+        $modele = (new ModeleCommunication())->setNom($nom)->setSujet($sujet)->setCorps($corps);
+        $entityManager->persist($modele);
+        $entityManager->flush();
+
+        $this->addFlash('success', sprintf('Modèle « %s » enregistré.', $nom));
+
+        return $this->redirectToRoute('app_communication_index');
+    }
+
+    #[Route('/modeles/{id}/supprimer', name: 'app_communication_modele_supprimer', methods: ['POST'])]
+    public function supprimerModele(ModeleCommunication $modele, EntityManagerInterface $entityManager): Response
+    {
+        $entityManager->remove($modele);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Modèle supprimé.');
+
+        return $this->redirectToRoute('app_communication_index');
+    }
+
+    /**
+     * @return array{0: ?string, 1: ?string} chemin absolu sur le disque et nom original du fichier
+     */
+    private function traiterPieceJointe(Request $request, SluggerInterface $slugger): array
+    {
+        $fichier = $request->files->get('piece_jointe');
+        if (!$fichier) {
+            return [null, null];
+        }
+
+        if (!$fichier->isValid()) {
+            $this->addFlash('error', sprintf("La pièce jointe n'a pas pu être envoyée (%s).", $fichier->getErrorMessage()));
+
+            return [null, null];
+        }
+
+        $nomOriginal = $fichier->getClientOriginalName();
+        $nomSansExtension = pathinfo($nomOriginal, PATHINFO_FILENAME);
+        $safeFilename = $slugger->slug($nomSansExtension);
+        $nomFichier = sprintf('%s-%s.%s', uniqid(), $safeFilename, $fichier->guessExtension() ?? 'bin');
+
+        try {
+            $uploadsDir = $this->getParameter('kernel.project_dir').'/var/uploads/communications';
+            if (!is_dir($uploadsDir)) {
+                mkdir($uploadsDir, 0755, true);
+            }
+            $fichier->move($uploadsDir, $nomFichier);
+
+            return [$uploadsDir.'/'.$nomFichier, $nomOriginal];
+        } catch (FileException) {
+            $this->addFlash('error', "Erreur lors de l'envoi de la pièce jointe.");
+
+            return [null, null];
+        }
     }
 
     /**

@@ -387,9 +387,25 @@ Menu **Bureau → Communication**.
    légaux, ou par catégorie d'âge (adultes/enfants).
 2. Le nombre et la liste des destinataires s'affichent immédiatement — seuls les licenciés ayant
    un compte de connexion actif sont comptés.
-3. Saisir le sujet et le message, puis valider.
+3. Saisir le sujet et le message (ou **charger un modèle** existant, voir ci-dessous), joindre
+   éventuellement un fichier, puis valider.
 4. L'envoi et ses résultats (succès, échecs éventuels avec le détail des adresses en échec)
    apparaissent dans l'**historique des envois**, en bas de la page.
+
+**Modèles réutilisables** : le menu déroulant **« Charger un modèle »** (visible dès qu'au moins
+un modèle existe) préremplit le sujet et le message. Le bouton **« Enregistrer comme modèle »**
+sauvegarde le sujet/message actuellement saisi sous un nom donné, pour le réutiliser plus tard.
+Les modèles peuvent être supprimés depuis **« Gérer les modèles »**.
+
+**Pièce jointe** : un fichier optionnel peut être joint (champ **« Pièce jointe »**) — il est
+envoyé avec le message à tous les destinataires.
+
+**Programmation différée** : renseigner une **date et une heure futures** avant de valider
+programme l'envoi au lieu de l'envoyer immédiatement. La communication apparaît alors dans
+l'historique avec le statut **« En attente »**, et peut être **annulée** tant qu'elle n'a pas été
+envoyée (bouton « Annuler »). L'envoi effectif est déclenché par une tâche planifiée côté serveur
+(vérifiée toutes les 5 minutes) — la liste des destinataires est figée au moment de la
+programmation, elle ne change pas si la composition du groupe cible évolue entre-temps.
 
 ## Tableau de bord (bureau)
 

@@ -39,7 +39,32 @@
         </div>
 
         {% if destinataires|length %}
-            <form method="post" action="{{ path('app_communication_envoyer') }}" onsubmit="return confirm('Envoyer ce message à ' ~ destinataires|length ~ ' destinataire(s) ?');">
+            {% if modeles|length %}
+                <div style="margin-bottom: 1rem;">
+                    <label for="modele">Charger un modèle</label>
+                    <select id="modele" onchange="chargerModele(this)">
+                        <option value="">— Aucun —</option>
+                        {% for modele in modeles %}
+                            <option value="{{ modele.id }}" data-sujet="{{ modele.sujet|e('html_attr') }}" data-corps="{{ modele.corps|e('html_attr') }}">{{ modele.nom }}</option>
+                        {% endfor %}
+                    </select>
+                    <details style="margin-top: 0.4rem;">
+                        <summary style="cursor: pointer; font-size: 0.85rem; color: var(--color-primary);">Gérer les modèles</summary>
+                        <ul style="margin: 0.5rem 0 0; padding: 0;">
+                            {% for modele in modeles %}
+                                <li style="list-style: none; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem;">
+                                    <span>{{ modele.nom }}</span>
+                                    <form method="post" action="{{ path('app_communication_modele_supprimer', {id: modele.id}) }}" onsubmit="return confirm('Supprimer le modèle « ' ~ modele.nom ~ ' » ?');">
+                                        <button type="submit" style="font-size: 0.8rem; padding: 0.15rem 0.4rem;">Supprimer</button>
+                                    </form>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </details>
+                </div>
+            {% endif %}
+
+            <form method="post" action="{{ path('app_communication_envoyer') }}" enctype="multipart/form-data" onsubmit="return confirm('Envoyer ce message à ' ~ destinataires|length ~ ' destinataire(s) ?');">
                 <input type="hidden" name="cible" value="{{ cibleChoisie }}">
                 <div>
                     <label for="sujet">Sujet</label>
@@ -49,7 +74,19 @@
                     <label for="corps">Message</label>
                     <textarea name="corps" id="corps" rows="8" required></textarea>
                 </div>
+                <div>
+                    <label for="piece_jointe">Pièce jointe (optionnel)</label>
+                    <input type="file" name="piece_jointe" id="piece_jointe">
+                </div>
+                <div>
+                    <label>Envoi programmé (optionnel — laisser vide pour un envoi immédiat)</label>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <input type="date" name="date_envoi" aria-label="Date d'envoi">
+                        <input type="time" name="heure_envoi" aria-label="Heure d'envoi">
+                    </div>
+                </div>
                 <button type="submit">Envoyer à {{ destinataires|length }} destinataire(s)</button>
+                <button type="button" onclick="enregistrerModele()">Enregistrer comme modèle</button>
             </form>
         {% endif %}
     {% endif %}
@@ -62,17 +99,35 @@
                 <th>Date</th>
                 <th>Sujet</th>
                 <th>Cible</th>
+                <th>Statut</th>
                 <th>Destinataires</th>
                 <th>Échecs</th>
+                <th>Pièce jointe</th>
                 <th>Auteur</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
             {% for envoi in envois %}
                 <tr>
-                    <td data-label="Date">{{ envoi.envoyeLe|date('d/m/Y H:i') }}</td>
+                    <td data-label="Date">
+                        {% if envoi.statut == 'EN_ATTENTE' %}
+                            Programmé pour le {{ envoi.planifiePour|date('d/m/Y H:i') }}
+                        {% else %}
+                            {{ envoi.envoyeLe|date('d/m/Y H:i') }}
+                        {% endif %}
+                    </td>
                     <td data-label="Sujet">{{ envoi.sujet }}</td>
                     <td data-label="Cible">{{ envoi.cibleLibelle }}</td>
+                    <td data-label="Statut">
+                        {% if envoi.statut == 'EN_ATTENTE' %}
+                            <span class="badge-inactif">En attente</span>
+                        {% elseif envoi.statut == 'ANNULE' %}
+                            <span style="color: var(--color-text-muted);">Annulé</span>
+                        {% else %}
+                            <span class="badge-actif">Envoyé</span>
+                        {% endif %}
+                    </td>
                     <td data-label="Destinataires">{{ envoi.nombreDestinataires }}</td>
                     <td data-label="Échecs">
                         {% if envoi.nombreEchecs %}
@@ -82,12 +137,60 @@
                             0
                         {% endif %}
                     </td>
+                    <td data-label="Pièce jointe">{{ envoi.pieceJointeNom ?? '—' }}</td>
                     <td data-label="Auteur">{{ envoi.auteur ? envoi.auteur.nomComplet : '—' }}</td>
+                    <td data-label="">
+                        {% if envoi.statut == 'EN_ATTENTE' %}
+                            <form method="post" action="{{ path('app_communication_annuler', {id: envoi.id}) }}" onsubmit="return confirm('Annuler cet envoi programmé ?');">
+                                <button type="submit">Annuler</button>
+                            </form>
+                        {% endif %}
+                    </td>
                 </tr>
             {% else %}
-                <tr><td colspan="6">Aucun envoi pour l'instant.</td></tr>
+                <tr><td colspan="9">Aucun envoi pour l'instant.</td></tr>
             {% endfor %}
         </tbody>
     </table>
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        function chargerModele(select) {
+            const option = select.options[select.selectedIndex];
+            if (!option.value) {
+                return;
+            }
+            document.getElementById('sujet').value = option.dataset.sujet || '';
+            document.getElementById('corps').value = option.dataset.corps || '';
+        }
+
+        function enregistrerModele() {
+            const sujet = document.getElementById('sujet').value;
+            const corps = document.getElementById('corps').value;
+            if (!sujet || !corps) {
+                alert('Renseignez le sujet et le message avant d\'enregistrer un modèle.');
+                return;
+            }
+            const nom = prompt('Nom du modèle :');
+            if (!nom) {
+                return;
+            }
+
+            const form = document.createElement('form');
+            form.method = 'post';
+            form.action = '{{ path('app_communication_modele_creer') }}';
+            for (const [key, value] of Object.entries({ nom, sujet, corps })) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = value;
+                form.appendChild(input);
+            }
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
 {% endblock %}

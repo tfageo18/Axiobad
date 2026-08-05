@@ -27,4 +27,18 @@ class CommunicationEnvoiRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /**
+     * @return CommunicationEnvoi[]
+     */
+    public function findAEnvoyer(\DateTimeImmutable $maintenant): array
+    {
+        return $this->createQueryBuilder('c')
+            ->andWhere('c.statut = :statut')
+            ->andWhere('c.planifiePour <= :maintenant')
+            ->setParameter('statut', CommunicationEnvoi::STATUT_EN_ATTENTE)
+            ->setParameter('maintenant', $maintenant)
+            ->getQuery()
+            ->getResult();
+    }
 }

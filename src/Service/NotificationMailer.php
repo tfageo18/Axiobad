@@ -171,13 +171,14 @@ class NotificationMailer
     }
 
     /**
-     * Envoi d'une communication libre (sujet/corps saisis par le bureau) à un destinataire.
+     * Envoi d'une communication libre (sujet/corps saisis par le bureau) à un destinataire, avec
+     * une pièce jointe optionnelle (chemin absolu sur le disque + nom original à afficher).
      */
-    public function communicationCiblee(Licencie $destinataire, string $sujet, string $corps): bool
+    public function communicationCiblee(Licencie $destinataire, string $sujet, string $corps, ?string $pieceJointeChemin = null, ?string $pieceJointeNom = null): bool
     {
         // Communication manuelle et ciblée par le bureau : envoyée même si le licencié a
         // désactivé les notifications automatiques.
-        return $this->envoyer($destinataire, $sujet, $corps, automatique: false);
+        return $this->envoyer($destinataire, $sujet, $corps, automatique: false, pieceJointeChemin: $pieceJointeChemin, pieceJointeNom: $pieceJointeNom);
     }
 
     /**
@@ -185,7 +186,7 @@ class NotificationMailer
      *                          destinataire — utilisé pour tous les rappels/alertes automatiques,
      *                          jamais pour les communications ciblées envoyées manuellement
      */
-    private function envoyer(?Licencie $destinataire, string $sujet, string $corps, bool $automatique = true, ?string $url = null): bool
+    private function envoyer(?Licencie $destinataire, string $sujet, string $corps, bool $automatique = true, ?string $url = null, ?string $pieceJointeChemin = null, ?string $pieceJointeNom = null): bool
     {
         if (!$destinataire || !$destinataire->getEmail()) {
             return false;
@@ -195,7 +196,7 @@ class NotificationMailer
             return false;
         }
 
-        $envoye = $this->envoyerEmail($destinataire, $sujet, $corps);
+        $envoye = $this->envoyerEmail($destinataire, $sujet, $corps, $pieceJointeChemin, $pieceJointeNom);
 
         $extrait = $this->resumerPourPush($corps);
 
@@ -215,13 +216,17 @@ class NotificationMailer
         return $envoye;
     }
 
-    private function envoyerEmail(Licencie $destinataire, string $sujet, string $corps): bool
+    private function envoyerEmail(Licencie $destinataire, string $sujet, string $corps, ?string $pieceJointeChemin = null, ?string $pieceJointeNom = null): bool
     {
         $email = (new Email())
             ->from($this->mailerFrom)
             ->to($destinataire->getEmail())
             ->subject($sujet.' — Axiobad')
             ->text($corps);
+
+        if ($pieceJointeChemin && is_file($pieceJointeChemin)) {
+            $email->attachFromPath($pieceJointeChemin, $pieceJointeNom);
+        }
 
         try {
             $this->mailer->send($email);

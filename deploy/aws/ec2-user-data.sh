@@ -126,3 +126,9 @@ chmod +x "$APP_DIR/deploy/aws/backup-database.sh"
 cat > /etc/cron.d/axiobad-backup-db <<EOF
 0 2 * * * root $APP_DIR/deploy/aws/backup-database.sh >> /var/log/axiobad-backup-db.log 2>&1
 EOF
+
+# Communications ciblées programmées (envoi différé) : envoyées dès que leur date/heure arrive,
+# vérifié toutes les 5 minutes.
+cat > /etc/cron.d/axiobad-communications-planifiees <<EOF
+*/5 * * * * root cd $APP_DIR && docker compose -f compose.yaml -f compose.prod.yaml --env-file .env.prod.local exec -T php bin/console app:communication:envoyer-planifiees >> /var/log/axiobad-communications-planifiees.log 2>&1
+EOF

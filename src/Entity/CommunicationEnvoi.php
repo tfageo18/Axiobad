@@ -11,6 +11,10 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: CommunicationEnvoiRepository::class)]
 class CommunicationEnvoi
 {
+    public const STATUT_ENVOYE = 'ENVOYE';
+    public const STATUT_EN_ATTENTE = 'EN_ATTENTE';
+    public const STATUT_ANNULE = 'ANNULE';
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -40,6 +44,30 @@ class CommunicationEnvoi
 
     #[ORM\Column]
     private ?\DateTimeImmutable $envoyeLe = null;
+
+    #[ORM\Column(length: 20)]
+    private string $statut = self::STATUT_ENVOYE;
+
+    /**
+     * Date/heure à laquelle l'envoi doit avoir lieu, pour une communication programmée. Null pour
+     * un envoi immédiat.
+     */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $planifiePour = null;
+
+    /**
+     * Identifiants des licenciés destinataires, figés au moment de la création (immédiate ou
+     * programmée) — pour un envoi différé, la cible réelle au moment de l'envoi est celle-ci,
+     * pas une nouvelle résolution qui pourrait avoir changé entre-temps.
+     */
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $destinatairesIds = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $pieceJointeNom = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $pieceJointeChemin = null;
 
     public function __construct()
     {
@@ -138,5 +166,83 @@ class CommunicationEnvoi
     public function getEnvoyeLe(): ?\DateTimeImmutable
     {
         return $this->envoyeLe;
+    }
+
+    public function setEnvoyeLe(\DateTimeImmutable $envoyeLe): static
+    {
+        $this->envoyeLe = $envoyeLe;
+
+        return $this;
+    }
+
+    public function getStatut(): string
+    {
+        return $this->statut;
+    }
+
+    public function setStatut(string $statut): static
+    {
+        $this->statut = $statut;
+
+        return $this;
+    }
+
+    public function estEnAttente(): bool
+    {
+        return self::STATUT_EN_ATTENTE === $this->statut;
+    }
+
+    public function getPlanifiePour(): ?\DateTimeImmutable
+    {
+        return $this->planifiePour;
+    }
+
+    public function setPlanifiePour(?\DateTimeImmutable $planifiePour): static
+    {
+        $this->planifiePour = $planifiePour;
+
+        return $this;
+    }
+
+    /**
+     * @return int[]
+     */
+    public function getDestinatairesIds(): array
+    {
+        return $this->destinatairesIds ? json_decode($this->destinatairesIds, true) : [];
+    }
+
+    /**
+     * @param int[] $ids
+     */
+    public function setDestinatairesIds(array $ids): static
+    {
+        $this->destinatairesIds = json_encode($ids);
+
+        return $this;
+    }
+
+    public function getPieceJointeNom(): ?string
+    {
+        return $this->pieceJointeNom;
+    }
+
+    public function setPieceJointeNom(?string $pieceJointeNom): static
+    {
+        $this->pieceJointeNom = $pieceJointeNom;
+
+        return $this;
+    }
+
+    public function getPieceJointeChemin(): ?string
+    {
+        return $this->pieceJointeChemin;
+    }
+
+    public function setPieceJointeChemin(?string $pieceJointeChemin): static
+    {
+        $this->pieceJointeChemin = $pieceJointeChemin;
+
+        return $this;
     }
 }

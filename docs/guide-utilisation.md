@@ -250,11 +250,15 @@ période sont annulées d'un coup (chacune peut être rétablie individuellement
 
 ## Le calendrier
 
-Menu **Jouer → Calendrier** : vue du mois en cours (mois précédent/suivant navigable).
+Menu **Jouer → Calendrier** : vue du mois en cours par défaut (mois précédent/suivant navigable).
+Un lien **« Vue semaine »** en haut de la page bascule vers une grille centrée sur une seule
+semaine (précédente/suivante navigable) — pratique pour se concentrer sur les prochains jours sans
+le bruit visuel du reste du mois. Un lien **« Vue mois »** permet de revenir à la vue mensuelle.
 
-- Sur ordinateur : grille mensuelle classique.
+- Sur ordinateur : grille classique (mensuelle ou hebdomadaire selon la vue choisie).
 - Sur mobile : vue agenda, jour par jour, qui **masque les jours déjà passés** (le premier jour
-  affiché est toujours aujourd'hui).
+  affiché est toujours aujourd'hui) — la bascule mois/semaine n'a pas d'effet sur cet affichage
+  mobile, qui montre déjà une liste condensée jour par jour.
 - Cliquer sur un créneau affiche son détail : qui vient, qui ne vient pas, qui n'a pas encore
   répondu.
 - Pour chaque créneau et chaque date, le bureau peut indiquer qui **ouvre** et qui **ferme** le

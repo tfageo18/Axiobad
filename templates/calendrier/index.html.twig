@@ -65,18 +65,35 @@
 {% block body %}
     <h1>Calendrier des créneaux</h1>
 
-    <p class="nav-mois">
-        <a href="{{ path('app_calendrier', {mois: moisPrecedent, tous: toutAfficher ? 1 : null}) }}">&laquo; Précédent</a>
-        <strong>{{ nomMois }}</strong>
-        <a href="{{ path('app_calendrier', {mois: moisSuivant, tous: toutAfficher ? 1 : null}) }}">Suivant &raquo;</a>
+    <p>
+        {% if vue == 'semaine' %}
+            <a href="{{ path('app_calendrier', {vue: 'mois', mois: premierJourSemaine|date('Y-m'), tous: toutAfficher ? 1 : null}) }}">Vue mois</a> ·
+            <strong>Vue semaine</strong>
+        {% else %}
+            <strong>Vue mois</strong> ·
+            <a href="{{ path('app_calendrier', {vue: 'semaine', semaine: "now"|date('Y-m-d'), tous: toutAfficher ? 1 : null}) }}">Vue semaine</a>
+        {% endif %}
     </p>
 
+    <p class="nav-mois">
+        {% if vue == 'semaine' %}
+            <a href="{{ path('app_calendrier', {vue: 'semaine', semaine: semainePrecedente, tous: toutAfficher ? 1 : null}) }}">&laquo; Précédent</a>
+            <strong>Semaine du {{ premierJourSemaine|date('d/m') }} au {{ dernierJourSemaine|date('d/m/Y') }}</strong>
+            <a href="{{ path('app_calendrier', {vue: 'semaine', semaine: semaineSuivante, tous: toutAfficher ? 1 : null}) }}">Suivant &raquo;</a>
+        {% else %}
+            <a href="{{ path('app_calendrier', {mois: moisPrecedent, tous: toutAfficher ? 1 : null}) }}">&laquo; Précédent</a>
+            <strong>{{ nomMois }}</strong>
+            <a href="{{ path('app_calendrier', {mois: moisSuivant, tous: toutAfficher ? 1 : null}) }}">Suivant &raquo;</a>
+        {% endif %}
+    </p>
+
+    {% set parametresVue = vue == 'semaine' ? {vue: 'semaine', semaine: premierJourSemaine|date('Y-m-d')} : {mois: premierDuMois|date('Y-m')} %}
     {% if not is_granted('ROLE_BUREAU') %}
         <p>
             {% if toutAfficher %}
-                Affichage de tous les créneaux. <a href="{{ path('app_calendrier', {mois: premierDuMois|date('Y-m')}) }}">Voir seulement les créneaux adaptés à mon niveau et mon âge</a>
+                Affichage de tous les créneaux. <a href="{{ path('app_calendrier', parametresVue) }}">Voir seulement les créneaux adaptés à mon niveau et mon âge</a>
             {% else %}
-                Affichage des créneaux adaptés à votre niveau et votre âge. <a href="{{ path('app_calendrier', {mois: premierDuMois|date('Y-m'), tous: 1}) }}">Voir tous les créneaux</a>
+                Affichage des créneaux adaptés à votre niveau et votre âge. <a href="{{ path('app_calendrier', parametresVue|merge({tous: 1})) }}">Voir tous les créneaux</a>
             {% endif %}
         </p>
     {% endif %}
@@ -120,7 +137,7 @@
                                         {% if not (exception and exception.estAnnulee) %}
                                             <form method="post" action="{{ path('app_creneau_presence', {id: creneau.id}) }}" class="presence-form">
                                                 <input type="hidden" name="date" value="{{ jour.date|date('Y-m-d') }}">
-                                                <input type="hidden" name="semaine" value="{{ premierDuMois|date('Y-m') }}">
+                                                <input type="hidden" name="retour" value="{{ app.request.requestUri }}">
                                                 <button type="submit" name="present" value="1" class="btn-presence btn-presence-oui {{ presence and presence.present ? 'selectionne' : '' }}">✓ Je viens</button>
                                                 <button type="submit" name="present" value="0" class="btn-presence btn-presence-non {{ presence and not presence.present ? 'selectionne' : '' }}">✗ Non</button>
                                             </form>
@@ -132,7 +149,7 @@
                                             <small>⚠ Place à confirmer avant {{ presence.promotionExpiresAt|date('d/m H:i') }}</small>
                                             <form method="post" action="{{ path('app_creneau_confirmer_promotion', {id: creneau.id}) }}" style="display:inline">
                                                 <input type="hidden" name="date" value="{{ jour.date|date('Y-m-d') }}">
-                                                <input type="hidden" name="semaine" value="{{ premierDuMois|date('Y-m') }}">
+                                                <input type="hidden" name="retour" value="{{ app.request.requestUri }}">
                                                 <button type="submit">Confirmer</button>
                                             </form><br>
                                         {% endif %}
@@ -154,7 +171,7 @@
                                                 <summary>Ouverture/fermeture</summary>
                                                 <form method="post" action="{{ path('app_creneau_ouverture', {id: creneau.id}) }}">
                                                     <input type="hidden" name="date" value="{{ jour.date|date('Y-m-d') }}">
-                                                    <input type="hidden" name="mois" value="{{ premierDuMois|date('Y-m') }}">
+                                                    <input type="hidden" name="retour" value="{{ app.request.requestUri }}">
                                                     <label>Ouvre
                                                         <select name="licencieOuverture">
                                                             <option value="">—</option>
@@ -231,7 +248,7 @@
                             {% if not (exception and exception.estAnnulee) %}
                                 <form method="post" action="{{ path('app_creneau_presence', {id: creneau.id}) }}" class="presence-form">
                                     <input type="hidden" name="date" value="{{ jour.date|date('Y-m-d') }}">
-                                    <input type="hidden" name="semaine" value="{{ premierDuMois|date('Y-m') }}">
+                                    <input type="hidden" name="retour" value="{{ app.request.requestUri }}">
                                     <button type="submit" name="present" value="1" class="btn-presence btn-presence-oui {{ presence and presence.present ? 'selectionne' : '' }}">✓ Je viens</button>
                                     <button type="submit" name="present" value="0" class="btn-presence btn-presence-non {{ presence and not presence.present ? 'selectionne' : '' }}">✗ Non</button>
                                 </form>
@@ -243,7 +260,7 @@
                                 <p style="margin: 0 0 0.5rem;">⚠ Place à confirmer avant {{ presence.promotionExpiresAt|date('d/m H:i') }}</p>
                                 <form method="post" action="{{ path('app_creneau_confirmer_promotion', {id: creneau.id}) }}" style="margin-bottom: 0.5rem;">
                                     <input type="hidden" name="date" value="{{ jour.date|date('Y-m-d') }}">
-                                    <input type="hidden" name="semaine" value="{{ premierDuMois|date('Y-m') }}">
+                                    <input type="hidden" name="retour" value="{{ app.request.requestUri }}">
                                     <button type="submit">Confirmer ma place</button>
                                 </form>
                             {% endif %}
@@ -265,7 +282,7 @@
                                     <summary>Ouverture/fermeture</summary>
                                     <form method="post" action="{{ path('app_creneau_ouverture', {id: creneau.id}) }}">
                                         <input type="hidden" name="date" value="{{ jour.date|date('Y-m-d') }}">
-                                        <input type="hidden" name="mois" value="{{ premierDuMois|date('Y-m') }}">
+                                        <input type="hidden" name="retour" value="{{ app.request.requestUri }}">
                                         <label>Ouvre
                                             <select name="licencieOuverture">
                                                 <option value="">—</option>

@@ -465,6 +465,10 @@ class CreneauController extends AbstractController
 
         $this->addFlash('success', 'Ouverture/fermeture mises à jour.');
 
+        if ($retour = $request->request->get('retour')) {
+            return $this->redirect($retour);
+        }
+
         return $this->redirectToRoute('app_calendrier', ['mois' => $request->request->get('mois')]);
     }
 

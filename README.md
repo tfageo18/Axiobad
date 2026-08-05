@@ -183,8 +183,8 @@ Les **issues** et **pull requests** sont les bienvenues, voir [CONTRIBUTING.md](
 
 ### Calendrier
 
-- Vue mensuelle (grille sur ordinateur, agenda journalier sur mobile — qui masque les jours déjà
-  passés).
+- Vue mensuelle ou **vue semaine dédiée** (grille sur ordinateur, agenda journalier sur mobile —
+  qui masque les jours déjà passés).
 - Chaque licencié voit par défaut les créneaux adaptés à son âge et son niveau (bascule possible
   vers « tous les créneaux »). Les membres du bureau voient toujours tout.
 - Présence/absence indiquée directement depuis le calendrier, semaine par semaine.

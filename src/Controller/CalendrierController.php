@@ -44,15 +44,25 @@ class CalendrierController extends AbstractController
             static fn (RencontreInterclub $r) => $toutAfficher || $r->getEquipe()->getMembres()->contains($licencie) || $r->getEquipe()->estCapitaine($licencie)
         ));
 
+        $vue = 'semaine' === $request->query->get('vue') ? 'semaine' : 'mois';
+
         $moisParam = $request->query->get('mois');
         $premierDuMois = $moisParam
             ? new \DateTimeImmutable($moisParam.'-01')
             : new \DateTimeImmutable('first day of this month');
         $premierDuMois = $premierDuMois->setTime(0, 0);
 
-        $premierJourGrille = $premierDuMois->modify(sprintf('-%d days', ((int) $premierDuMois->format('N')) - 1));
-        $dernierDuMois = $premierDuMois->modify('last day of this month');
-        $dernierJourGrille = $dernierDuMois->modify(sprintf('+%d days', 7 - (int) $dernierDuMois->format('N')));
+        if ('semaine' === $vue) {
+            $semaineParam = $request->query->get('semaine');
+            $jourReference = $semaineParam ? new \DateTimeImmutable($semaineParam) : new \DateTimeImmutable('today');
+            $jourReference = $jourReference->setTime(0, 0);
+            $premierJourGrille = $jourReference->modify(sprintf('-%d days', ((int) $jourReference->format('N')) - 1));
+            $dernierJourGrille = $premierJourGrille->modify('+6 days');
+        } else {
+            $premierJourGrille = $premierDuMois->modify(sprintf('-%d days', ((int) $premierDuMois->format('N')) - 1));
+            $dernierDuMois = $premierDuMois->modify('last day of this month');
+            $dernierJourGrille = $dernierDuMois->modify(sprintf('+%d days', 7 - (int) $dernierDuMois->format('N')));
+        }
 
         $tousLesCreneaux = array_values(array_filter($creneauRepository->findAll(), static fn (Creneau $c) => $c->isActif()));
 
@@ -94,7 +104,7 @@ class CalendrierController extends AbstractController
             $semaineCourante[] = [
                 'date' => $date,
                 'nom' => $nomJour,
-                'dansLeMois' => $date->format('m') === $premierDuMois->format('m'),
+                'dansLeMois' => 'semaine' === $vue || $date->format('m') === $premierDuMois->format('m'),
                 'creneaux' => $creneauxDuJour,
                 'presences' => $presences,
                 'ouvertures' => $ouvertures,
@@ -111,11 +121,16 @@ class CalendrierController extends AbstractController
         }
 
         return $this->render('calendrier/index.html.twig', [
+            'vue' => $vue,
             'semaines' => $semaines,
             'premierDuMois' => $premierDuMois,
             'nomMois' => self::MOIS[(int) $premierDuMois->format('n')].' '.$premierDuMois->format('Y'),
             'moisPrecedent' => $premierDuMois->modify('-1 month')->format('Y-m'),
             'moisSuivant' => $premierDuMois->modify('+1 month')->format('Y-m'),
+            'premierJourSemaine' => $premierJourGrille,
+            'dernierJourSemaine' => $dernierJourGrille,
+            'semainePrecedente' => $premierJourGrille->modify('-7 days')->format('Y-m-d'),
+            'semaineSuivante' => $premierJourGrille->modify('+7 days')->format('Y-m-d'),
             'toutAfficher' => $toutAfficher,
             'licenciesDisponibles' => $this->isGranted('ROLE_BUREAU') ? $licencieRepository->findAll() : [],
         ]);

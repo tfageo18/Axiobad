@@ -7,9 +7,14 @@
     <p>Bonjour {{ licencie.prenom }}, choisissez votre mot de passe pour activer votre compte Axiobad.</p>
 
     <form method="post">
+        <input type="hidden" name="_token" value="{{ csrf_token('activation-' ~ token) }}">
         <div>
             <label for="password">Mot de passe</label>
             <input type="password" name="password" id="password" minlength="8" required>
+            <small style="color: var(--color-text-muted);">
+                Au moins 8 caractères, avec une majuscule, une minuscule et un chiffre. Il ne doit
+                pas être un mot de passe déjà connu dans une fuite de données.
+            </small>
         </div>
         <div>
             <label for="confirm_password">Confirmer le mot de passe</label>

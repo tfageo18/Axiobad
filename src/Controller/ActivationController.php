@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\LicencieRepository;
+use App\Security\PasswordStrengthChecker;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class ActivationController extends AbstractController
 {
     #[Route('/activation/{token}', name: 'app_activation', methods: ['GET', 'POST'])]
-    public function __invoke(string $token, Request $request, LicencieRepository $licencieRepository, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): Response
+    public function __invoke(string $token, Request $request, LicencieRepository $licencieRepository, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager, PasswordStrengthChecker $passwordStrengthChecker): Response
     {
         $licencie = $licencieRepository->findOneByActivationToken($token);
 
@@ -24,11 +25,18 @@ class ActivationController extends AbstractController
         }
 
         if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('activation-'.$token, (string) $request->request->get('_token'))) {
+                $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+                return $this->redirectToRoute('app_activation', ['token' => $token]);
+            }
+
             $newPassword = (string) $request->request->get('password');
             $confirmPassword = (string) $request->request->get('confirm_password');
 
-            if (strlen($newPassword) < 8) {
-                $this->addFlash('error', 'Le mot de passe doit contenir au moins 8 caractères.');
+            $erreurMotDePasse = $passwordStrengthChecker->verifier($newPassword);
+            if (null !== $erreurMotDePasse) {
+                $this->addFlash('error', $erreurMotDePasse);
 
                 return $this->redirectToRoute('app_activation', ['token' => $token]);
             }

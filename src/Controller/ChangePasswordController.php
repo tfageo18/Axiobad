@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Licencie;
+use App\Security\PasswordStrengthChecker;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 class ChangePasswordController extends AbstractController
 {
     #[Route('/mon-compte/mot-de-passe', name: 'app_change_password', methods: ['GET', 'POST'])]
-    public function __invoke(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): Response
+    public function __invoke(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager, PasswordStrengthChecker $passwordStrengthChecker): Response
     {
         /** @var Licencie $licencie */
         $licencie = $this->getUser();
@@ -35,8 +36,9 @@ class ChangePasswordController extends AbstractController
             $newPassword = (string) $request->request->get('password');
             $confirmPassword = (string) $request->request->get('confirm_password');
 
-            if (strlen($newPassword) < 8) {
-                $this->addFlash('error', 'Le mot de passe doit contenir au moins 8 caractères.');
+            $erreurMotDePasse = $passwordStrengthChecker->verifier($newPassword);
+            if (null !== $erreurMotDePasse) {
+                $this->addFlash('error', $erreurMotDePasse);
 
                 return $this->redirectToRoute('app_change_password');
             }

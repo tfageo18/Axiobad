@@ -183,6 +183,9 @@ Menu **Club → Équipes**, visible par tous les connectés.
   modifier le nom/la catégorie de son équipe et ajouter ou retirer des membres — mais il ne peut
   ni supprimer l'équipe, ni changer qui en est le capitaine.
 - Le bureau peut **désactiver/réactiver** ou **supprimer** une équipe depuis la liste.
+- La liste des équipes est **triée par niveau** (national, puis prénational, régional,
+  départemental, du meilleur numéro au moins bon au sein d'une même catégorie), déduit
+  automatiquement du nom et de la division saisis pour l'équipe.
 
 ## Gérer les créneaux (bureau)
 
@@ -366,9 +369,12 @@ Menu **Club → Interclubs**.
 
 - Le **bureau** crée une **rencontre** pour une équipe existante (voir [Gérer les
   équipes](#gérer-les-équipes-bureau-capitaines)) : numéro de **journée**, date/heure, adversaire,
-  lieu, **domicile ou extérieur**, **heure de rendez-vous**, **capitaine de la rencontre**
+  **domicile ou extérieur**, **heure de rendez-vous**, **capitaine de la rencontre**
   (optionnel, sinon celui de l'équipe est affiché), **covoiturage** (texte libre), et peut
   renseigner le **score global** une fois le match joué.
+- **Lieu** : à domicile, il se choisit dans la **liste des gymnases du club** (menu déroulant) ; à
+  l'extérieur, c'est un **champ libre** (le gymnase adverse n'étant pas dans la liste du club). La
+  bascule entre les deux se fait en cochant/décochant « À domicile » sur le formulaire.
 - Sur la page d'une rencontre, le bureau **convoque** les joueurs parmi les membres de l'équipe.
 - Chaque joueur convoqué peut indiquer s'il est **présent ou non** à la rencontre, comme pour un
   créneau ; le bureau voit l'état des réponses de toute l'équipe convoquée, et la **composition**
@@ -376,6 +382,11 @@ Menu **Club → Interclubs**.
 - **Feuille de rencontre** : le bureau ajoute chaque match individuel — type (**SH, SD, DH, DD,
   MX**), un ou deux joueurs de l'équipe (double), les adversaires (texte libre, pas besoin d'un
   compte), le score détaillé et le résultat (gagné/perdu). Un match peut être supprimé si besoin.
+- La liste des rencontres se **filtre par équipe** (menu déroulant en haut de la page). Filtre par
+  défaut à l'arrivée sur la page : son équipe si on n'en a qu'une, sinon son **équipe préférée**
+  si elle est définie dans [son profil](#mon-profil) (sinon, toutes les rencontres s'affichent).
+  La liste (et le menu du filtre) est aussi **triée par niveau d'équipe**, comme la liste des
+  équipes.
 - Menu **Interclubs → Statistiques** : par équipe (rencontres jouées/gagnées/perdues/nulles, basé
   sur le score global des rencontres) et par joueur (matchs joués/gagnés/perdus, basé sur les
   matchs individuels de la feuille de rencontre).
@@ -469,6 +480,9 @@ menu latéral → **Modifier mon profil** :
 - **Numéro de licence FFBaD**.
 - **Classement** simple/double/mixte (voir [Modifier le classement d'un
   licencié](#modifier-le-classement-dun-licencié)).
+- **Équipe par défaut (interclubs)** : si membre de plusieurs équipes, choisir celle utilisée pour
+  pré-filtrer la liste des [rencontres interclubs](#championnats--interclubs-tous-les-licenciés-bureau).
+  Modifiable aussi par le bureau depuis la fiche du licencié.
 
 Le menu du compte propose aussi un accès direct à la **documentation** et à la **déconnexion**.
 

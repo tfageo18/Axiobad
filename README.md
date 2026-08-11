@@ -41,7 +41,9 @@ Les **issues** et **pull requests** sont les bienvenues, voir [CONTRIBUTING.md](
   téléchargeable) : un email d'invitation est envoyé à chacun pour définir son mot de passe
   (lien valable 7 jours).
 - Chaque licencié peut gérer son propre profil (page "Mon compte" via le menu du compte en haut à
-  droite) : photo, email, téléphone, date de naissance, numéro de licence, classement.
+  droite) : photo, email, téléphone, date de naissance, numéro de licence, classement, et son
+  **équipe interclub par défaut** (parmi ses équipes) si membre de plusieurs — modifiable aussi par
+  le bureau depuis la fiche du licencié.
 - Classement saisi manuellement (simple/double/mixte), sur l'échelle officielle FFBaD (NC à N1) —
   il n'existe pas d'API publique fiable pour le récupérer automatiquement.
 - La liste des licenciés propose une recherche instantanée, un tri par colonne, la désactivation/
@@ -98,17 +100,25 @@ Les **issues** et **pull requests** sont les bienvenues, voir [CONTRIBUTING.md](
 - Le capitaine (même sans être du bureau) peut gérer le nom/la catégorie de son équipe et ses
   membres, mais pas supprimer l'équipe ni changer le capitaine.
 - Le bureau peut **désactiver/réactiver** ou **supprimer** une équipe.
+- La liste des équipes est **triée par niveau** (national, puis prénational, régional,
+  départemental, du meilleur numéro au moins bon), déduit du nom et de la division saisis.
 
 ### Championnats / Interclubs
 
-- Le bureau crée des rencontres pour une équipe : numéro de **journée**, date, adversaire, lieu,
+- Le bureau crée des rencontres pour une équipe : numéro de **journée**, date, adversaire,
   **domicile ou extérieur**, **heure de rendez-vous**, **capitaine de la rencontre** (par défaut
   celui de l'équipe), **covoiturage** (texte libre), et le score global une fois jouée.
+- **Lieu** : à domicile, le lieu se choisit dans la liste des gymnases du club (menu déroulant) ;
+  à l'extérieur, c'est un champ libre (le gymnase adverse n'étant pas dans la liste du club).
 - Les joueurs de l'équipe sont **convoqués** et peuvent indiquer s'ils sont présents ou non à la
   rencontre, comme pour un créneau. La **composition** (joueurs confirmés présents) est affichée
   sur la page de la rencontre.
 - **Feuille de rencontre** : le bureau ajoute chaque match individuel (SH, SD, DH, DD, MX) avec
   les joueurs de l'équipe engagés, les adversaires (texte libre), le score détaillé et le résultat.
+- La liste des rencontres se **filtre par équipe** (menu déroulant), avec un filtre par défaut :
+  automatiquement sur son équipe si on n'en a qu'une, sinon sur son équipe préférée si elle est
+  définie (réglable dans son profil). Elle est aussi **triée par niveau d'équipe**, du national au
+  départemental (déduit du nom/de la division de l'équipe), comme la liste des équipes.
 - **Statistiques** (menu dédié) : par équipe (rencontres jouées/gagnées/perdues/nulles à partir du
   score global) et par joueur (matchs joués/gagnés/perdus à partir des matchs individuels).
 - Chaque rencontre apparaît aussi dans le calendrier, visible par le bureau et les membres de

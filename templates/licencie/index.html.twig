@@ -146,10 +146,12 @@
                         <a href="{{ path('app_licencie_edit', {id: licencie.id}) }}">Modifier</a>
                         {% if licencie.aUnCompte and licencie.mustChangePassword %}
                             <form method="post" action="{{ path('app_licencie_renvoyer_invitation', {id: licencie.id}) }}" style="display:inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('renvoyer-invitation-' ~ licencie.id) }}">
                                 <button type="submit">Renvoyer l'invitation</button>
                             </form>
                         {% elseif licencie.aUnCompte %}
                             <form method="post" action="{{ path('app_licencie_reinitialiser_mot_de_passe', {id: licencie.id}) }}" style="display:inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('reinitialiser-mot-de-passe-' ~ licencie.id) }}">
                                 <button type="submit">Réinitialiser le mot de passe</button>
                             </form>
                         {% endif %}

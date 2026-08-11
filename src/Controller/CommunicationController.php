@@ -65,6 +65,12 @@ class CommunicationController extends AbstractController
     #[Route('/envoyer', name: 'app_communication_envoyer', methods: ['POST'])]
     public function envoyer(Request $request, NotificationMailer $notificationMailer, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
+        if (!$this->isCsrfTokenValid('communication-envoyer', (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+            return $this->redirectToRoute('app_communication_index');
+        }
+
         $cible = (string) $request->request->get('cible', '');
         $sujet = trim((string) $request->request->get('sujet'));
         $corps = trim((string) $request->request->get('corps'));
@@ -148,8 +154,14 @@ class CommunicationController extends AbstractController
     }
 
     #[Route('/{id}/annuler', name: 'app_communication_annuler', methods: ['POST'], requirements: ['id' => '\d+'])]
-    public function annuler(CommunicationEnvoi $envoi, EntityManagerInterface $entityManager): Response
+    public function annuler(CommunicationEnvoi $envoi, Request $request, EntityManagerInterface $entityManager): Response
     {
+        if (!$this->isCsrfTokenValid('communication-annuler-'.$envoi->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+            return $this->redirectToRoute('app_communication_index');
+        }
+
         if (!$envoi->estEnAttente()) {
             $this->addFlash('error', 'Cette communication a déjà été envoyée ou annulée.');
 
@@ -167,6 +179,12 @@ class CommunicationController extends AbstractController
     #[Route('/modeles', name: 'app_communication_modele_creer', methods: ['POST'])]
     public function creerModele(Request $request, EntityManagerInterface $entityManager): Response
     {
+        if (!$this->isCsrfTokenValid('communication-modele-creer', (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+            return $this->redirectToRoute('app_communication_index');
+        }
+
         $nom = trim((string) $request->request->get('nom'));
         $sujet = trim((string) $request->request->get('sujet'));
         $corps = trim((string) $request->request->get('corps'));
@@ -187,8 +205,14 @@ class CommunicationController extends AbstractController
     }
 
     #[Route('/modeles/{id}/supprimer', name: 'app_communication_modele_supprimer', methods: ['POST'])]
-    public function supprimerModele(ModeleCommunication $modele, EntityManagerInterface $entityManager): Response
+    public function supprimerModele(ModeleCommunication $modele, Request $request, EntityManagerInterface $entityManager): Response
     {
+        if (!$this->isCsrfTokenValid('communication-modele-supprimer-'.$modele->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+            return $this->redirectToRoute('app_communication_index');
+        }
+
         $entityManager->remove($modele);
         $entityManager->flush();
 

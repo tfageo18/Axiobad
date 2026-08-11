@@ -534,8 +534,14 @@ class LicencieController extends AbstractController
     }
 
     #[Route('/{id}/renvoyer-invitation', name: 'app_licencie_renvoyer_invitation', methods: ['POST'])]
-    public function renvoyerInvitation(Licencie $licencie, EntityManagerInterface $entityManager, InvitationMailer $invitationMailer): Response
+    public function renvoyerInvitation(Licencie $licencie, Request $request, EntityManagerInterface $entityManager, InvitationMailer $invitationMailer): Response
     {
+        if (!$this->isCsrfTokenValid('renvoyer-invitation-'.$licencie->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
         if (!$licencie->aUnCompte()) {
             $this->addFlash('error', "Ce licencié n'a pas de compte de connexion (rattaché à un responsable légal).");
 
@@ -561,8 +567,14 @@ class LicencieController extends AbstractController
     }
 
     #[Route('/{id}/reinitialiser-mot-de-passe', name: 'app_licencie_reinitialiser_mot_de_passe', methods: ['POST'])]
-    public function reinitialiserMotDePasse(Licencie $licencie, EntityManagerInterface $entityManager, InvitationMailer $invitationMailer): Response
+    public function reinitialiserMotDePasse(Licencie $licencie, Request $request, EntityManagerInterface $entityManager, InvitationMailer $invitationMailer): Response
     {
+        if (!$this->isCsrfTokenValid('reinitialiser-mot-de-passe-'.$licencie->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
         if (!$licencie->aUnCompte()) {
             $this->addFlash('error', "Ce licencié n'a pas de compte de connexion (rattaché à un responsable légal).");
 

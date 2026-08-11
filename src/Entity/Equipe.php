@@ -106,7 +106,7 @@ class Equipe
      */
     public function getNiveauRang(): int
     {
-        return NiveauInterclub::rang($this->division);
+        return NiveauInterclub::rang($this->nom, $this->division);
     }
 
     public function isActif(): bool

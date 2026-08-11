@@ -64,14 +64,14 @@
                 {% set hauteurVenus = maxMois > 0 ? (m.venus / maxMois * hauteurMax)|round(0, 'ceil') : 0 %}
                 {% set hauteurTotal = maxMois > 0 ? (m.total / maxMois * hauteurMax)|round(0, 'ceil') : 0 %}
                 {% set x = loop.index0 * (largeurBarre + espace) + espace / 2 %}
-                <rect x="{{ x }}" y="{{ hauteurMax - hauteurTotal }}" width="{{ largeurBarre }}" height="{{ hauteurTotal }}" fill="var(--color-border, #e4e8f1)" rx="4"></rect>
-                <rect x="{{ x }}" y="{{ hauteurMax - hauteurVenus }}" width="{{ largeurBarre }}" height="{{ hauteurVenus }}" fill="#16a34a" rx="4"></rect>
-                <text x="{{ x + largeurBarre / 2 }}" y="{{ hauteurMax - hauteurTotal - 6 }}" text-anchor="middle" font-size="12" fill="#1c2333">{{ m.venus }}/{{ m.total }}</text>
-                <text x="{{ x + largeurBarre / 2 }}" y="{{ hauteurMax + 18 }}" text-anchor="middle" font-size="12" fill="#6b7386">{{ m.label }}</text>
+                <rect x="{{ x }}" y="{{ hauteurMax - hauteurTotal }}" width="{{ largeurBarre }}" height="{{ hauteurTotal }}" fill="var(--color-border)" rx="4"></rect>
+                <rect x="{{ x }}" y="{{ hauteurMax - hauteurVenus }}" width="{{ largeurBarre }}" height="{{ hauteurVenus }}" fill="var(--color-success)" rx="4"></rect>
+                <text x="{{ x + largeurBarre / 2 }}" y="{{ hauteurMax - hauteurTotal - 6 }}" text-anchor="middle" font-size="12" fill="var(--color-text)">{{ m.venus }}/{{ m.total }}</text>
+                <text x="{{ x + largeurBarre / 2 }}" y="{{ hauteurMax + 18 }}" text-anchor="middle" font-size="12" fill="var(--color-text-muted)">{{ m.label }}</text>
             {% endfor %}
         </svg>
         <p style="font-size: 0.82rem; color: var(--color-text-muted); margin: 0.5rem 0 0;">
-            <span style="display:inline-block; width:0.7rem; height:0.7rem; background:#16a34a; border-radius:2px; vertical-align:middle;"></span> présent
+            <span style="display:inline-block; width:0.7rem; height:0.7rem; background:var(--color-success); border-radius:2px; vertical-align:middle;"></span> présent
             &nbsp;<span style="display:inline-block; width:0.7rem; height:0.7rem; background:var(--color-border); border-radius:2px; vertical-align:middle;"></span> total des réponses
         </p>
     </div>

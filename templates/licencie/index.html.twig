@@ -123,7 +123,7 @@
                             {% else %}
                                 {% set libelleStatut = adhesion ? adhesion.statutLabel : 'En attente' %}
                                 {% set couleurStatut = adhesion and adhesion.statut == 'PAYEE' ? 'success' : (adhesion and adhesion.statut == 'EXONEREE' ? 'primary-dark' : 'error') %}
-                                <a href="{{ path('app_licencie_adhesion', {id: licencie.id, saison: saison.id}) }}" class="quantite-badge {{ couleurStatut == 'error' ? 'zero' : '' }}" style="text-decoration: none; {{ couleurStatut == 'success' ? 'background: var(--color-success-bg); color: var(--color-success);' : (couleurStatut == 'primary-dark' ? 'background: #eef2ff; color: var(--color-primary-dark);' : '') }}">
+                                <a href="{{ path('app_licencie_adhesion', {id: licencie.id, saison: saison.id}) }}" class="quantite-badge {{ couleurStatut == 'error' ? 'zero' : '' }}" style="text-decoration: none; {{ couleurStatut == 'success' ? 'background: var(--color-success-bg); color: var(--color-success);' : (couleurStatut == 'primary-dark' ? 'background: var(--color-primary-soft); color: var(--color-primary-dark);' : '') }}">
                                     {{ libelleStatut }}
                                 </a>
                                 {% if adhesion and adhesion.montantRestant is not null and adhesion.montantRestant > 0 %}

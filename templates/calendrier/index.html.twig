@@ -6,15 +6,15 @@
     {{ parent() }}
     <style>
         .calendrier { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .calendrier th { border: 1px solid #ddd; padding: 0.25rem; background: #f0f0f0; }
-        .calendrier td { border: 1px solid #ddd; padding: 0.25rem; vertical-align: top; height: 1px; }
-        .calendrier .hors-mois { background: #fafafa; color: #999; }
+        .calendrier th { border: 1px solid var(--color-border); padding: 0.25rem; }
+        .calendrier td { border: 1px solid var(--color-border); padding: 0.25rem; vertical-align: top; height: 1px; }
+        .calendrier .hors-mois { background: var(--color-surface-2); color: var(--color-text-faint); }
         .calendrier .jour-numero { font-weight: bold; }
-        .creneau-cal { border: 1px solid #ccc; border-radius: 4px; padding: 0.25rem; margin-top: 0.25rem; font-size: 0.8rem; }
+        .creneau-cal { border: 1px solid var(--color-border); border-radius: 4px; padding: 0.25rem; margin-top: 0.25rem; font-size: 0.8rem; }
         .creneau-cal button { font-size: 0.75rem; padding: 0.1rem 0.3rem; }
-        .rencontre-cal { border: 1px solid var(--color-accent); background: #fff7ed; border-radius: 4px; padding: 0.25rem; margin-top: 0.25rem; font-size: 0.8rem; }
+        .rencontre-cal { border: 1px solid var(--color-accent); background: var(--color-warning-bg); border-radius: 4px; padding: 0.25rem; margin-top: 0.25rem; font-size: 0.8rem; }
         .rencontre-cal a { color: var(--color-accent-dark); font-weight: 700; text-decoration: none; }
-        .agenda-rencontre { border: 1px solid var(--color-accent); background: #fff7ed; border-radius: 8px; padding: 0.65rem 0.75rem; margin-top: 0.6rem; }
+        .agenda-rencontre { border: 1px solid var(--color-accent); background: var(--color-warning-bg); border-radius: 8px; padding: 0.65rem 0.75rem; margin-top: 0.6rem; }
         .agenda-rencontre a { font-size: 1rem; font-weight: 700; text-decoration: none; color: var(--color-accent-dark); }
 
         .agenda-mobile { display: none; }

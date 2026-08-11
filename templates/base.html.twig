@@ -2,36 +2,112 @@
 <html lang="fr">
     <head>
         <meta charset="UTF-8">
+        <script>
+            // Applique le thème sauvegardé avant le premier rendu, pour éviter un flash de la
+            // mauvaise palette (l'attribut data-theme n'est posé que si l'utilisateur a fait un
+            // choix explicite — sinon on laisse la préférence système décider, voir le CSS).
+            (function () {
+                try {
+                    var theme = localStorage.getItem('axiobad-theme');
+                    if ('light' === theme || 'dark' === theme) {
+                        document.documentElement.setAttribute('data-theme', theme);
+                    }
+                } catch (e) {}
+            })();
+        </script>
         <title>{% block title %}Axiobad{% endblock %}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
         <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
         <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}">
-        <meta name="theme-color" content="#1b3a6b">
+        <meta name="theme-color" content="#2c56d6">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
         <meta name="apple-mobile-web-app-title" content="Axiobad">
         {% block stylesheets %}
         <style>
             :root {
-                --color-bg: #f4f6fb;
+                /* Fond légèrement teinté plutôt que blanc pur — les surfaces (cartes, tableaux)
+                   se détachent dessus au lieu de se fondre dedans. */
+                --color-bg: #f1f3fa;
                 --color-surface: #ffffff;
-                --color-border: #e4e8f1;
-                --color-text: #1c2333;
-                --color-text-muted: #6b7386;
-                --color-primary: #1b3a6b;
-                --color-primary-dark: #12274a;
+                --color-surface-2: #eaeef9;
+                --color-border: #dde2f1;
+                --color-text: #14171f;
+                --color-text-muted: #5c6577;
+                --color-text-faint: #8991a3;
+
+                --color-primary: #2c56d6;
+                --color-primary-dark: #1e3fae;
+                --color-primary-soft: #e7edfd;
                 --color-accent: #f97316;
                 --color-accent-dark: #ea580c;
-                --color-success: #16a34a;
-                --color-success-bg: #ecfdf3;
-                --color-error: #dc2626;
-                --color-error-bg: #fef2f2;
+                --color-success: #178a4c;
+                --color-success-bg: #e3f6ec;
+                --color-error: #c22a2a;
+                --color-error-bg: #fbe6e6;
+                --color-warning: #b5680a;
+                --color-warning-bg: #fbeed9;
+
                 --radius: 12px;
                 --shadow: 0 1px 3px rgba(20, 30, 60, 0.08), 0 1px 2px rgba(20, 30, 60, 0.06);
+
+                --sidebar-w: 260px;
+                --sidebar-w-collapsed: 72px;
+            }
+
+            @media (prefers-color-scheme: dark) {
+                :root:not([data-theme="light"]) {
+                    --color-bg: #0d1016;
+                    --color-surface: #151a24;
+                    --color-surface-2: #1b2231;
+                    --color-border: #262f42;
+                    --color-text: #e9ecf6;
+                    --color-text-muted: #8b96ac;
+                    --color-text-faint: #5d667a;
+
+                    --color-primary: #6b8cff;
+                    --color-primary-dark: #90a9ff;
+                    --color-primary-soft: #1c2745;
+                    --color-accent: #fb923c;
+                    --color-accent-dark: #fdba74;
+                    --color-success: #3ecb82;
+                    --color-success-bg: #0f2a1c;
+                    --color-error: #ef5757;
+                    --color-error-bg: #2f1414;
+                    --color-warning: #e2a53d;
+                    --color-warning-bg: #302108;
+
+                    --shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+                }
+            }
+
+            :root[data-theme="dark"] {
+                --color-bg: #0d1016;
+                --color-surface: #151a24;
+                --color-surface-2: #1b2231;
+                --color-border: #262f42;
+                --color-text: #e9ecf6;
+                --color-text-muted: #8b96ac;
+                --color-text-faint: #5d667a;
+
+                --color-primary: #6b8cff;
+                --color-primary-dark: #90a9ff;
+                --color-primary-soft: #1c2745;
+                --color-accent: #fb923c;
+                --color-accent-dark: #fdba74;
+                --color-success: #3ecb82;
+                --color-success-bg: #0f2a1c;
+                --color-error: #ef5757;
+                --color-error-bg: #2f1414;
+                --color-warning: #e2a53d;
+                --color-warning-bg: #302108;
+
+                --shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
             }
 
             * { box-sizing: border-box; }
+            html { color-scheme: light dark; }
 
             body {
                 font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -42,146 +118,151 @@
             }
 
             h1, h2, h3 {
-                font-weight: 700;
+                font-weight: 800;
                 letter-spacing: -0.01em;
-                color: var(--color-primary-dark);
+                color: var(--color-text);
+                text-wrap: balance;
             }
-            h1 { font-size: 1.75rem; margin: 0 0 1.25rem; }
-            h2 { font-size: 1.25rem; margin: 2rem 0 0.75rem; }
+            h1 { font-size: 1.6rem; margin: 0 0 1.25rem; }
+            h2 { font-size: 1.2rem; margin: 2rem 0 0.75rem; }
 
-            nav {
-                background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-                padding: 0.75rem 1.5rem;
+            a { color: var(--color-primary); font-weight: 500; }
+
+            /* ============ APP SHELL (utilisateur connecté) ============ */
+            .app { display: flex; min-height: 100vh; }
+
+            .sidebar {
+                width: var(--sidebar-w);
+                flex: 0 0 auto;
+                background: var(--color-surface);
+                border-right: 1px solid var(--color-border);
                 display: flex;
-                gap: 0.25rem;
-                align-items: center;
-                box-shadow: var(--shadow);
+                flex-direction: column;
                 position: sticky;
                 top: 0;
-                z-index: 10;
-                flex-wrap: wrap;
+                height: 100vh;
+                overflow-y: auto;
+                padding: 1rem 0.75rem;
+                transition: width 0.15s ease;
+                z-index: 30;
             }
-            nav .brand {
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-                margin-right: 1rem;
-                text-decoration: none;
-            }
-            nav .brand img { width: 28px; height: 28px; }
-            nav .brand span {
-                color: #fff;
-                font-weight: 800;
-                font-size: 1.15rem;
-                letter-spacing: -0.02em;
-            }
-            nav a.nav-link {
-                color: rgba(255,255,255,0.85);
-                text-decoration: none;
-                padding: 0.45rem 0.85rem;
-                border-radius: 999px;
-                font-size: 0.92rem;
-                font-weight: 500;
-                transition: background 0.15s ease, color 0.15s ease;
-            }
-            nav a.nav-link:hover { background: rgba(255,255,255,0.12); color: #fff; }
-            nav .spacer { margin-left: auto; display: flex; align-items: center; gap: 0.75rem; }
-            nav .user-link {
-                color: #fff;
-                text-decoration: none;
-                font-weight: 600;
-                font-size: 0.9rem;
-                padding: 0.4rem 0.75rem;
-                border-radius: 999px;
-                background: rgba(255,255,255,0.1);
-            }
-            nav .user-link:hover { background: rgba(255,255,255,0.2); }
-            nav .logout-link { color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.85rem; }
-            nav .logout-link:hover { color: #fff; }
+            .app.collapsed .sidebar { width: var(--sidebar-w-collapsed); }
 
-            .compte-menu { position: relative; }
-            .compte-menu-bouton {
+            .sidebar-header {
                 display: flex;
                 align-items: center;
-                gap: 0.3rem;
-                color: #fff;
-                background: rgba(255,255,255,0.1);
-                border: none;
-                cursor: pointer;
-                font-family: inherit;
-                font-weight: 600;
-                font-size: 0.9rem;
-                padding: 0.4rem 0.75rem;
-                border-radius: 999px;
+                gap: 0.6rem;
+                padding: 0.4rem 0.5rem 1rem;
+                border-bottom: 1px solid var(--color-border);
+                margin-bottom: 0.9rem;
+                text-decoration: none;
             }
-            .compte-menu-bouton:hover { background: rgba(255,255,255,0.2); }
-            .compte-menu-bouton .chevron { font-size: 0.65rem; opacity: 0.8; }
+            .sidebar-header img { width: 30px; height: 30px; flex: 0 0 auto; }
+            .sidebar-header .brand-text { font-weight: 800; font-size: 1.05rem; color: var(--color-text); letter-spacing: -0.01em; }
+            .app.collapsed .sidebar-header { justify-content: center; padding-left: 0; padding-right: 0; }
+            .app.collapsed .brand-text, .app.collapsed .nav-label, .app.collapsed .nav-group-title,
+            .app.collapsed .sidebar-user-info, .app.collapsed .badge-count { display: none; }
+
+            .nav-group { margin-bottom: 1rem; }
+            .nav-group-title {
+                font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em;
+                color: var(--color-text-faint); padding: 0 0.6rem; margin-bottom: 0.3rem;
+            }
+            .nav-item {
+                display: flex; align-items: center; gap: 0.7rem;
+                padding: 0.5rem 0.6rem; border-radius: 8px;
+                color: var(--color-text-muted); font-weight: 600; font-size: 0.87rem;
+                text-decoration: none; white-space: nowrap; overflow: hidden;
+            }
+            .nav-item:hover { background: var(--color-surface-2); color: var(--color-text); }
+            .nav-item.active { background: var(--color-primary-soft); color: var(--color-primary-dark); }
+            .nav-item svg { flex: 0 0 auto; width: 18px; height: 18px; }
+            .app.collapsed .nav-item { justify-content: center; padding: 0.55rem; }
+
+            .sidebar-footer {
+                margin-top: auto; padding-top: 0.8rem; border-top: 1px solid var(--color-border);
+                position: relative;
+            }
+            .sidebar-footer-bouton {
+                display: flex; align-items: center; gap: 0.6rem; width: 100%;
+                background: none; border: none; cursor: pointer; padding: 0.4rem 0.6rem 0.4rem 0;
+                border-radius: 8px; font-family: inherit; text-align: left;
+            }
+            .sidebar-footer-bouton:hover { background: var(--color-surface-2); }
+            .app.collapsed .sidebar-footer-bouton { justify-content: center; padding-right: 0; }
+            .avatar {
+                width: 32px; height: 32px; border-radius: 50%; flex: 0 0 auto;
+                background: var(--color-primary-soft); color: var(--color-primary-dark);
+                display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem;
+            }
+            .sidebar-user-info { overflow: hidden; flex: 1; }
+            .sidebar-user-info div:first-child { font-weight: 700; font-size: 0.84rem; color: var(--color-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .sidebar-user-info div:last-child { font-size: 0.72rem; color: var(--color-text-muted); }
+
             .compte-menu-liste {
                 display: none;
                 position: absolute;
-                right: 0;
-                top: calc(100% + 0.4rem);
+                left: 0.5rem; right: 0.5rem;
+                bottom: calc(100% + 0.4rem);
                 background: var(--color-surface);
+                border: 1px solid var(--color-border);
                 border-radius: var(--radius);
                 box-shadow: var(--shadow);
-                min-width: 200px;
                 overflow: hidden;
-                z-index: 20;
+                z-index: 40;
             }
             .compte-menu.ouvert .compte-menu-liste { display: block; }
             .compte-menu-liste a, .compte-menu-liste button {
-                display: block;
-                width: 100%;
-                text-align: left;
-                padding: 0.65rem 1rem;
-                color: var(--color-text);
-                text-decoration: none;
-                background: none;
-                border: none;
-                font-family: inherit;
-                font-size: 0.9rem;
-                font-weight: 500;
-                cursor: pointer;
-                border-radius: 0;
+                display: block; width: 100%; text-align: left;
+                padding: 0.65rem 1rem; color: var(--color-text); text-decoration: none;
+                background: none; border: none; font-family: inherit; font-size: 0.88rem;
+                font-weight: 500; cursor: pointer; border-radius: 0;
             }
-            .compte-menu-liste a:hover, .compte-menu-liste button:hover { background: var(--color-bg); }
+            .compte-menu-liste a:hover, .compte-menu-liste button:hover { background: var(--color-surface-2); }
             .compte-menu-liste .deconnexion { color: var(--color-error); }
 
-            .nav-dropdown { position: relative; }
-            .nav-dropdown-bouton {
-                display: inline-flex;
-                align-items: center;
-                gap: 0.3rem;
-                background: none;
-                border: none;
-                cursor: pointer;
-                font-family: inherit;
+            /* ============ TOPBAR ============ */
+            .app-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+            .topbar {
+                display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+                padding: 0.75rem 1.5rem;
+                border-bottom: 1px solid var(--color-border);
+                position: sticky; top: 0; background: var(--color-bg);
+                z-index: 10;
             }
-            .nav-dropdown-bouton .chevron { font-size: 0.6rem; opacity: 0.75; }
-            .nav-dropdown-liste {
-                display: none;
-                position: absolute;
-                left: 0;
-                top: calc(100% + 0.4rem);
-                background: var(--color-surface);
-                border-radius: var(--radius);
-                box-shadow: var(--shadow);
-                min-width: 200px;
-                overflow: hidden;
-                z-index: 20;
+            .topbar-actions { display: flex; align-items: center; gap: 0.5rem; }
+            .icon-btn {
+                width: 34px; height: 34px; border-radius: 8px;
+                border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text-muted);
+                display: none; align-items: center; justify-content: center; cursor: pointer;
             }
-            .nav-dropdown.ouvert .nav-dropdown-liste { display: block; }
-            .nav-dropdown-item {
-                display: block;
-                padding: 0.65rem 1rem;
-                color: var(--color-text);
-                text-decoration: none;
-                font-size: 0.9rem;
-                font-weight: 500;
-            }
-            .nav-dropdown-item:hover { background: var(--color-bg); }
+            .icon-btn:hover { background: var(--color-surface-2); color: var(--color-text); }
+            .icon-btn svg { flex: 0 0 auto; width: 17px; height: 17px; }
 
-            main { padding: 1.75rem; max-width: 1200px; margin: 0 auto; }
+            .theme-toggle {
+                display: flex; align-items: center; background: var(--color-surface-2); border-radius: 999px;
+                padding: 3px; border: 1px solid var(--color-border);
+            }
+            .theme-toggle button {
+                border: none; background: transparent; width: 28px; height: 26px; border-radius: 999px;
+                display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--color-text-muted);
+                padding: 0;
+            }
+            .theme-toggle button svg { flex: 0 0 auto; width: 14px; height: 14px; }
+            .theme-toggle button.active { background: var(--color-surface); color: var(--color-primary); box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+
+            .topbar-public { padding: 0.9rem 1.5rem; justify-content: space-between; }
+            .topbar-public .brand { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; }
+            .topbar-public .brand img { width: 28px; height: 28px; }
+            .topbar-public .brand span { color: var(--color-text); font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em; }
+            .topbar-public .user-link {
+                color: #fff; background: var(--color-primary); text-decoration: none; font-weight: 600;
+                font-size: 0.88rem; padding: 0.45rem 0.9rem; border-radius: 999px;
+            }
+            .topbar-public .user-link:hover { background: var(--color-primary-dark); }
+
+            main { padding: 1.75rem; max-width: 1200px; }
+            .main-public { padding: 1.75rem; max-width: 720px; margin: 0 auto; width: 100%; }
 
             .flash-success, .flash-error {
                 padding: 0.75rem 1rem;
@@ -203,6 +284,7 @@
                 overflow: hidden;
                 box-shadow: var(--shadow);
                 margin-bottom: 1.5rem;
+                border: 1px solid var(--color-border);
             }
             th, td {
                 padding: 0.7rem 1rem;
@@ -211,15 +293,15 @@
                 font-size: 0.92rem;
             }
             th {
-                background: #f8f9fc;
+                background: var(--color-surface-2);
                 color: var(--color-text-muted);
-                font-weight: 600;
-                font-size: 0.78rem;
+                font-weight: 700;
+                font-size: 0.75rem;
                 text-transform: uppercase;
-                letter-spacing: 0.04em;
+                letter-spacing: 0.05em;
             }
             tbody tr:last-child td { border-bottom: none; }
-            tbody tr:hover { background: #fafbfe; }
+            tbody tr:hover { background: var(--color-surface-2); }
 
             form { margin-bottom: 0; }
             form > div { margin-bottom: 1rem; }
@@ -246,7 +328,7 @@
             input:focus, select:focus, textarea:focus {
                 outline: none;
                 border-color: var(--color-primary);
-                box-shadow: 0 0 0 3px rgba(27, 58, 107, 0.12);
+                box-shadow: 0 0 0 3px var(--color-primary-soft);
             }
             textarea { max-width: 100%; min-height: 5rem; }
             input[type="checkbox"] { width: auto; margin-right: 0.4rem; }
@@ -271,7 +353,7 @@
                 color: var(--color-text);
                 border: 2px solid var(--color-border);
             }
-            .btn-presence:hover { background: var(--color-bg); }
+            .btn-presence:hover { background: var(--color-surface-2); }
             .btn-presence.selectionne {
                 border-color: transparent;
                 cursor: default;
@@ -287,10 +369,6 @@
                 color: var(--color-error);
             }
 
-            a {
-                color: var(--color-primary);
-                font-weight: 500;
-            }
             a[href*="supprimer"], form[action*="supprimer"] button {
                 background: transparent;
                 color: var(--color-error);
@@ -330,13 +408,13 @@
 
             .calendrier { box-shadow: var(--shadow); min-width: 800px; }
             .calendrier th { background: var(--color-primary); color: #fff; }
-            .calendrier .hors-mois { background: #fafbfe !important; }
+            .calendrier .hors-mois { background: var(--color-surface-2) !important; }
             .creneau-cal {
-                background: #fff8f0;
-                border: 1px solid #fde4c8 !important;
+                background: var(--color-primary-soft);
+                border: 1px solid var(--color-border) !important;
             }
             .creneau-cal.creneau-annule {
-                background: #fafafa;
+                background: var(--color-surface-2);
                 border: 1px solid var(--color-border) !important;
                 opacity: 0.75;
             }
@@ -345,18 +423,23 @@
             td a, td form { margin-right: 0.35rem; }
             td a:last-child { margin-right: 0; }
 
-            @media (max-width: 768px) {
-                nav { padding: 0.6rem 0.85rem; gap: 0.3rem; }
-                nav .brand { margin-right: 0.4rem; }
-                nav .brand span { font-size: 1rem; }
-                nav a.nav-link {
-                    padding: 0.45rem 0.7rem;
-                    font-size: 0.82rem;
-                    background: rgba(255,255,255,0.08);
+            @media (max-width: 900px) {
+                .app.mobile-closed .sidebar { display: none; }
+                .app { position: relative; }
+                .sidebar {
+                    position: fixed; left: 0; top: 0; width: var(--sidebar-w) !important;
                 }
-                nav .spacer { width: 100%; justify-content: space-between; margin-left: 0; order: 10; margin-top: 0.35rem; }
-
+                .app:not(.mobile-open) .sidebar { transform: translateX(-100%); }
+                .app.mobile-open .sidebar { transform: translateX(0); box-shadow: var(--shadow); }
+                .sidebar { transition: transform 0.2s ease; }
+                .scrim { display: none; position: fixed; inset: 0; background: rgba(10,12,18,0.45); z-index: 25; }
+                .app.mobile-open .scrim { display: block; }
+                .icon-btn.menu-toggle { display: flex; }
+                #btn-collapse { display: none !important; }
                 main { padding: 0.85rem; }
+            }
+
+            @media (max-width: 768px) {
                 h1 { font-size: 1.3rem; margin-bottom: 1rem; }
                 h2 { font-size: 1.05rem; }
 
@@ -389,11 +472,12 @@
                 .mouvement-form input, .mouvement-form button { width: 100%; max-width: 100%; }
 
                 /* Tableaux transformés en cartes empilées sur mobile (voir data-label sur chaque <td>). */
-                table.table-cards { min-width: 0; box-shadow: none; background: transparent; }
+                table.table-cards { min-width: 0; box-shadow: none; background: transparent; border: none; }
                 table.table-cards thead { display: none; }
                 table.table-cards, table.table-cards tbody, table.table-cards tr, table.table-cards td { display: block; width: 100%; }
                 table.table-cards tr {
                     background: var(--color-surface);
+                    border: 1px solid var(--color-border);
                     border-radius: var(--radius);
                     box-shadow: var(--shadow);
                     margin-bottom: 0.75rem;
@@ -438,74 +522,170 @@
 
     </head>
     <body>
-        <nav>
-            <a href="{{ path('app_home') }}" class="brand">
-                <img src="{{ asset('logo.svg') }}" alt="Axiobad">
-                <span>Axiobad</span>
-            </a>
-            {% if app.user %}
-                <a class="nav-link" href="{{ path('app_mon_espace') }}">Mon espace</a>
-                <a class="nav-link" href="{{ path('app_famille_index') }}">Ma famille</a>
+        {% if app.user %}
+            {% set chemin = app.request.pathinfo %}
+            <div class="app" id="app">
+                <div class="scrim" onclick="fermerMenuMobile()"></div>
+                <aside class="sidebar" id="sidebar">
+                    <a href="{{ path('app_home') }}" class="sidebar-header">
+                        <img src="{{ asset('logo.svg') }}" alt="Axiobad">
+                        <span class="brand-text">Axiobad</span>
+                    </a>
 
-                <div class="nav-dropdown">
-                    <button type="button" class="nav-link nav-dropdown-bouton" onclick="toggleNavDropdown(this)">Jouer <span class="chevron">▼</span></button>
-                    <div class="nav-dropdown-liste">
-                        <a class="nav-dropdown-item" href="{{ path('app_calendrier') }}">Calendrier</a>
-                        <a class="nav-dropdown-item" href="{{ path('app_creneau_index') }}">Créneaux</a>
-                        <a class="nav-dropdown-item" href="{{ path('app_gymnase_index') }}">Gymnases</a>
-                    </div>
-                </div>
-
-                <div class="nav-dropdown">
-                    <button type="button" class="nav-link nav-dropdown-bouton" onclick="toggleNavDropdown(this)">Club <span class="chevron">▼</span></button>
-                    <div class="nav-dropdown-liste">
-                        <a class="nav-dropdown-item" href="{{ path('app_evenement_index') }}">Vie du club</a>
-                        <a class="nav-dropdown-item" href="{{ path('app_equipe_index') }}">Équipes</a>
-                        <a class="nav-dropdown-item" href="{{ path('app_interclub_index') }}">Interclubs</a>
-                        <a class="nav-dropdown-item" href="{{ path('app_cordage_index') }}">Cordage</a>
-                    </div>
-                </div>
-
-                {% if is_granted('ROLE_BUREAU') %}
-                    <div class="nav-dropdown">
-                        <button type="button" class="nav-link nav-dropdown-bouton" onclick="toggleNavDropdown(this)">Bureau <span class="chevron">▼</span></button>
-                        <div class="nav-dropdown-liste">
-                            <a class="nav-dropdown-item" href="{{ path('app_dashboard') }}">Tableau de bord</a>
-                            <a class="nav-dropdown-item" href="{{ path('app_licencie_index') }}">Licenciés</a>
-                            <a class="nav-dropdown-item" href="{{ path('app_licencie_index') }}">Adhésions et paiements</a>
-                            <a class="nav-dropdown-item" href="{{ path('app_stock_index') }}">Stock</a>
-                            <a class="nav-dropdown-item" href="{{ path('app_communication_index') }}">Communication</a>
-                            <a class="nav-dropdown-item" href="{{ path('app_notification_historique_index') }}">Historique des notifications</a>
-                            <a class="nav-dropdown-item" href="{{ path('app_journal_audit_index') }}">Journal d'audit</a>
+                    <nav style="flex: 1;">
+                        <div class="nav-group">
+                            <div class="nav-group-title">Jouer</div>
+                            <a class="nav-item {{ chemin starts with '/mon-espace' ? 'active' : '' }}" href="{{ path('app_mon_espace') }}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>
+                                <span class="nav-label">Mon espace</span>
+                            </a>
+                            <a class="nav-item {{ chemin starts with '/ma-famille' ? 'active' : '' }}" href="{{ path('app_famille_index') }}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                <span class="nav-label">Ma famille</span>
+                            </a>
+                            <a class="nav-item {{ chemin starts with '/calendrier' ? 'active' : '' }}" href="{{ path('app_calendrier') }}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                                <span class="nav-label">Calendrier</span>
+                            </a>
+                            <a class="nav-item {{ chemin starts with '/creneaux' ? 'active' : '' }}" href="{{ path('app_creneau_index') }}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                                <span class="nav-label">Créneaux</span>
+                            </a>
+                            <a class="nav-item {{ chemin starts with '/gymnases' ? 'active' : '' }}" href="{{ path('app_gymnase_index') }}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/></svg>
+                                <span class="nav-label">Gymnases</span>
+                            </a>
                         </div>
-                    </div>
-                {% else %}
-                    {% if is_granted('ROLE_ENTRAINEUR') %}
-                        <a class="nav-link" href="{{ path('app_presence_index') }}">Présences</a>
-                    {% endif %}
-                    {% if is_granted('ROLE_STOCK') %}
-                        <a class="nav-link" href="{{ path('app_stock_index') }}">Stock</a>
-                    {% endif %}
-                {% endif %}
-            {% endif %}
-            <span class="spacer">
-                {% if app.user %}
-                    <div class="compte-menu" id="compte-menu">
-                        <button type="button" class="compte-menu-bouton" onclick="document.getElementById('compte-menu').classList.toggle('ouvert');">
-                            {{ app.user.nomComplet }} <span class="chevron">▼</span>
-                        </button>
+
+                        <div class="nav-group">
+                            <div class="nav-group-title">Club</div>
+                            <a class="nav-item {{ chemin starts with '/evenements' ? 'active' : '' }}" href="{{ path('app_evenement_index') }}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/></svg>
+                                <span class="nav-label">Vie du club</span>
+                            </a>
+                            <a class="nav-item {{ chemin starts with '/equipes' ? 'active' : '' }}" href="{{ path('app_equipe_index') }}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                <span class="nav-label">Équipes</span>
+                            </a>
+                            <a class="nav-item {{ chemin starts with '/interclubs' ? 'active' : '' }}" href="{{ path('app_interclub_index') }}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                                <span class="nav-label">Interclubs</span>
+                            </a>
+                            <a class="nav-item {{ chemin starts with '/cordage' ? 'active' : '' }}" href="{{ path('app_cordage_index') }}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2"/></svg>
+                                <span class="nav-label">Cordage</span>
+                            </a>
+                            {% if not is_granted('ROLE_BUREAU') and is_granted('ROLE_ENTRAINEUR') %}
+                                <a class="nav-item {{ chemin starts with '/presences' ? 'active' : '' }}" href="{{ path('app_presence_index') }}">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                                    <span class="nav-label">Présences</span>
+                                </a>
+                            {% endif %}
+                            {% if not is_granted('ROLE_BUREAU') and is_granted('ROLE_STOCK') %}
+                                <a class="nav-item {{ chemin starts with '/stock' ? 'active' : '' }}" href="{{ path('app_stock_index') }}">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg>
+                                    <span class="nav-label">Stock</span>
+                                </a>
+                            {% endif %}
+                        </div>
+
+                        {% if is_granted('ROLE_BUREAU') %}
+                            <div class="nav-group">
+                                <div class="nav-group-title">Bureau</div>
+                                <a class="nav-item {{ chemin starts with '/tableau-de-bord' ? 'active' : '' }}" href="{{ path('app_dashboard') }}">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+                                    <span class="nav-label">Tableau de bord</span>
+                                </a>
+                                <a class="nav-item {{ chemin starts with '/licencies' ? 'active' : '' }}" href="{{ path('app_licencie_index') }}">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                    <span class="nav-label">Licenciés</span>
+                                </a>
+                                <a class="nav-item" href="{{ path('app_licencie_index') }}">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                    <span class="nav-label">Adhésions et paiements</span>
+                                </a>
+                                <a class="nav-item {{ chemin starts with '/stock' ? 'active' : '' }}" href="{{ path('app_stock_index') }}">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg>
+                                    <span class="nav-label">Stock</span>
+                                </a>
+                                <a class="nav-item {{ chemin starts with '/communications' ? 'active' : '' }}" href="{{ path('app_communication_index') }}">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>
+                                    <span class="nav-label">Communication</span>
+                                </a>
+                                <a class="nav-item {{ chemin starts with '/notifications-historique' ? 'active' : '' }}" href="{{ path('app_notification_historique_index') }}">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                                    <span class="nav-label">Historique des notifications</span>
+                                </a>
+                                <a class="nav-item {{ chemin starts with '/journal-audit' ? 'active' : '' }}" href="{{ path('app_journal_audit_index') }}">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M9 15h6M9 11h6M9 19h3"/></svg>
+                                    <span class="nav-label">Journal d'audit</span>
+                                </a>
+                            </div>
+                        {% endif %}
+                    </nav>
+
+                    <div class="sidebar-footer compte-menu" id="compte-menu">
                         <div class="compte-menu-liste">
                             <a href="{{ path('app_mon_profil') }}">Modifier mon profil</a>
                             <a href="{{ path('app_documentation') }}">Documentation</a>
                             <a href="{{ path('app_logout') }}" class="deconnexion">Déconnexion</a>
                         </div>
+                        <button type="button" class="sidebar-footer-bouton" onclick="document.getElementById('compte-menu').classList.toggle('ouvert');">
+                            <div class="avatar">{{ app.user.prenom|slice(0, 1) }}{{ app.user.nom|slice(0, 1) }}</div>
+                            <div class="sidebar-user-info">
+                                <div>{{ app.user.nomComplet }}</div>
+                                <div>{{ is_granted('ROLE_BUREAU') ? 'Bureau' : 'Licencié' }}</div>
+                            </div>
+                        </button>
                     </div>
-                {% else %}
+                </aside>
+
+                <div class="app-main">
+                    <header class="topbar">
+                        <button class="icon-btn menu-toggle" onclick="ouvrirMenuMobile()" title="Menu">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                        </button>
+                        <button class="icon-btn" id="btn-collapse" onclick="basculerReductionMenu()" title="Réduire/agrandir le menu" style="display: inline-flex; margin-right: auto;">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+                        </button>
+                        <div class="topbar-actions">
+                            <div class="theme-toggle">
+                                <button onclick="definirTheme('light')" id="btn-theme-light" title="Clair">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                                </button>
+                                <button onclick="definirTheme('dark')" id="btn-theme-dark" title="Sombre">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+                                </button>
+                                <button onclick="definirTheme('system')" id="btn-theme-system" title="Système">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+        {% else %}
+            <header class="topbar topbar-public">
+                <a href="{{ path('app_home') }}" class="brand">
+                    <img src="{{ asset('logo.svg') }}" alt="Axiobad">
+                    <span>Axiobad</span>
+                </a>
+                <div class="topbar-actions">
+                    <div class="theme-toggle">
+                        <button onclick="definirTheme('light')" id="btn-theme-light" title="Clair">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                        </button>
+                        <button onclick="definirTheme('dark')" id="btn-theme-dark" title="Sombre">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+                        </button>
+                        <button onclick="definirTheme('system')" id="btn-theme-system" title="Système">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                        </button>
+                    </div>
                     <a href="{{ path('app_login') }}" class="user-link">Connexion</a>
-                {% endif %}
-            </span>
-        </nav>
-        <main>
+                </div>
+            </header>
+        {% endif %}
+
+        <main{{ app.user ? '' : ' class="main-public"' }}>
             {% for message in app.flashes('success') %}
                 <p class="flash-success">{{ message }}</p>
             {% endfor %}
@@ -523,28 +703,51 @@
             <a href="{{ path('app_registre_traitements') }}">Registre des traitements</a>
         </footer>
 
+        {% if app.user %}
+                </div>
+            </div>
+        {% endif %}
+
         <script>
-            function toggleNavDropdown(bouton) {
-                var menu = bouton.closest('.nav-dropdown');
-                var etaitOuvert = menu.classList.contains('ouvert');
-                document.querySelectorAll('.nav-dropdown.ouvert').forEach(function (autre) {
-                    autre.classList.remove('ouvert');
-                });
-                if (!etaitOuvert) {
-                    menu.classList.add('ouvert');
+            function definirTheme(mode) {
+                if ('system' === mode) {
+                    document.documentElement.removeAttribute('data-theme');
+                    localStorage.removeItem('axiobad-theme');
+                } else {
+                    document.documentElement.setAttribute('data-theme', mode);
+                    localStorage.setItem('axiobad-theme', mode);
                 }
+                majBoutonsTheme(mode);
             }
+            function majBoutonsTheme(mode) {
+                ['light', 'dark', 'system'].forEach(function (m) {
+                    var bouton = document.getElementById('btn-theme-' + m);
+                    if (bouton) { bouton.classList.toggle('active', m === mode); }
+                });
+            }
+            majBoutonsTheme(localStorage.getItem('axiobad-theme') || 'system');
+
+            function ouvrirMenuMobile() { document.getElementById('app').classList.add('mobile-open'); }
+            function fermerMenuMobile() { document.getElementById('app').classList.remove('mobile-open'); }
+
+            function basculerReductionMenu() {
+                var app = document.getElementById('app');
+                app.classList.toggle('collapsed');
+                try { localStorage.setItem('axiobad-menu-reduit', app.classList.contains('collapsed') ? '1' : '0'); } catch (e) {}
+            }
+            (function () {
+                try {
+                    if ('1' === localStorage.getItem('axiobad-menu-reduit') && window.innerWidth > 900) {
+                        document.getElementById('app').classList.add('collapsed');
+                    }
+                } catch (e) {}
+            })();
 
             document.addEventListener('click', function (event) {
                 var menu = document.getElementById('compte-menu');
                 if (menu && menu.classList.contains('ouvert') && !menu.contains(event.target)) {
                     menu.classList.remove('ouvert');
                 }
-                document.querySelectorAll('.nav-dropdown.ouvert').forEach(function (dropdown) {
-                    if (!dropdown.contains(event.target)) {
-                        dropdown.classList.remove('ouvert');
-                    }
-                });
             });
         </script>
 

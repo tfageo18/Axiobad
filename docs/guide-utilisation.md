@@ -1,7 +1,7 @@
 # Guide d'utilisation — Axiobad
 
 Ce guide explique comment utiliser l'application Axiobad au quotidien. Il est aussi consultable
-en ligne, une fois connecté, via le menu du compte (en haut à droite) → **Documentation**.
+en ligne, une fois connecté, via le menu du compte (en bas du menu latéral) → **Documentation**.
 
 ## Sommaire
 
@@ -33,8 +33,13 @@ en ligne, une fois connecté, via le menu du compte (en haut à droite) → **Do
 ## Se connecter
 
 Rendez-vous sur l'URL du club (ex. `https://axiobad.thomas-fageol.fr`) et connectez-vous avec
-votre email et votre mot de passe. Le menu de navigation n'est visible qu'une fois connecté ; la
+votre email et votre mot de passe. Le menu latéral n'est visible qu'une fois connecté ; la
 page d'accueil (et la connexion) redirigent vers le **calendrier**.
+
+Une fois connecté, le menu latéral (à gauche) regroupe les fonctionnalités par section (Jouer /
+Club / Bureau) — un bouton en haut de la zone de contenu permet de le **réduire en icônes seules**
+pour gagner de la place, et il se transforme en tiroir accessible via le bouton ☰ sur mobile. Le
+sélecteur en haut à droite permet de choisir le **thème clair, sombre, ou de suivre le système**.
 
 **Premier compte administrateur du club :**
 - Email : `admin@axiobad.local`
@@ -455,8 +460,8 @@ Menu **Mon espace**, votre page personnelle en un coup d'œil :
 
 ## Mon profil
 
-Chaque licencié peut compléter et modifier lui-même son profil en cliquant sur son nom en haut à
-droite → **Modifier mon profil** :
+Chaque licencié peut compléter et modifier lui-même son profil en cliquant sur son nom en bas du
+menu latéral → **Modifier mon profil** :
 - **Photo de profil** (affichée en rond).
 - **Email**, **téléphone**.
 - **Date de naissance** : sert à déterminer automatiquement la catégorie d'âge (moins de 18 ans =

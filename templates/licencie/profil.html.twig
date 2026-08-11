@@ -10,7 +10,7 @@
             {% if licencie.photo %}
                 <img src="{{ licencie.photo }}" alt="Photo de {{ licencie.nomComplet }}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%;">
             {% else %}
-                <div style="width: 150px; height: 150px; border-radius: 50%; background: #ddd; display: flex; align-items: center; justify-content: center;">
+                <div style="width: 150px; height: 150px; border-radius: 50%; background: var(--color-surface-2); display: flex; align-items: center; justify-content: center;">
                     {{ licencie.prenom|slice(0, 1) }}{{ licencie.nom|slice(0, 1) }}
                 </div>
             {% endif %}

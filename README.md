@@ -43,7 +43,10 @@ Les **issues** et **pull requests** sont les bienvenues, voir [CONTRIBUTING.md](
 - **Mot de passe** : au moins 8 caractères avec une majuscule, une minuscule et un chiffre, et
   rejeté s'il apparaît dans une base de fuites de données connues (vérification via l'API [Have I
   Been Pwned](https://haveibeenpwned.com/), interrogée en k-anonymity — seul un préfixe de hash
-  est transmis, jamais le mot de passe). Vérifié à l'activation du compte et à chaque changement.
+  est transmis, jamais le mot de passe). Vérifié à l'activation du compte et à chaque changement,
+  puis **revérifié périodiquement à la connexion** (au plus 1×/semaine par compte) pour rattraper
+  un service externe injoignable au moment de la création, ou une fuite découverte après coup — un
+  bandeau d'avertissement s'affiche alors, sans bloquer l'accès à l'application.
 - Chaque licencié peut gérer son propre profil (page "Mon compte" via le menu du compte en haut à
   droite) : photo, email, téléphone, date de naissance, numéro de licence, classement, et son
   **équipe interclub par défaut** (parmi ses équipes) si membre de plusieurs — modifiable aussi par

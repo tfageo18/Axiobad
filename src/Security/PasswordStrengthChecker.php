@@ -14,7 +14,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  *
  * Si l'API est injoignable (panne, réseau bloqué...), la vérification de fuite est ignorée
  * (fail-open) : elle ne doit jamais empêcher un licencié de se connecter ou de changer de mot de
- * passe.
+ * passe. Voir aussi PasswordExposureListener, qui revérifie périodiquement le mot de passe à la
+ * connexion pour rattraper les cas de fail-open ou une fuite survenue après coup.
  */
 class PasswordStrengthChecker
 {
@@ -29,9 +30,16 @@ class PasswordStrengthChecker
 
     /**
      * Retourne un message d'erreur si le mot de passe est invalide, ou null s'il est accepté.
+     *
+     * @param bool|null $expose Rempli en sortie avec le résultat de la vérification de fuite :
+     *                          true si le mot de passe est compromis (auquel cas un message
+     *                          d'erreur est aussi retourné), false s'il est vérifié comme sain,
+     *                          null si la vérification n'a pas pu être faite (fail-open)
      */
-    public function verifier(string $motDePasse): ?string
+    public function verifier(string $motDePasse, ?bool &$expose = null): ?string
     {
+        $expose = null;
+
         if (strlen($motDePasse) < self::LONGUEUR_MINIMALE) {
             return sprintf('Le mot de passe doit contenir au moins %d caractères.', self::LONGUEUR_MINIMALE);
         }
@@ -40,7 +48,8 @@ class PasswordStrengthChecker
             return 'Le mot de passe doit contenir au moins une minuscule, une majuscule et un chiffre.';
         }
 
-        if ($this->estCompromis($motDePasse)) {
+        $expose = $this->estExpose($motDePasse);
+        if (true === $expose) {
             return "Ce mot de passe a été trouvé dans une base de données de fuites connues. Choisissez-en un autre, propre à ce compte.";
         }
 
@@ -50,8 +59,12 @@ class PasswordStrengthChecker
     /**
      * Interroge l'API Have I Been Pwned en k-anonymity : seul le préfixe à 5 caractères du hash
      * SHA-1 du mot de passe est transmis, jamais le mot de passe ni son hash complet.
+     *
+     * @return bool|null true si compromis, false si sain, null si la vérification a échoué
+     *                    (service injoignable) — à traiter comme « statut inconnu », pas comme
+     *                    un mot de passe sain
      */
-    private function estCompromis(string $motDePasse): bool
+    public function estExpose(string $motDePasse): ?bool
     {
         $hash = strtoupper(sha1($motDePasse));
         $prefixe = substr($hash, 0, 5);
@@ -64,11 +77,11 @@ class PasswordStrengthChecker
             ]);
             $corps = $response->getContent();
         } catch (HttpClientExceptionInterface $exception) {
-            $this->logger->warning('Vérification Have I Been Pwned indisponible, mot de passe accepté sans cette vérification : {message}', [
+            $this->logger->warning('Vérification Have I Been Pwned indisponible : {message}', [
                 'message' => $exception->getMessage(),
             ]);
 
-            return false;
+            return null;
         }
 
         foreach (explode("\r\n", trim($corps)) as $ligne) {

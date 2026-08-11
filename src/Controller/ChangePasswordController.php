@@ -36,7 +36,8 @@ class ChangePasswordController extends AbstractController
             $newPassword = (string) $request->request->get('password');
             $confirmPassword = (string) $request->request->get('confirm_password');
 
-            $erreurMotDePasse = $passwordStrengthChecker->verifier($newPassword);
+            $expose = null;
+            $erreurMotDePasse = $passwordStrengthChecker->verifier($newPassword, $expose);
             if (null !== $erreurMotDePasse) {
                 $this->addFlash('error', $erreurMotDePasse);
 
@@ -51,6 +52,14 @@ class ChangePasswordController extends AbstractController
 
             $licencie->setPassword($passwordHasher->hashPassword($licencie, $newPassword));
             $licencie->setMustChangePassword(false);
+            // Nouveau mot de passe non trouvé dans une fuite (sinon on aurait déjà été rejeté
+            // ci-dessus) : on lève le signalement. Si la vérification n'a pas pu être faite
+            // (fail-open), motDePasseVerifieLe reste tel quel pour que la revérification
+            // périodique à la connexion s'en charge dès que possible.
+            $licencie->setMotDePasseExpose(false);
+            if (false === $expose) {
+                $licencie->setMotDePasseVerifieLe(new \DateTimeImmutable());
+            }
             $entityManager->flush();
 
             $this->addFlash('success', 'Mot de passe mis à jour.');

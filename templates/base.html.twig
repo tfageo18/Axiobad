@@ -694,6 +694,13 @@
         {% endif %}
 
         <main{{ app.user ? '' : ' class="main-public"' }}>
+            {% if app.user and app.user.motDePasseExpose %}
+                <p class="flash-error">
+                    ⚠️ Votre mot de passe a été trouvé dans une base de données de fuites connues.
+                    Nous vous recommandons de le
+                    <a href="{{ path('app_change_password') }}">changer dès maintenant</a>.
+                </p>
+            {% endif %}
             {% for message in app.flashes('success') %}
                 <p class="flash-success">{{ message }}</p>
             {% endfor %}

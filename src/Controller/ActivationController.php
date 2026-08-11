@@ -34,7 +34,8 @@ class ActivationController extends AbstractController
             $newPassword = (string) $request->request->get('password');
             $confirmPassword = (string) $request->request->get('confirm_password');
 
-            $erreurMotDePasse = $passwordStrengthChecker->verifier($newPassword);
+            $expose = null;
+            $erreurMotDePasse = $passwordStrengthChecker->verifier($newPassword, $expose);
             if (null !== $erreurMotDePasse) {
                 $this->addFlash('error', $erreurMotDePasse);
 
@@ -50,6 +51,10 @@ class ActivationController extends AbstractController
             $licencie->setPassword($passwordHasher->hashPassword($licencie, $newPassword));
             $licencie->setMustChangePassword(false);
             $licencie->clearActivationToken();
+            $licencie->setMotDePasseExpose(false);
+            if (false === $expose) {
+                $licencie->setMotDePasseVerifieLe(new \DateTimeImmutable());
+            }
             $entityManager->flush();
 
             $this->addFlash('success', 'Votre compte est activé, vous pouvez vous connecter.');

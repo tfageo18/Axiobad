@@ -65,6 +65,13 @@ reçoit jamais le mot de passe en clair) — si ce service externe est indisponi
 de fuite est simplement ignorée, cela ne bloque jamais la création ou le changement du mot de
 passe.
 
+**Revérification périodique :** cette même vérification de fuite est refaite automatiquement à
+chaque connexion (au plus une fois tous les 7 jours par compte), pour rattraper les mots de passe
+acceptés sans avoir pu être vérifiés à l'origine, et détecter ceux qui deviendraient compromis
+après coup (fuite découverte sur un autre site). Si un mot de passe est trouvé compromis, un
+bandeau d'avertissement s'affiche sur toutes les pages tant qu'il n'a pas été changé — cela
+n'empêche pas de continuer à utiliser l'application.
+
 ## Rôles et permissions
 
 Chaque licencié peut cumuler plusieurs rôles :

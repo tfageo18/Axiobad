@@ -185,6 +185,18 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface, Ema
     #[ORM\Column(nullable: true)]
     private ?string $totpSecret = null;
 
+    /**
+     * Vérification périodique (à chaque connexion, au plus une fois tous les 7 jours) du mot de
+     * passe auprès d'une base de fuites de données connues — rattrape les mots de passe acceptés
+     * sans avoir pu être vérifiés (service externe injoignable) et détecte ceux qui deviennent
+     * compromis après coup (fuite ultérieure sur un autre site).
+     */
+    #[ORM\Column]
+    private bool $motDePasseExpose = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $motDePasseVerifieLe = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -764,6 +776,30 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface, Ema
         }
 
         return new TotpConfiguration($this->totpSecret, TotpConfiguration::ALGORITHM_SHA1, 30, 6);
+    }
+
+    public function isMotDePasseExpose(): bool
+    {
+        return $this->motDePasseExpose;
+    }
+
+    public function setMotDePasseExpose(bool $motDePasseExpose): static
+    {
+        $this->motDePasseExpose = $motDePasseExpose;
+
+        return $this;
+    }
+
+    public function getMotDePasseVerifieLe(): ?\DateTimeImmutable
+    {
+        return $this->motDePasseVerifieLe;
+    }
+
+    public function setMotDePasseVerifieLe(?\DateTimeImmutable $motDePasseVerifieLe): static
+    {
+        $this->motDePasseVerifieLe = $motDePasseVerifieLe;
+
+        return $this;
     }
 
     public function getSuppressionDemandeeLe(): ?\DateTimeImmutable

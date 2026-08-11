@@ -129,7 +129,7 @@
             a { color: var(--color-primary); font-weight: 500; }
 
             /* ============ APP SHELL (utilisateur connecté) ============ */
-            .app { display: flex; min-height: 100vh; }
+            .app { display: flex; min-height: 100vh; min-height: 100dvh; }
 
             .sidebar {
                 width: var(--sidebar-w);
@@ -141,7 +141,10 @@
                 position: sticky;
                 top: 0;
                 height: 100vh;
+                height: 100dvh;
                 overflow-y: auto;
+                overscroll-behavior: contain;
+                -webkit-overflow-scrolling: touch;
                 padding: 1rem 0.75rem;
                 transition: width 0.15s ease;
                 z-index: 30;
@@ -437,6 +440,11 @@
                 .icon-btn.menu-toggle { display: flex; }
                 #btn-collapse { display: none !important; }
                 main { padding: 0.85rem; }
+
+                /* Cibles tactiles plus confortables (≥44px de haut, recommandation Apple/Google). */
+                .nav-item { padding: 0.7rem 0.6rem; font-size: 0.92rem; }
+                .nav-item svg { width: 20px; height: 20px; }
+                .sidebar-footer-bouton { padding: 0.6rem 0.6rem 0.6rem 0; }
             }
 
             @media (max-width: 768px) {
@@ -727,8 +735,14 @@
             }
             majBoutonsTheme(localStorage.getItem('axiobad-theme') || 'system');
 
-            function ouvrirMenuMobile() { document.getElementById('app').classList.add('mobile-open'); }
-            function fermerMenuMobile() { document.getElementById('app').classList.remove('mobile-open'); }
+            function ouvrirMenuMobile() {
+                document.getElementById('app').classList.add('mobile-open');
+                document.body.style.overflow = 'hidden';
+            }
+            function fermerMenuMobile() {
+                document.getElementById('app').classList.remove('mobile-open');
+                document.body.style.overflow = '';
+            }
 
             function basculerReductionMenu() {
                 var app = document.getElementById('app');
@@ -748,6 +762,12 @@
                 if (menu && menu.classList.contains('ouvert') && !menu.contains(event.target)) {
                     menu.classList.remove('ouvert');
                 }
+            });
+
+            // Ferme le tiroir mobile dès qu'on choisit un lien du menu, pour un retour visuel
+            // immédiat (la navigation elle-même peut prendre un instant sur mobile).
+            document.querySelectorAll('.sidebar .nav-item').forEach(function (lien) {
+                lien.addEventListener('click', fermerMenuMobile);
             });
         </script>
 

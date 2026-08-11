@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Badminton\NiveauInterclub;
 use App\Repository\EquipeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -97,6 +98,15 @@ class Equipe
         $this->division = $division;
 
         return $this;
+    }
+
+    /**
+     * Rang numérique pour trier du meilleur niveau au moins bon (national < régional <
+     * départemental, et numéro le plus bas = meilleur au sein d'une même catégorie).
+     */
+    public function getNiveauRang(): int
+    {
+        return NiveauInterclub::rang($this->division);
     }
 
     public function isActif(): bool

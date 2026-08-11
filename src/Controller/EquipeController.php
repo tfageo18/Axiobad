@@ -19,8 +19,11 @@ class EquipeController extends AbstractController
     #[Route('', name: 'app_equipe_index', methods: ['GET'])]
     public function index(EquipeRepository $equipeRepository): Response
     {
+        $equipes = $equipeRepository->findAll();
+        usort($equipes, static fn (Equipe $a, Equipe $b) => $a->getNiveauRang() <=> $b->getNiveauRang() ?: $a->getNom() <=> $b->getNom());
+
         return $this->render('equipe/index.html.twig', [
-            'equipes' => $equipeRepository->findAll(),
+            'equipes' => $equipes,
         ]);
     }
 

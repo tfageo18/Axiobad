@@ -42,9 +42,22 @@ class InterclubController extends AbstractController
 
         $criteres = $equipeFiltreId ? ['equipe' => $equipeFiltreId] : [];
 
+        $rencontres = $rencontreRepository->findBy($criteres, ['dateRencontre' => 'ASC']);
+        usort($rencontres, static function (RencontreInterclub $a, RencontreInterclub $b) {
+            $rangA = $a->getEquipe()?->getNiveauRang() ?? \PHP_INT_MAX;
+            $rangB = $b->getEquipe()?->getNiveauRang() ?? \PHP_INT_MAX;
+
+            return $rangA <=> $rangB
+                ?: ($a->getEquipe()?->getNom() <=> $b->getEquipe()?->getNom())
+                ?: $a->getDateRencontre() <=> $b->getDateRencontre();
+        });
+
+        $equipes = $equipeRepository->findAll();
+        usort($equipes, static fn (Equipe $a, Equipe $b) => $a->getNiveauRang() <=> $b->getNiveauRang() ?: $a->getNom() <=> $b->getNom());
+
         return $this->render('interclub/index.html.twig', [
-            'rencontres' => $rencontreRepository->findBy($criteres, ['dateRencontre' => 'ASC']),
-            'equipes' => $equipeRepository->findBy([], ['nom' => 'ASC']),
+            'rencontres' => $rencontres,
+            'equipes' => $equipes,
             'equipeFiltreId' => $equipeFiltreId,
         ]);
     }

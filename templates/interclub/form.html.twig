@@ -8,6 +8,7 @@
     <h1>{{ rencontre ? 'Modifier la rencontre' : 'Nouvelle rencontre' }}</h1>
 
     <form method="post" action="{{ rencontre ? path('app_interclub_edit', {id: rencontre.id}) : path('app_interclub_new') }}">
+        <input type="hidden" name="_token" value="{{ csrf_token(rencontre ? 'interclub-edit-' ~ rencontre.id : 'interclub-new') }}">
         <div>
             <label for="equipe">Équipe</label>
             <select name="equipe" id="equipe" required>
@@ -30,14 +31,23 @@
             <input type="text" name="adversaire" id="adversaire" value="{{ rencontre ? rencontre.adversaire : '' }}" required>
         </div>
         <div>
-            <label for="lieu">Lieu</label>
-            <input type="text" name="lieu" id="lieu" value="{{ rencontre ? rencontre.lieu : '' }}" placeholder="ex: Domicile - gymnase Moulin" required>
-        </div>
-        <div>
             <label>
-                <input type="checkbox" name="domicile" value="1" {{ not rencontre or rencontre.domicile ? 'checked' : '' }}>
+                <input type="checkbox" name="domicile" id="domicile" value="1" {{ not rencontre or rencontre.domicile ? 'checked' : '' }} onchange="document.getElementById('champ-gymnase').style.display = this.checked ? 'block' : 'none'; document.getElementById('champ-lieu').style.display = this.checked ? 'none' : 'block';">
                 À domicile (décocher si à l'extérieur)
             </label>
+        </div>
+        <div id="champ-gymnase" style="display: {{ not rencontre or rencontre.domicile ? 'block' : 'none' }};">
+            <label for="gymnase">Gymnase</label>
+            <select name="gymnase" id="gymnase">
+                <option value="">-</option>
+                {% for gymnase in gymnases %}
+                    <option value="{{ gymnase.id }}" {{ rencontre and rencontre.gymnase and rencontre.gymnase.id == gymnase.id ? 'selected' : '' }}>{{ gymnase.nom }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="champ-lieu" style="display: {{ not rencontre or rencontre.domicile ? 'none' : 'block' }};">
+            <label for="lieu">Lieu</label>
+            <input type="text" name="lieu" id="lieu" value="{{ rencontre and not rencontre.domicile ? rencontre.lieu : '' }}" placeholder="ex: Gymnase de la ville adverse">
         </div>
         <div>
             <label for="heureRdv">Heure de rendez-vous (optionnel)</label>

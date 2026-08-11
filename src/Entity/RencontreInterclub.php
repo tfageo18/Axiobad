@@ -25,8 +25,12 @@ class RencontreInterclub
     #[ORM\Column]
     private ?\DateTimeImmutable $dateRencontre = null;
 
-    #[ORM\Column(length: 150)]
+    #[ORM\Column(length: 150, nullable: true)]
     private ?string $lieu = null;
+
+    #[ORM\ManyToOne(targetEntity: Gymnase::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Gymnase $gymnase = null;
 
     #[ORM\Column(length: 150)]
     private ?string $adversaire = null;
@@ -114,11 +118,32 @@ class RencontreInterclub
         return $this->lieu;
     }
 
-    public function setLieu(string $lieu): static
+    public function setLieu(?string $lieu): static
     {
         $this->lieu = $lieu;
 
         return $this;
+    }
+
+    public function getGymnase(): ?Gymnase
+    {
+        return $this->gymnase;
+    }
+
+    public function setGymnase(?Gymnase $gymnase): static
+    {
+        $this->gymnase = $gymnase;
+
+        return $this;
+    }
+
+    public function getLieuAffiche(): string
+    {
+        if ($this->domicile && null !== $this->gymnase) {
+            return $this->gymnase->getNom();
+        }
+
+        return $this->lieu ?? '';
     }
 
     public function getAdversaire(): ?string

@@ -8,6 +8,7 @@ use App\Entity\Licencie;
 use App\Entity\MatchInterclub;
 use App\Entity\RencontreInterclub;
 use App\Repository\EquipeRepository;
+use App\Repository\GymnaseRepository;
 use App\Repository\LicencieRepository;
 use App\Repository\MatchInterclubRepository;
 use App\Repository\RencontreInterclubRepository;
@@ -31,11 +32,17 @@ class InterclubController extends AbstractController
 
     #[Route('/nouveau', name: 'app_interclub_new', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_BUREAU')]
-    public function new(Request $request, EntityManagerInterface $entityManager, EquipeRepository $equipeRepository, LicencieRepository $licencieRepository): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, EquipeRepository $equipeRepository, LicencieRepository $licencieRepository, GymnaseRepository $gymnaseRepository): Response
     {
         if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('interclub-new', (string) $request->request->get('_token'))) {
+                $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+                return $this->redirectToRoute('app_interclub_new');
+            }
+
             $rencontre = new RencontreInterclub();
-            $this->hydrater($rencontre, $request, $equipeRepository, $licencieRepository);
+            $this->hydrater($rencontre, $request, $equipeRepository, $licencieRepository, $gymnaseRepository);
 
             $entityManager->persist($rencontre);
             $entityManager->flush();
@@ -49,6 +56,7 @@ class InterclubController extends AbstractController
             'rencontre' => null,
             'equipes' => $equipeRepository->findAll(),
             'licencies' => $licencieRepository->findAll(),
+            'gymnases' => $gymnaseRepository->findAll(),
         ]);
     }
 
@@ -74,10 +82,16 @@ class InterclubController extends AbstractController
 
     #[Route('/{id}/modifier', name: 'app_interclub_edit', methods: ['GET', 'POST'])]
     #[IsGranted('ROLE_BUREAU')]
-    public function edit(Request $request, RencontreInterclub $rencontre, EntityManagerInterface $entityManager, EquipeRepository $equipeRepository, LicencieRepository $licencieRepository): Response
+    public function edit(Request $request, RencontreInterclub $rencontre, EntityManagerInterface $entityManager, EquipeRepository $equipeRepository, LicencieRepository $licencieRepository, GymnaseRepository $gymnaseRepository): Response
     {
         if ($request->isMethod('POST')) {
-            $this->hydrater($rencontre, $request, $equipeRepository, $licencieRepository);
+            if (!$this->isCsrfTokenValid('interclub-edit-'.$rencontre->getId(), (string) $request->request->get('_token'))) {
+                $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+                return $this->redirectToRoute('app_interclub_edit', ['id' => $rencontre->getId()]);
+            }
+
+            $this->hydrater($rencontre, $request, $equipeRepository, $licencieRepository, $gymnaseRepository);
             $entityManager->flush();
 
             $this->addFlash('success', 'Rencontre modifiée.');
@@ -89,6 +103,7 @@ class InterclubController extends AbstractController
             'rencontre' => $rencontre,
             'equipes' => $equipeRepository->findAll(),
             'licencies' => $licencieRepository->findAll(),
+            'gymnases' => $gymnaseRepository->findAll(),
         ]);
     }
 
@@ -175,23 +190,27 @@ class InterclubController extends AbstractController
         return $this->redirectToRoute('app_interclub_detail', ['id' => $rencontre->getId()]);
     }
 
-    private function hydrater(RencontreInterclub $rencontre, Request $request, EquipeRepository $equipeRepository, LicencieRepository $licencieRepository): void
+    private function hydrater(RencontreInterclub $rencontre, Request $request, EquipeRepository $equipeRepository, LicencieRepository $licencieRepository, GymnaseRepository $gymnaseRepository): void
     {
         $equipe = $equipeRepository->find($request->request->get('equipe'));
         $scoreEquipe = $request->request->get('scoreEquipe');
         $scoreAdversaire = $request->request->get('scoreAdversaire');
         $heureRdv = (string) $request->request->get('heureRdv');
         $capitaineId = $request->request->get('capitaineRencontre');
+        $domicile = (bool) $request->request->get('domicile');
+        $gymnase = $domicile ? $gymnaseRepository->find($request->request->get('gymnase')) : null;
+        $lieu = (string) $request->request->get('lieu');
 
         $rencontre
             ->setEquipe($equipe instanceof Equipe ? $equipe : null)
             ->setJournee((int) $request->request->get('journee'))
             ->setDateRencontre(new \DateTimeImmutable((string) $request->request->get('dateRencontre')))
-            ->setLieu((string) $request->request->get('lieu'))
+            ->setGymnase($gymnase)
+            ->setLieu($domicile ? ($gymnase ? null : ($lieu ?: null)) : ($lieu ?: null))
             ->setAdversaire((string) $request->request->get('adversaire'))
             ->setScoreEquipe(null !== $scoreEquipe && '' !== $scoreEquipe ? (int) $scoreEquipe : null)
             ->setScoreAdversaire(null !== $scoreAdversaire && '' !== $scoreAdversaire ? (int) $scoreAdversaire : null)
-            ->setDomicile((bool) $request->request->get('domicile'))
+            ->setDomicile($domicile)
             ->setHeureRdv($heureRdv ? new \DateTimeImmutable($heureRdv) : null)
             ->setCapitaineRencontre($capitaineId ? $licencieRepository->find($capitaineId) : null)
             ->setCovoiturage((string) $request->request->get('covoiturage') ?: null);

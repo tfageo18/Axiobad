@@ -32,7 +32,7 @@
                     <td data-label="Date">{{ rencontre.dateRencontre|date('d/m/Y H:i') }}</td>
                     <td data-label="Équipe">{{ rencontre.equipe.nom }}</td>
                     <td data-label="Adversaire">{{ rencontre.adversaire }}</td>
-                    <td data-label="Lieu">{{ rencontre.lieu }}</td>
+                    <td data-label="Lieu">{{ rencontre.lieuAffiche }}</td>
                     <td data-label="Score">{{ rencontre.aUnScore ? rencontre.scoreEquipe ~ ' - ' ~ rencontre.scoreAdversaire : '-' }}</td>
                     <td class="td-actions">
                         <a href="{{ path('app_interclub_detail', {id: rencontre.id}) }}">Voir</a>

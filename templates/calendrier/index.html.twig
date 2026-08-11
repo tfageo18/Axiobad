@@ -200,7 +200,7 @@
                                         <a href="{{ path('app_interclub_detail', {id: rencontre.id}) }}">
                                             🏆 J{{ rencontre.journee }} {{ rencontre.equipe.nom }} vs {{ rencontre.adversaire }}
                                         </a><br>
-                                        <small>{{ rencontre.dateRencontre|date('H:i') }} · {{ rencontre.lieu }}</small>
+                                        <small>{{ rencontre.dateRencontre|date('H:i') }} · {{ rencontre.lieuAffiche }}</small>
                                     </div>
                                 {% endfor %}
                             </td>
@@ -226,7 +226,7 @@
                     {% for rencontre in jour.rencontres %}
                         <div class="agenda-rencontre">
                             <a href="{{ path('app_interclub_detail', {id: rencontre.id}) }}">🏆 J{{ rencontre.journee }} — {{ rencontre.equipe.nom }} vs {{ rencontre.adversaire }}</a>
-                            <div class="lieu">{{ rencontre.dateRencontre|date('H:i') }} · {{ rencontre.lieu }}</div>
+                            <div class="lieu">{{ rencontre.dateRencontre|date('H:i') }} · {{ rencontre.lieuAffiche }}</div>
                         </div>
                     {% endfor %}
 

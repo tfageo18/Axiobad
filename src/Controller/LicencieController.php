@@ -15,6 +15,7 @@ use App\Entity\Raquette;
 use App\Entity\StockMouvementVetement;
 use App\Entity\StockMouvementVolant;
 use App\Repository\AdhesionRepository;
+use App\Repository\EquipeRepository;
 use App\Repository\LicencieRepository;
 use App\Repository\PaiementAdhesionRepository;
 use App\Repository\PresenceRepository;
@@ -421,8 +422,10 @@ class LicencieController extends AbstractController
     }
 
     #[Route('/{id}/modifier', name: 'app_licencie_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Licencie $licencie, EntityManagerInterface $entityManager, AuditLogger $auditLogger): Response
+    public function edit(Request $request, Licencie $licencie, EntityManagerInterface $entityManager, AuditLogger $auditLogger, EquipeRepository $equipeRepository): Response
     {
+        $sesEquipes = $equipeRepository->findByMembre($licencie);
+
         if ($request->isMethod('POST')) {
             if (!$this->isCsrfTokenValid('licencie-edit-'.$licencie->getId(), (string) $request->request->get('_token'))) {
                 $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
@@ -467,6 +470,10 @@ class LicencieController extends AbstractController
                 ->setClassementDouble($classementDouble)
                 ->setClassementMixte($classementMixte)
                 ->setNotificationsActivees((bool) $request->request->get('notificationsActivees'));
+
+            $equipePrefereeId = $request->request->get('equipePreferee');
+            $equipePreferee = $equipePrefereeId ? $equipeRepository->find($equipePrefereeId) : null;
+            $licencie->setEquipePreferee($equipePreferee && in_array($equipePreferee, $sesEquipes, true) ? $equipePreferee : null);
 
             $erreurMineur = $this->appliquerChampsMineur($licencie, $request, $entityManager);
             if (null !== $erreurMineur) {
@@ -515,6 +522,7 @@ class LicencieController extends AbstractController
         return $this->render('licencie/form.html.twig', [
             'licencie' => $licencie,
             'responsablesPossibles' => $entityManager->getRepository(Licencie::class)->findBy([], ['nom' => 'ASC']),
+            'sesEquipes' => $sesEquipes,
         ]);
     }
 

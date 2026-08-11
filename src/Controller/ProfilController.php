@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Badminton\ClassementFfbad;
 use App\Entity\Licencie;
+use App\Repository\EquipeRepository;
 use App\Repository\LicencieRepository;
 use App\Service\LicencieDataExporter;
 use Doctrine\ORM\EntityManagerInterface;
@@ -22,10 +23,12 @@ class ProfilController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         LicencieRepository $licencieRepository,
+        EquipeRepository $equipeRepository,
         SluggerInterface $slugger,
     ): Response {
         /** @var Licencie $licencie */
         $licencie = $this->getUser();
+        $mesEquipes = $equipeRepository->findByMembre($licencie);
 
         if ($request->isMethod('POST')) {
             if (!$this->isCsrfTokenValid('mon-profil', (string) $request->request->get('_token'))) {
@@ -57,6 +60,10 @@ class ProfilController extends AbstractController
             $licencie->setClassementSimple($this->normaliserClassement($request->request->get('classementSimple')));
             $licencie->setClassementDouble($this->normaliserClassement($request->request->get('classementDouble')));
             $licencie->setClassementMixte($this->normaliserClassement($request->request->get('classementMixte')));
+
+            $equipePrefereeId = $request->request->get('equipePreferee');
+            $equipePreferee = $equipePrefereeId ? $equipeRepository->find($equipePrefereeId) : null;
+            $licencie->setEquipePreferee($equipePreferee && in_array($equipePreferee, $mesEquipes, true) ? $equipePreferee : null);
 
             $photoFile = $request->files->get('photo');
             if ($photoFile && !$photoFile->isValid()) {
@@ -92,6 +99,7 @@ class ProfilController extends AbstractController
 
         return $this->render('licencie/profil.html.twig', [
             'licencie' => $licencie,
+            'mesEquipes' => $mesEquipes,
         ]);
     }
 

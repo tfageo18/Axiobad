@@ -81,6 +81,20 @@
                     {% endfor %}
                 </select>
             </div>
+            {% if mesEquipes|length %}
+                <div>
+                    <label for="equipePreferee">Équipe par défaut (interclubs)</label>
+                    <select name="equipePreferee" id="equipePreferee">
+                        <option value="">-</option>
+                        {% for equipe in mesEquipes %}
+                            <option value="{{ equipe.id }}" {{ licencie.equipePreferee and licencie.equipePreferee.id == equipe.id ? 'selected' : '' }}>{{ equipe.nom }}</option>
+                        {% endfor %}
+                    </select>
+                    <small style="color: var(--color-text-muted);">
+                        Utilisée pour pré-filtrer la liste des rencontres interclubs.
+                    </small>
+                </div>
+            {% endif %}
             <div>
                 <label for="classementMixte">Classement mixte</label>
                 <select name="classementMixte" id="classementMixte">

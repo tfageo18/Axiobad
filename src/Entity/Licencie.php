@@ -157,6 +157,14 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $suppressionDemandeeLe = null;
 
+    /**
+     * Équipe interclub par défaut du licencié, utilisée pour pré-filtrer la liste des rencontres.
+     * Modifiable par le licencié lui-même ou par le bureau.
+     */
+    #[ORM\ManyToOne(targetEntity: Equipe::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Equipe $equipePreferee = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -657,6 +665,18 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     public function setNotificationsActivees(bool $notificationsActivees): static
     {
         $this->notificationsActivees = $notificationsActivees;
+
+        return $this;
+    }
+
+    public function getEquipePreferee(): ?Equipe
+    {
+        return $this->equipePreferee;
+    }
+
+    public function setEquipePreferee(?Equipe $equipePreferee): static
+    {
+        $this->equipePreferee = $equipePreferee;
 
         return $this;
     }

@@ -23,10 +23,29 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class InterclubController extends AbstractController
 {
     #[Route('', name: 'app_interclub_index', methods: ['GET'])]
-    public function index(RencontreInterclubRepository $rencontreRepository): Response
+    public function index(Request $request, RencontreInterclubRepository $rencontreRepository, EquipeRepository $equipeRepository): Response
     {
+        /** @var Licencie|null $user */
+        $user = $this->getUser();
+        $mesEquipes = $user ? $equipeRepository->findByMembre($user) : [];
+
+        if ($request->query->has('equipe')) {
+            // L'utilisateur a explicitement soumis le filtre (une valeur vide = "Toutes les équipes").
+            $equipeFiltreId = $request->query->get('equipe');
+        } elseif ($user && $user->getEquipePreferee()) {
+            $equipeFiltreId = (string) $user->getEquipePreferee()->getId();
+        } elseif (1 === count($mesEquipes)) {
+            $equipeFiltreId = (string) $mesEquipes[0]->getId();
+        } else {
+            $equipeFiltreId = '';
+        }
+
+        $criteres = $equipeFiltreId ? ['equipe' => $equipeFiltreId] : [];
+
         return $this->render('interclub/index.html.twig', [
-            'rencontres' => $rencontreRepository->findBy([], ['dateRencontre' => 'ASC']),
+            'rencontres' => $rencontreRepository->findBy($criteres, ['dateRencontre' => 'ASC']),
+            'equipes' => $equipeRepository->findBy([], ['nom' => 'ASC']),
+            'equipeFiltreId' => $equipeFiltreId,
         ]);
     }
 

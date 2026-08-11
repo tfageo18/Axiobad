@@ -12,6 +12,16 @@
         </p>
     {% endif %}
 
+    <form method="get" style="margin-bottom: 1rem;">
+        <label for="equipe">Équipe</label>
+        <select name="equipe" id="equipe" onchange="this.form.submit()">
+            <option value="" {{ equipeFiltreId == '' ? 'selected' : '' }}>Toutes les équipes</option>
+            {% for equipe in equipes %}
+                <option value="{{ equipe.id }}" {{ equipeFiltreId == equipe.id ? 'selected' : '' }}>{{ equipe.nom }}</option>
+            {% endfor %}
+        </select>
+    </form>
+
     <div class="table-scroll">
     <table class="table-cards">
         <thead>

@@ -28,6 +28,12 @@ class ProfilController extends AbstractController
         $licencie = $this->getUser();
 
         if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('mon-profil', (string) $request->request->get('_token'))) {
+                $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+                return $this->redirectToRoute('app_mon_profil');
+            }
+
             $email = (string) $request->request->get('email');
             $telephone = (string) $request->request->get('telephone');
             $dateNaissance = (string) $request->request->get('dateNaissance');

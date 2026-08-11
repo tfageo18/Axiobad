@@ -14,6 +14,7 @@
     {% endif %}
 
     <form method="post" action="{{ licencie ? path('app_licencie_edit', {id: licencie.id}) : path('app_licencie_new') }}">
+        <input type="hidden" name="_token" value="{{ csrf_token(licencie ? 'licencie-edit-' ~ licencie.id : 'licencie-new') }}">
         <div>
             <label for="prenom">Prénom</label>
             <input type="text" name="prenom" id="prenom" value="{{ licencie ? licencie.prenom : '' }}" required>

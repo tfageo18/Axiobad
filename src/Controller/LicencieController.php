@@ -86,6 +86,12 @@ class LicencieController extends AbstractController
             ?? (new Adhesion())->setLicencie($licencie)->setSaison($saison);
 
         if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('licencie-adhesion-'.$licencie->getId(), (string) $request->request->get('_token'))) {
+                $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+                return $this->redirectToRoute('app_licencie_adhesion', ['id' => $licencie->getId(), 'saison' => $saison->getId()]);
+            }
+
             $ancienStatut = $adhesion->getStatut();
             $ancienMontant = $adhesion->getMontantTotal();
 
@@ -126,6 +132,12 @@ class LicencieController extends AbstractController
     #[Route('/{id}/adhesion/paiements', name: 'app_licencie_adhesion_paiement_new', methods: ['POST'])]
     public function ajouterPaiement(Request $request, Licencie $licencie, EntityManagerInterface $entityManager, SaisonRepository $saisonRepository, AdhesionRepository $adhesionRepository, AuditLogger $auditLogger): Response
     {
+        if (!$this->isCsrfTokenValid('licencie-ajouter-paiement-'.$licencie->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
         $saison = $saisonRepository->find($request->request->get('saison'));
         if (!$saison) {
             $this->addFlash('error', 'Saison invalide.');
@@ -345,6 +357,12 @@ class LicencieController extends AbstractController
         InvitationMailer $invitationMailer,
     ): Response {
         if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('licencie-new', (string) $request->request->get('_token'))) {
+                $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+                return $this->redirectToRoute('app_licencie_new');
+            }
+
             $email = trim((string) $request->request->get('email')) ?: null;
             $prenom = (string) $request->request->get('prenom');
             $nom = (string) $request->request->get('nom');
@@ -406,6 +424,12 @@ class LicencieController extends AbstractController
     public function edit(Request $request, Licencie $licencie, EntityManagerInterface $entityManager, AuditLogger $auditLogger): Response
     {
         if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('licencie-edit-'.$licencie->getId(), (string) $request->request->get('_token'))) {
+                $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+                return $this->redirectToRoute('app_licencie_edit', ['id' => $licencie->getId()]);
+            }
+
             $anciensRoles = $licencie->getRoles();
             $ancienResponsable1 = $licencie->getResponsableLegal1();
             $ancienResponsable2 = $licencie->getResponsableLegal2();
@@ -594,8 +618,14 @@ class LicencieController extends AbstractController
     }
 
     #[Route('/{id}/activer', name: 'app_licencie_toggle_actif', methods: ['POST'])]
-    public function toggleActif(Licencie $licencie, EntityManagerInterface $entityManager): Response
+    public function toggleActif(Licencie $licencie, Request $request, EntityManagerInterface $entityManager): Response
     {
+        if (!$this->isCsrfTokenValid('licencie-toggle-actif-'.$licencie->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
         /** @var Licencie $moi */
         $moi = $this->getUser();
         if ($moi->getId() === $licencie->getId()) {

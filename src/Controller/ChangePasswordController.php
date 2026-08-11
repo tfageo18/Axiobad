@@ -19,6 +19,19 @@ class ChangePasswordController extends AbstractController
         $licencie = $this->getUser();
 
         if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('change-password', (string) $request->request->get('_token'))) {
+                $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+                return $this->redirectToRoute('app_change_password');
+            }
+
+            $currentPassword = (string) $request->request->get('current_password');
+            if (!$passwordHasher->isPasswordValid($licencie, $currentPassword)) {
+                $this->addFlash('error', 'Mot de passe actuel incorrect.');
+
+                return $this->redirectToRoute('app_change_password');
+            }
+
             $newPassword = (string) $request->request->get('password');
             $confirmPassword = (string) $request->request->get('confirm_password');
 

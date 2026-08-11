@@ -46,6 +46,7 @@
 
     <h2>Statut et montant dû</h2>
     <form method="post" action="{{ path('app_licencie_adhesion', {id: licencie.id}) }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('licencie-adhesion-' ~ licencie.id) }}">
         <input type="hidden" name="saison" value="{{ saison.id }}">
         <div>
             <label for="statut">Statut</label>
@@ -99,6 +100,7 @@
 
     <h2>Ajouter un versement (paiement en plusieurs fois possible)</h2>
     <form method="post" action="{{ path('app_licencie_adhesion_paiement_new', {id: licencie.id}) }}" id="form-paiement">
+        <input type="hidden" name="_token" value="{{ csrf_token('licencie-ajouter-paiement-' ~ licencie.id) }}">
         <input type="hidden" name="saison" value="{{ saison.id }}">
         <div>
             <label for="montant">Montant (€)</label>

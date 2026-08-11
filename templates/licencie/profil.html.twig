@@ -17,6 +17,7 @@
         </div>
 
         <form method="post" enctype="multipart/form-data" style="flex: 1;">
+            <input type="hidden" name="_token" value="{{ csrf_token('mon-profil') }}">
             <p><strong>{{ licencie.nomComplet }}</strong></p>
 
             <div>

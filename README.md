@@ -146,6 +146,12 @@ Les **issues** et **pull requests** sont les bienvenues, voir [CONTRIBUTING.md](
   prix unitaire optionnel sur chaque article), et une **comparaison des saisons** (adhésions
   payées, montant collecté).
 
+### Double authentification (MFA)
+
+- Optionnelle, activable par chaque licencié depuis son profil, au choix : application
+  d'authentification (TOTP, avec QR code) et/ou code par email — les deux pouvant être actifs en
+  parallèle.
+
 ### Mon espace
 
 - Chaque licencié dispose d'une page personnelle : ses prochains créneaux (calendrier
@@ -307,6 +313,7 @@ Les **issues** et **pull requests** sont les bienvenues, voir [CONTRIBUTING.md](
 - [PostgreSQL](https://www.postgresql.org/) 16
 - [Docker](https://www.docker.com/) / Docker Compose
 - Envoi d'emails via [Amazon SES](https://aws.amazon.com/ses/) en production (SMTP)
+- [scheb/2fa-bundle](https://github.com/scheb/2fa-bundle) pour la double authentification (TOTP + email)
 
 ## Démarrage en local
 

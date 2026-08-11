@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Double authentification — Axiobad{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('app_mon_profil') }}">&laquo; Retour à mon profil</a></p>
+
+    <h1>Double authentification (MFA)</h1>
+    <p>
+        Optionnelle mais recommandée : elle demande un second code en plus de votre mot de passe
+        à chaque connexion, pour protéger votre compte même si votre mot de passe est deviné ou
+        volé. Vous pouvez activer l'une des méthodes ci-dessous, ou les deux.
+    </p>
+
+    <h2>Application d'authentification (TOTP)</h2>
+    <p>
+        Génère un code à 6 chiffres qui change toutes les 30 secondes, via une application comme
+        Google Authenticator, Microsoft Authenticator ou Authy. Fonctionne même sans connexion
+        internet.
+    </p>
+    {% if licencie.totpAuthenticationEnabled %}
+        <p><strong>Activée.</strong></p>
+        <form method="post" action="{{ path('app_mfa_totp_desactiver') }}" onsubmit="return confirm('Désactiver la double authentification par application ?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('mfa-totp-desactiver') }}">
+            <button type="submit">Désactiver</button>
+        </form>
+    {% else %}
+        <form method="post" action="{{ path('app_mfa_totp_preparer') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('mfa-totp-preparer') }}">
+            <button type="submit">Activer avec une application</button>
+        </form>
+    {% endif %}
+
+    <h2>Code par email</h2>
+    <p>
+        Un code à usage unique vous est envoyé par email à chaque connexion. Plus simple à mettre
+        en place, mais moins robuste qu'une application (si votre boîte mail est elle-même
+        compromise, ce code ne vous protège plus).
+    </p>
+    {% if licencie.emailAuthEnabled %}
+        <p><strong>Activée.</strong></p>
+        <form method="post" action="{{ path('app_mfa_email_desactiver') }}" onsubmit="return confirm('Désactiver la double authentification par email ?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('mfa-email-desactiver') }}">
+            <button type="submit">Désactiver</button>
+        </form>
+    {% else %}
+        <form method="post" action="{{ path('app_mfa_email_activer') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('mfa-email-activer') }}">
+            <button type="submit">Activer par email</button>
+        </form>
+    {% endif %}
+{% endblock %}

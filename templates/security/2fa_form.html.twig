@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Double authentification — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>Double authentification</h1>
+
+    {% if authenticationError %}
+        <p class="flash-error">{{ authenticationError|trans(authenticationErrorData, 'SchebTwoFactorBundle') }}</p>
+    {% endif %}
+
+    {% if availableTwoFactorProviders|length > 1 %}
+        <p>
+            Choisissez une autre méthode :
+            {% for provider in availableTwoFactorProviders %}
+                <a href="{{ path('2fa_login', {preferProvider: provider}) }}">{{ provider }}</a>
+            {% endfor %}
+        </p>
+    {% endif %}
+
+    <p>Entrez le code {{ twoFactorProvider == 'email' ? 'reçu par email' : "affiché par votre application d'authentification" }}.</p>
+
+    <form method="post" action="{{ checkPathUrl ? checkPathUrl : path(checkPathRoute) }}">
+        <div>
+            <label for="_auth_code">Code</label>
+            <input id="_auth_code" type="text" name="{{ authCodeParameterName }}" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" autofocus required>
+        </div>
+
+        {% if isCsrfProtectionEnabled %}
+            <input type="hidden" name="{{ csrfParameterName }}" value="{{ csrf_token(csrfTokenId) }}">
+        {% endif %}
+
+        <button type="submit">Valider</button>
+    </form>
+
+    <p><a href="{{ logoutPath }}">Annuler et se déconnecter</a></p>
+{% endblock %}

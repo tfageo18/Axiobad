@@ -12,7 +12,7 @@ use Symfony\Bundle\SecurityBundle\Security;
 
 class ForcePasswordChangeSubscriber implements EventSubscriberInterface
 {
-    private const ALLOWED_ROUTES = ['app_change_password', 'app_logout', 'app_activation'];
+    private const ALLOWED_ROUTES = ['app_change_password', 'app_logout', 'app_activation', '2fa_login', '2fa_login_check'];
 
     public function __construct(
         private readonly Security $security,

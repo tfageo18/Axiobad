@@ -472,6 +472,20 @@ menu latéral → **Modifier mon profil** :
 
 Le menu du compte propose aussi un accès direct à la **documentation** et à la **déconnexion**.
 
+### Double authentification (MFA)
+
+Depuis **Mon profil → Double authentification (MFA)**, chaque licencié peut activer, à titre
+optionnel, une double authentification : un second code est alors demandé à chaque connexion, en
+plus du mot de passe. Deux méthodes sont proposées, activables ensemble ou séparément :
+- **Application d'authentification (TOTP)** — Google Authenticator, Microsoft Authenticator,
+  Authy... L'activation se fait en scannant un QR code puis en saisissant le code affiché par
+  l'application pour confirmer. Fonctionne sans connexion internet.
+- **Code par email** — un code à usage unique est envoyé par email à chaque connexion. Plus
+  simple, mais moins robuste (inutile si la boîte mail est elle-même compromise).
+
+Si plusieurs méthodes sont activées, un lien sur la page de connexion permet de choisir laquelle
+utiliser.
+
 ## Journal d'audit (bureau)
 
 Menu **Bureau → Journal d'audit**.

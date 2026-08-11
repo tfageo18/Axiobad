@@ -5,12 +5,16 @@ namespace App\Entity;
 use App\Badminton\ClassementFfbad;
 use App\Repository\LicencieRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Scheb\TwoFactorBundle\Model\Email\TwoFactorInterface as EmailTwoFactorInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfiguration;
+use Scheb\TwoFactorBundle\Model\Totp\TotpConfigurationInterface;
+use Scheb\TwoFactorBundle\Model\Totp\TwoFactorInterface as TotpTwoFactorInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: LicencieRepository::class)]
 #[ORM\Table(name: '`licencie`')]
-class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
+class Licencie implements UserInterface, PasswordAuthenticatedUserInterface, EmailTwoFactorInterface, TotpTwoFactorInterface
 {
     public const ROLE_LICENCIE = 'ROLE_LICENCIE';
     public const ROLE_BUREAU = 'ROLE_BUREAU';
@@ -164,6 +168,22 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToOne(targetEntity: Equipe::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Equipe $equipePreferee = null;
+
+    /**
+     * Double authentification (MFA), optionnelle et au choix du licencié : par email ou par
+     * application TOTP (Google Authenticator, etc.), les deux pouvant être activées en parallèle.
+     */
+    #[ORM\Column]
+    private bool $emailAuthEnabled = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?string $emailAuthCode = null;
+
+    #[ORM\Column]
+    private bool $totpAuthEnabled = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?string $totpSecret = null;
 
     public function getId(): ?int
     {
@@ -679,6 +699,71 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface
         $this->equipePreferee = $equipePreferee;
 
         return $this;
+    }
+
+    public function isEmailAuthEnabled(): bool
+    {
+        return $this->emailAuthEnabled;
+    }
+
+    public function setEmailAuthEnabled(bool $emailAuthEnabled): static
+    {
+        $this->emailAuthEnabled = $emailAuthEnabled;
+
+        return $this;
+    }
+
+    public function getEmailAuthRecipient(): string
+    {
+        return (string) $this->email;
+    }
+
+    public function getEmailAuthCode(): ?string
+    {
+        return $this->emailAuthCode;
+    }
+
+    public function setEmailAuthCode(string $authCode): void
+    {
+        $this->emailAuthCode = $authCode;
+    }
+
+    public function isTotpAuthenticationEnabled(): bool
+    {
+        return $this->totpAuthEnabled && null !== $this->totpSecret;
+    }
+
+    public function setTotpAuthEnabled(bool $totpAuthEnabled): static
+    {
+        $this->totpAuthEnabled = $totpAuthEnabled;
+
+        return $this;
+    }
+
+    public function getTotpAuthenticationUsername(): ?string
+    {
+        return $this->email;
+    }
+
+    public function getTotpSecret(): ?string
+    {
+        return $this->totpSecret;
+    }
+
+    public function setTotpSecret(?string $totpSecret): static
+    {
+        $this->totpSecret = $totpSecret;
+
+        return $this;
+    }
+
+    public function getTotpAuthenticationConfiguration(): ?TotpConfigurationInterface
+    {
+        if (null === $this->totpSecret) {
+            return null;
+        }
+
+        return new TotpConfiguration($this->totpSecret, TotpConfiguration::ALGORITHM_SHA1, 30, 6);
     }
 
     public function getSuppressionDemandeeLe(): ?\DateTimeImmutable

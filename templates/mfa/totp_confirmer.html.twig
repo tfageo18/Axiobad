@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Activer l'application d'authentification — Axiobad{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('app_mfa') }}">&laquo; Retour à la double authentification</a></p>
+
+    <h1>Activer l'application d'authentification</h1>
+    <p>Scannez ce QR code avec votre application (Google Authenticator, Microsoft Authenticator, Authy...) :</p>
+
+    <img src="{{ qrCodeDataUri }}" alt="QR code de configuration TOTP" width="260" height="260">
+
+    <p>
+        Vous ne pouvez pas scanner ? Entrez cette clé manuellement dans votre application :<br>
+        <code>{{ secret }}</code>
+    </p>
+
+    <form method="post" action="{{ path('app_mfa_totp_activer') }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('mfa-totp-activer') }}">
+        <div>
+            <label for="code">Code à 6 chiffres affiché par l'application</label>
+            <input type="text" name="code" id="code" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" required autofocus>
+        </div>
+        <button type="submit">Confirmer et activer</button>
+    </form>
+{% endblock %}

@@ -40,6 +40,10 @@ Les **issues** et **pull requests** sont les bienvenues, voir [CONTRIBUTING.md](
 - Le bureau peut créer des licenciés un par un, ou **en masse via un import CSV** (modèle
   téléchargeable) : un email d'invitation est envoyé à chacun pour définir son mot de passe
   (lien valable 7 jours).
+- **Mot de passe** : au moins 8 caractères avec une majuscule, une minuscule et un chiffre, et
+  rejeté s'il apparaît dans une base de fuites de données connues (vérification via l'API [Have I
+  Been Pwned](https://haveibeenpwned.com/), interrogée en k-anonymity — seul un préfixe de hash
+  est transmis, jamais le mot de passe). Vérifié à l'activation du compte et à chaque changement.
 - Chaque licencié peut gérer son propre profil (page "Mon compte" via le menu du compte en haut à
   droite) : photo, email, téléphone, date de naissance, numéro de licence, classement, et son
   **équipe interclub par défaut** (parmi ses équipes) si membre de plusieurs — modifiable aussi par

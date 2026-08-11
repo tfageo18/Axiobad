@@ -58,6 +58,13 @@ message affiché est le même que l'email corresponde ou non à un compte exista
 Le bureau peut aussi déclencher cet envoi directement depuis la fiche d'un licencié (page
 Licenciés → bouton **« Réinitialiser le mot de passe »**, visible pour tout compte déjà activé).
 
+**Exigences sur le mot de passe** (à l'activation du compte comme à chaque changement) : au moins
+8 caractères, avec une majuscule, une minuscule et un chiffre. Il est aussi refusé s'il apparaît
+dans une base de fuites de données connues (vérification via l'API Have I Been Pwned, qui ne
+reçoit jamais le mot de passe en clair) — si ce service externe est indisponible, la vérification
+de fuite est simplement ignorée, cela ne bloque jamais la création ou le changement du mot de
+passe.
+
 ## Rôles et permissions
 
 Chaque licencié peut cumuler plusieurs rôles :

@@ -350,19 +350,19 @@ Menu **Club → Cordage**.
   plusieurs raquettes similaires) et une **tension habituelle**. La page **Historique** d'une
   raquette liste toutes les demandes de cordage passées pour cette raquette.
 - Tout licencié peut déposer une **demande de cordage** : raquette concernée (optionnel — la
-  tension habituelle se pré-remplit automatiquement), cordage souhaité (choisi dans le catalogue
-  tenu par le bureau), tension souhaitée, et lieu de dépose. Il ne voit que ses propres demandes,
-  et peut annuler une demande tant qu'elle est encore « Déposée ».
-- Le **bureau** gère le **catalogue des cordages** proposés (menu **Gérer le catalogue de
-  cordages**) : ajout, activation/désactivation, suppression.
+  tension habituelle se pré-remplit automatiquement), cordage souhaité — choisi directement dans
+  le **stock réellement disponible** (pas de catalogue séparé : impossible de demander un cordage
+  que le club n'a pas en stock), tension souhaitée, et lieu de dépose. Il ne voit que ses propres
+  demandes, et peut annuler une demande tant qu'elle est encore « Déposée ».
 - Un licencié peut recevoir le rôle **Cordeur** (coché par le bureau sur sa fiche, comme pour
   Entraîneur). Un cordeur (avec ou sans rôle bureau) voit **toutes** les demandes de cordage,
   peut les **modifier ou annuler** à tout moment (comme le bureau), et fait avancer leur statut :
   1. **Déposée** — demande créée par le licencié.
-  2. **En cours** — le cordeur clique sur « Prendre en charge », ce qui ouvre une page pour
-     choisir (optionnel) la **bobine ou le sachet réellement utilisé** dans le stock du club — et,
-     pour une bobine, la longueur consommée (10 m par défaut, modifiable). Le stock est alors
-     décompté automatiquement ; il est restitué si la demande est annulée par la suite.
+  2. **En cours** — le cordeur clique sur « Prendre en charge », ce qui ouvre une page avec
+     l'article déjà choisi par le licencié pré-sélectionné (modifiable si le stock a bougé
+     entre-temps) — et, pour une bobine, la longueur consommée (10 m par défaut, modifiable). Le
+     stock n'est décompté qu'à cette étape ; il est restitué si la demande est annulée par la
+     suite.
   3. **Prête** — le cordeur indique le lieu de retour et le prix, ce qui marque la raquette prête.
   4. **Récupérée** — le licencié clique sur « J'ai récupéré ma raquette » (le cordeur/bureau peut
      aussi le faire si la remise se fait en direct).

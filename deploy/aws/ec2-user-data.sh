@@ -48,7 +48,7 @@ POSTGRES_DB=app
 POSTGRES_VERSION=16
 FFBAD_API_BASE_URL=https://api.ffbad.org
 MAILER_DSN=null://null
-MAILER_FROM=contact@axioweb.fr
+MAILER_FROM=no-reply@axiobad.click
 EOF
     chmod 600 .env.prod.local
 fi

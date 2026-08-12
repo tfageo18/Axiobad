@@ -3,12 +3,12 @@
     <head>
         <meta charset="UTF-8">
         <script>
-            // Applique le thème sauvegardé avant le premier rendu, pour éviter un flash de la
-            // mauvaise palette (l'attribut data-theme n'est posé que si l'utilisateur a fait un
-            // choix explicite — sinon on laisse la préférence système décider, voir le CSS).
+            // Applique le thème avant le premier rendu, pour éviter un flash de la mauvaise
+            // palette. Thème sombre par défaut tant que l'utilisateur n'a pas fait de choix
+            // explicite (clair, ou suivre le système).
             (function () {
                 try {
-                    var theme = localStorage.getItem('axiobad-theme');
+                    var theme = localStorage.getItem('axiobad-theme') || 'dark';
                     if ('light' === theme || 'dark' === theme) {
                         document.documentElement.setAttribute('data-theme', theme);
                     }
@@ -20,7 +20,7 @@
         <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
         <link rel="manifest" href="{{ asset('manifest.webmanifest') }}">
         <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}">
-        <meta name="theme-color" content="#2c56d6">
+        <meta name="theme-color" content="#151a24">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
         <meta name="apple-mobile-web-app-title" content="Axiobad">
@@ -740,7 +740,7 @@
                     if (bouton) { bouton.classList.toggle('active', m === mode); }
                 });
             }
-            majBoutonsTheme(localStorage.getItem('axiobad-theme') || 'system');
+            majBoutonsTheme(localStorage.getItem('axiobad-theme') || 'dark');
 
             function ouvrirMenuMobile() {
                 document.getElementById('app').classList.add('mobile-open');

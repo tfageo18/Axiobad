@@ -4,9 +4,12 @@ namespace App\Command;
 
 use App\Demo\DemoAccounts;
 use App\Entity\Adhesion;
+use App\Entity\CleGymnase;
 use App\Entity\Creneau;
 use App\Entity\Equipe;
+use App\Entity\Evenement;
 use App\Entity\Gymnase;
+use App\Entity\Inscription;
 use App\Entity\Licencie;
 use App\Entity\MatchInterclub;
 use App\Entity\PaiementAdhesion;
@@ -78,6 +81,7 @@ class ResetDemoDataCommand extends Command
             'stock_mouvement_volant', 'stock_volant',
             'stock_mouvement_cordage', 'stock_cordage',
             'inventaire_ligne', 'inventaire_campagne',
+            'inscription', 'evenement',
             'cle_gymnase', 'gymnase',
             'licencie', 'saison',
         ];
@@ -104,6 +108,14 @@ class ResetDemoDataCommand extends Command
             ->setNombreTerrains(6)
             ->setActif(true);
         $em->persist($gymnase);
+
+        $gymnaseAcacias = (new Gymnase())
+            ->setNom('Gymnase des Acacias')
+            ->setAdresse('4 rue des Acacias, 76600 Le Havre')
+            ->setTelephone('02 35 00 00 01')
+            ->setNombreTerrains(4)
+            ->setActif(true);
+        $em->persist($gymnaseAcacias);
 
         // --- Comptes de démo (un par rôle) ---
         $comptesDemo = [];
@@ -244,6 +256,57 @@ class ResetDemoDataCommand extends Command
                 ->setAdversaires($m['adv'])->setScore($m['score'])->setGagne($m['gagne']);
             $em->persist($match);
         }
+        $em->flush();
+
+        // --- Porteurs de clés ---
+        $cle1 = (new CleGymnase())->setGymnase($gymnase)->setLicencie($comptesDemo[0])->setReference('Trousseau bureau — badge A12');
+        $em->persist($cle1);
+        $cle2 = (new CleGymnase())->setGymnase($gymnase)->setLicencie($licencies[0])->setReference('Double n°2');
+        $em->persist($cle2);
+        $cle3 = (new CleGymnase())->setGymnase($gymnaseAcacias)->setLicencie($comptesDemo[1])->setReference('Badge entraîneur');
+        $em->persist($cle3);
+        $em->flush();
+
+        // --- Vie du club / évènements (avec inscriptions et liste d'attente) ---
+        $tournoi = (new Evenement())
+            ->setType(Evenement::TYPE_TOURNOI_INTERNE)
+            ->setTitre('Tournoi interne de printemps')
+            ->setDescription("Tournoi amical ouvert à tous les niveaux, simples et doubles. Inscription gratuite, lots pour les finalistes.")
+            ->setLieu('Gymnase Central')
+            ->setDateDebut(new \DateTimeImmutable('+21 days 09:00'))
+            ->setDateFin(new \DateTimeImmutable('+21 days 18:00'))
+            ->setNombrePlaces(16);
+        $em->persist($tournoi);
+        $em->flush();
+
+        // 16 places : 14 confirmées + 3 en liste d'attente pour illustrer le mécanisme.
+        foreach (array_slice($licencies, 0, 14) as $li) {
+            $em->persist((new Inscription())->setEvenement($tournoi)->setLicencie($li)->setStatut(Inscription::STATUT_CONFIRMEE));
+        }
+        foreach (array_slice($licencies, 14, 3) as $li) {
+            $em->persist((new Inscription())->setEvenement($tournoi)->setLicencie($li)->setStatut(Inscription::STATUT_LISTE_ATTENTE));
+        }
+
+        $barbecue = (new Evenement())
+            ->setType(Evenement::TYPE_BARBECUE)
+            ->setTitre('Barbecue de fin de saison')
+            ->setDescription('Repas convivial pour clôturer la saison, ouvert aux licenciés et à leurs familles.')
+            ->setLieu('Gymnase Central, parvis extérieur')
+            ->setDateDebut(new \DateTimeImmutable('+45 days 12:00'))
+            ->setNombrePlaces(40);
+        $em->persist($barbecue);
+        $em->flush();
+        foreach (array_slice($licencies, 0, 9) as $li) {
+            $em->persist((new Inscription())->setEvenement($barbecue)->setLicencie($li)->setStatut(Inscription::STATUT_CONFIRMEE));
+        }
+
+        $ag = (new Evenement())
+            ->setType(Evenement::TYPE_ASSEMBLEE_GENERALE)
+            ->setTitre('Assemblée générale annuelle')
+            ->setDescription("Bilan de la saison, votes du bureau, présentation du budget.")
+            ->setLieu('Gymnase Central, salle de réunion')
+            ->setDateDebut(new \DateTimeImmutable('+60 days 19:00'));
+        $em->persist($ag);
         $em->flush();
 
         // --- Stock ---

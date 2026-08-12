@@ -29,17 +29,14 @@ class DemandeCordage
     #[ORM\JoinColumn(nullable: false)]
     private ?Licencie $licencie = null;
 
-    #[ORM\ManyToOne(targetEntity: TypeCordage::class)]
-    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
-    private ?TypeCordage $typeCordage = null;
-
     #[ORM\ManyToOne(targetEntity: Raquette::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Raquette $raquette = null;
 
     /**
-     * Article de stock (bobine ou sachet) utilisé par le cordeur pour cette demande, choisi à la
-     * prise en charge — décompté du stock à ce moment-là (voir StockMouvementCordage).
+     * Article de stock (bobine ou sachet) choisi par le licencié parmi le stock réellement
+     * disponible au moment de la dépose — décompté seulement à la prise en charge par le cordeur
+     * (voir StockMouvementCordage), le cordeur pouvant encore le changer si besoin.
      */
     #[ORM\ManyToOne(targetEntity: StockCordage::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
@@ -98,18 +95,6 @@ class DemandeCordage
     public function setLicencie(?Licencie $licencie): static
     {
         $this->licencie = $licencie;
-
-        return $this;
-    }
-
-    public function getTypeCordage(): ?TypeCordage
-    {
-        return $this->typeCordage;
-    }
-
-    public function setTypeCordage(?TypeCordage $typeCordage): static
-    {
-        $this->typeCordage = $typeCordage;
 
         return $this;
     }

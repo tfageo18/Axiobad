@@ -34,7 +34,7 @@
                 {% for demande in demandes %}
                     <tr>
                         <td data-label="Date">{{ demande.dateDepot|date('d/m/Y') }}</td>
-                        <td data-label="Cordage">{{ demande.typeCordage ? demande.typeCordage.nom : '-' }}</td>
+                        <td data-label="Cordage">{{ demande.stockCordage ? demande.stockCordage.libelle : '-' }}</td>
                         <td data-label="Tension">{{ demande.tension ?? '-' }}</td>
                         <td data-label="Statut"><span class="badge-statut badge-{{ demande.statut }}">{{ demande.statutLabel }}</span></td>
                         <td data-label="Prix">{{ demande.prix is not null ? demande.prix|number_format(2, ',', ' ') ~ ' €' : '-' }}</td>

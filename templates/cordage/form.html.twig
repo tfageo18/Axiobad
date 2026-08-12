@@ -29,13 +29,18 @@
             </div>
         {% endif %}
         <div>
-            <label for="typeCordage">Cordage souhaité</label>
-            <select name="typeCordage" id="typeCordage">
+            <label for="stockCordage">Cordage souhaité</label>
+            <select name="stockCordage" id="stockCordage">
                 <option value="">-</option>
-                {% for type in typesCordage %}
-                    <option value="{{ type.id }}" {{ demande and demande.typeCordage and demande.typeCordage.id == type.id ? 'selected' : '' }}>{{ type.nom }}</option>
+                {% for article in articlesDisponibles %}
+                    <option value="{{ article.id }}" {{ demande and demande.stockCordage and demande.stockCordage.id == article.id ? 'selected' : '' }}>
+                        {{ article.typeLabel }} — {{ article.libelle }} ({{ article.quantite }} {{ article.uniteLabel }} en stock)
+                    </option>
                 {% endfor %}
             </select>
+            {% if articlesDisponibles is empty %}
+                <p style="color: var(--color-warning);">Aucun cordage en stock pour le moment — contactez le bureau.</p>
+            {% endif %}
         </div>
         <div>
             <label for="tension">Tension souhaitée</label>

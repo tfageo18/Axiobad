@@ -143,7 +143,8 @@ Les **issues** et **pull requests** sont les bienvenues, voir [CONTRIBUTING.md](
 - Chaque licencié gère ses **raquettes** (marque, modèle, signe distinctif, tension habituelle en
   kg) et consulte l'historique de cordage de chacune.
 - Tout licencié peut déposer une demande de cordage : raquette concernée (la tension habituelle
-  se pré-remplit), cordage souhaité (choisi dans un catalogue tenu par le bureau), tension
+  se pré-remplit), cordage souhaité — choisi directement dans le **stock réellement disponible**
+  (pas de catalogue séparé : impossible de demander un cordage que le club n'a pas), tension
   souhaitée, lieu de dépose.
 - Un licencié avec le rôle **Cordeur** (avec ou sans rôle bureau) voit toutes les demandes, peut
   les modifier ou annuler à tout moment, et fait progresser leur statut : déposée → en cours →
@@ -153,9 +154,10 @@ Les **issues** et **pull requests** sont les bienvenues, voir [CONTRIBUTING.md](
   **bobine** (quantité suivie en mètres, ~10 m consommés par raquette) ou en **sachet individuel**
   (quantité suivie en sachets), avec marque, modèle, lieu de stockage et seuil d'alerte. Un même
   cordage stocké à deux endroits différents se gère avec deux articles distincts.
-- En prenant en charge une demande, le cordeur choisit la bobine/le sachet réellement utilisé (et
-  la longueur pour une bobine) : le stock est décompté automatiquement, et restitué si la demande
-  est annulée par la suite.
+- Le stock n'est décompté qu'à la prise en charge par le cordeur, pas à la dépose (l'article
+  choisi par le licencié est pré-sélectionné, mais le cordeur peut le changer si besoin — ex. si
+  le stock a bougé entre-temps), et pour une bobine il ajuste la longueur réellement utilisée. Le
+  stock est restitué automatiquement si la demande est annulée par la suite.
 
 ### Tableau de bord (bureau)
 

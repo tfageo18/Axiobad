@@ -22,9 +22,6 @@
         {% if peutGererToutes %}
             · <a href="{{ path('app_stock_cordage_index') }}">Stock de cordage</a>
         {% endif %}
-        {% if is_granted('ROLE_BUREAU') %}
-            · <a href="{{ path('app_cordage_type_index') }}">Gérer le catalogue de cordages</a>
-        {% endif %}
     </p>
 
     <div class="table-scroll">
@@ -55,11 +52,10 @@
                         {% endif %}
                     </td>
                     <td data-label="Cordage">
-                        {{ demande.typeCordage ? demande.typeCordage.nom : '-' }}
                         {% if demande.stockCordage %}
-                            <br><small style="color: var(--color-text-muted);">
-                                Stock : {{ demande.stockCordage.libelle }}{{ demande.longueurUtiliseeM ? ' (' ~ demande.longueurUtiliseeM ~ ' m)' : '' }}
-                            </small>
+                            {{ demande.stockCordage.libelle }}{{ demande.longueurUtiliseeM ? ' (' ~ demande.longueurUtiliseeM ~ ' m)' : '' }}
+                        {% else %}
+                            -
                         {% endif %}
                     </td>
                     <td data-label="Tension">{{ demande.tension ?? '-' }}</td>

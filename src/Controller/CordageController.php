@@ -6,18 +6,15 @@ use App\Entity\DemandeCordage;
 use App\Entity\Licencie;
 use App\Entity\StockCordage;
 use App\Entity\StockMouvementCordage;
-use App\Entity\TypeCordage;
 use App\Repository\DemandeCordageRepository;
 use App\Repository\RaquetteRepository;
 use App\Repository\StockCordageRepository;
-use App\Repository\TypeCordageRepository;
 use App\Service\NotificationMailer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/cordage')]
 class CordageController extends AbstractController
@@ -38,14 +35,13 @@ class CordageController extends AbstractController
     }
 
     #[Route('/nouveau', name: 'app_cordage_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, TypeCordageRepository $typeCordageRepository, RaquetteRepository $raquetteRepository): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, StockCordageRepository $stockCordageRepository, RaquetteRepository $raquetteRepository): Response
     {
         /** @var Licencie $licencie */
         $licencie = $this->getUser();
 
         if ($request->isMethod('POST')) {
-            $typeCordageId = $request->request->get('typeCordage');
-            $typeCordage = $typeCordageId ? $typeCordageRepository->find($typeCordageId) : null;
+            $stockCordage = $this->trouverStockDisponible($request->request->get('stockCordage'), $stockCordageRepository);
             $raquetteId = $request->request->get('raquette');
             $raquette = $raquetteId ? $raquetteRepository->find($raquetteId) : null;
             if ($raquette && $raquette->getLicencie() !== $licencie) {
@@ -54,7 +50,7 @@ class CordageController extends AbstractController
 
             $demande = (new DemandeCordage())
                 ->setLicencie($licencie)
-                ->setTypeCordage($typeCordage)
+                ->setStockCordage($stockCordage)
                 ->setRaquette($raquette)
                 ->setTension((string) $request->request->get('tension') ?: null)
                 ->setLieuDepose((string) $request->request->get('lieuDepose'));
@@ -69,19 +65,18 @@ class CordageController extends AbstractController
 
         return $this->render('cordage/form.html.twig', [
             'demande' => null,
-            'typesCordage' => $typeCordageRepository->findBy(['actif' => true], ['nom' => 'ASC']),
+            'articlesDisponibles' => $stockCordageRepository->findDisponibles(),
             'raquettes' => $raquetteRepository->findBy(['licencie' => $licencie]),
         ]);
     }
 
     #[Route('/{id}/modifier', name: 'app_cordage_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, DemandeCordage $demande, EntityManagerInterface $entityManager, TypeCordageRepository $typeCordageRepository, RaquetteRepository $raquetteRepository): Response
+    public function edit(Request $request, DemandeCordage $demande, EntityManagerInterface $entityManager, StockCordageRepository $stockCordageRepository, RaquetteRepository $raquetteRepository): Response
     {
         $this->refuserSiPasBureauNiCordeur();
 
         if ($request->isMethod('POST')) {
-            $typeCordageId = $request->request->get('typeCordage');
-            $typeCordage = $typeCordageId ? $typeCordageRepository->find($typeCordageId) : null;
+            $stockCordage = $this->trouverStockDisponible($request->request->get('stockCordage'), $stockCordageRepository, $demande->getStockCordage());
             $raquetteId = $request->request->get('raquette');
             $raquette = $raquetteId ? $raquetteRepository->find($raquetteId) : null;
             if ($raquette && $raquette->getLicencie() !== $demande->getLicencie()) {
@@ -89,7 +84,7 @@ class CordageController extends AbstractController
             }
 
             $demande
-                ->setTypeCordage($typeCordage)
+                ->setStockCordage($stockCordage)
                 ->setRaquette($raquette)
                 ->setTension((string) $request->request->get('tension') ?: null)
                 ->setLieuDepose((string) $request->request->get('lieuDepose'));
@@ -101,11 +96,41 @@ class CordageController extends AbstractController
             return $this->redirectToRoute('app_cordage_index');
         }
 
+        // L'article déjà choisi doit rester proposé même s'il n'a plus de stock disponible
+        // (sinon impossible de rouvrir le formulaire sans perdre le choix initial).
+        $articlesDisponibles = $stockCordageRepository->findDisponibles();
+        if ($demande->getStockCordage() && !in_array($demande->getStockCordage(), $articlesDisponibles, true)) {
+            $articlesDisponibles[] = $demande->getStockCordage();
+        }
+
         return $this->render('cordage/form.html.twig', [
             'demande' => $demande,
-            'typesCordage' => $typeCordageRepository->findBy([], ['nom' => 'ASC']),
+            'articlesDisponibles' => $articlesDisponibles,
             'raquettes' => $raquetteRepository->findBy(['licencie' => $demande->getLicencie()]),
         ]);
+    }
+
+    /**
+     * Un licencié ne peut choisir que du stock réellement disponible ; un membre du bureau/cordeur
+     * (via edit()) peut en plus garder l'article déjà associé à la demande même s'il n'a plus de
+     * stock, pour ne pas perdre l'information en rouvrant le formulaire.
+     */
+    private function trouverStockDisponible(mixed $id, StockCordageRepository $stockCordageRepository, ?StockCordage $articleDejaChoisi = null): ?StockCordage
+    {
+        if (!$id) {
+            return null;
+        }
+
+        $article = $stockCordageRepository->find($id);
+        if (!$article) {
+            return null;
+        }
+
+        if ($article->getQuantite() > 0 || $article === $articleDejaChoisi) {
+            return $article;
+        }
+
+        return null;
     }
 
     #[Route('/{id}/annuler', name: 'app_cordage_delete', methods: ['POST'])]
@@ -234,53 +259,6 @@ class CordageController extends AbstractController
         $this->addFlash('success', 'Raquette marquée comme récupérée.');
 
         return $this->redirectToRoute('app_cordage_index');
-    }
-
-    #[Route('/types', name: 'app_cordage_type_index', methods: ['GET'])]
-    #[IsGranted('ROLE_BUREAU')]
-    public function types(TypeCordageRepository $typeCordageRepository): Response
-    {
-        return $this->render('cordage/types.html.twig', [
-            'types' => $typeCordageRepository->findBy([], ['nom' => 'ASC']),
-        ]);
-    }
-
-    #[Route('/types/nouveau', name: 'app_cordage_type_new', methods: ['POST'])]
-    #[IsGranted('ROLE_BUREAU')]
-    public function ajouterType(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $nom = (string) $request->request->get('nom');
-        if ($nom) {
-            $type = (new TypeCordage())->setNom($nom);
-            $entityManager->persist($type);
-            $entityManager->flush();
-            $this->addFlash('success', 'Cordage ajouté au catalogue.');
-        }
-
-        return $this->redirectToRoute('app_cordage_type_index');
-    }
-
-    #[Route('/types/{id}/activer', name: 'app_cordage_type_toggle_actif', methods: ['POST'])]
-    #[IsGranted('ROLE_BUREAU')]
-    public function toggleActifType(TypeCordage $type, EntityManagerInterface $entityManager): Response
-    {
-        $type->setActif(!$type->isActif());
-        $entityManager->flush();
-
-        return $this->redirectToRoute('app_cordage_type_index');
-    }
-
-    #[Route('/types/{id}/supprimer', name: 'app_cordage_type_delete', methods: ['POST'])]
-    #[IsGranted('ROLE_BUREAU')]
-    public function supprimerType(Request $request, TypeCordage $type, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('delete-type-cordage-'.$type->getId(), (string) $request->request->get('_token'))) {
-            $entityManager->remove($type);
-            $entityManager->flush();
-            $this->addFlash('success', 'Cordage supprimé du catalogue.');
-        }
-
-        return $this->redirectToRoute('app_cordage_type_index');
     }
 
     private function estBureauOuCordeur(): bool

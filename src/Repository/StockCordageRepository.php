@@ -15,4 +15,21 @@ class StockCordageRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, StockCordage::class);
     }
+
+    /**
+     * Articles avec du stock réellement disponible (quantité > 0) — c'est dans cette liste que
+     * les licenciés choisissent leur cordage à la dépose, pour ne jamais demander un cordage que
+     * le club n'a pas.
+     *
+     * @return StockCordage[]
+     */
+    public function findDisponibles(): array
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.quantite > 0')
+            ->orderBy('s.marque', 'ASC')
+            ->addOrderBy('s.modele', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 }

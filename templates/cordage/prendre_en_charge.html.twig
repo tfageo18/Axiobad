@@ -8,7 +8,7 @@
     <h1>Prendre en charge la demande de {{ demande.licencie.nomComplet }}</h1>
     <p>
         Raquette : {{ demande.raquette ? demande.raquette.libelle : '-' }}
-        — Cordage souhaité : {{ demande.typeCordage ? demande.typeCordage.nom : '-' }}
+        — Cordage souhaité : {{ demande.stockCordage ? demande.stockCordage.libelle : '-' }}
         {{ demande.tension ? '(tension ' ~ demande.tension ~ ')' : '' }}
     </p>
 
@@ -19,15 +19,16 @@
             <select name="stockCordage" id="stockCordage" onchange="document.getElementById('champ-longueur').style.display = this.selectedOptions[0].dataset.bobine === '1' ? 'block' : 'none';">
                 <option value="">— Ne pas décompter le stock —</option>
                 {% for article in articles %}
-                    <option value="{{ article.id }}" data-bobine="{{ article.bobine ? '1' : '0' }}">
+                    <option value="{{ article.id }}" data-bobine="{{ article.bobine ? '1' : '0' }}" {{ demande.stockCordage and demande.stockCordage.id == article.id ? 'selected' : '' }}>
                         {{ article.typeLabel }} — {{ article.libelle }}{{ article.lieuStockage ? ' (' ~ article.lieuStockage ~ ')' : '' }}
                         — {{ article.quantite }} {{ article.uniteLabel }} en stock
                     </option>
                 {% endfor %}
             </select>
             <small style="color: var(--color-text-muted);">
-                Choisir la bobine ou le sachet réellement utilisé décompte automatiquement le
-                stock. Laisser sur « ne pas décompter » si le cordage ne vient pas du stock du club.
+                Cordage déjà choisi par le licencié à la dépose, pré-sélectionné ici — changez-le si
+                l'article n'est finalement plus disponible. Choisir « ne pas décompter » si le
+                cordage ne vient pas du stock du club.
             </small>
         </div>
         <div id="champ-longueur" style="display: none;">

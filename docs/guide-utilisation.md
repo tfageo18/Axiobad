@@ -39,7 +39,8 @@ page d'accueil (et la connexion) redirigent vers le **calendrier**.
 Une fois connecté, le menu latéral (à gauche) regroupe les fonctionnalités par section (Jouer /
 Club / Bureau) — un bouton en haut de la zone de contenu permet de le **réduire en icônes seules**
 pour gagner de la place, et il se transforme en tiroir accessible via le bouton ☰ sur mobile. Le
-sélecteur en haut à droite permet de choisir le **thème clair, sombre, ou de suivre le système**.
+sélecteur en haut à droite permet de choisir le **thème clair, sombre, ou de suivre le système**
+(**sombre par défaut** tant qu'aucun choix explicite n'a été fait).
 
 **Premier compte administrateur du club :**
 - Email : `admin@axiobad.local`

@@ -25,7 +25,7 @@ Les **issues** et **pull requests** sont les bienvenues, voir [CONTRIBUTING.md](
 - **Menu latéral** regroupé par section (Jouer / Club / Bureau), repliable en icônes seules
   (bouton en haut de la zone de contenu) sur ordinateur, transformé en tiroir sur mobile.
 - **Mode clair / sombre / système**, au choix via le sélecteur en haut à droite — préférence
-  mémorisée par navigateur. Sans choix explicite, l'appli suit le thème du système d'exploitation.
+  mémorisée par navigateur. **Sombre par défaut** tant qu'aucun choix explicite n'a été fait.
 - Menu caché tant que l'utilisateur n'est pas connecté (page de connexion épurée, sans navigation).
 
 ## Modules

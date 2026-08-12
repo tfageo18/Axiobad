@@ -474,11 +474,13 @@ Vue d'ensemble du club en un coup d'œil :
 
 Menu **Mon espace**, votre page personnelle en un coup d'œil :
 
-- Vos **prochains créneaux** (14 jours) parmi ceux qui correspondent à votre catégorie d'âge et
-  votre classement, avec votre réponse de présence.
+- Vos **prochains créneaux où vous venez** (14 jours), parmi ceux qui correspondent à votre
+  catégorie d'âge et votre classement — un créneau où vous avez répondu « je ne viens pas »
+  n'apparaît pas dans cette liste (affichage compact, une ligne par créneau).
 - Vos **statistiques de présence** globales.
 - Le statut de votre **adhésion** (payée/en attente/exonérée) et vos paiements sur la saison en
-  cours.
+  cours — ou, s'il n'y a pas de saison en cours mais que vous avez déjà réglé votre adhésion pour
+  la prochaine (ex. avant la rentrée), celui de cette saison à venir.
 - Les **créneaux recommandés** selon votre classement (les mêmes règles que celles utilisées pour
   filtrer le calendrier).
 - Les **évènements à venir** du club.

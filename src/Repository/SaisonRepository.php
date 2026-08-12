@@ -39,4 +39,21 @@ class SaisonRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult();
     }
+
+    /**
+     * La prochaine saison à venir (dateDebut dans le futur, la plus proche) — utile pour afficher
+     * l'adhésion d'un licencié qui a déjà réglé sa saison avant qu'elle ne commence.
+     */
+    public function findProchaine(): ?Saison
+    {
+        $aujourdhui = new \DateTimeImmutable('today');
+
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.dateDebut > :aujourdhui')
+            ->setParameter('aujourdhui', $aujourdhui)
+            ->orderBy('s.dateDebut', 'ASC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

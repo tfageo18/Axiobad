@@ -59,11 +59,17 @@ class MonEspaceController extends AbstractController
                     continue;
                 }
 
+                $presence = $presenceRepository->findOneByCreneauLicencieEtDate($creneau, $licencie, $date);
+                if ($presence && !$presence->isPresent()) {
+                    // Je ne viens pas à cette occurrence : ne pas l'afficher dans « mes créneaux ».
+                    continue;
+                }
+
                 $prochainsCreneaux[] = [
                     'creneau' => $creneau,
                     'date' => $date,
                     'exception' => $exception,
-                    'presence' => $presenceRepository->findOneByCreneauLicencieEtDate($creneau, $licencie, $date),
+                    'presence' => $presence,
                 ];
             }
         }
@@ -75,9 +81,22 @@ class MonEspaceController extends AbstractController
         $totalReponses = count($presences);
         $totalPresent = count(array_filter($presences, static fn ($p) => $p->isPresent()));
 
-        // Adhésion et paiements sur la saison en cours.
+        // Adhésion et paiements sur la saison en cours. À défaut de saison en cours (ex. entre
+        // deux saisons, adhésion réglée en avance), on affiche celle de la prochaine saison si le
+        // licencié y a déjà une adhésion enregistrée.
         $saisonEnCours = $saisonRepository->findEnCours();
         $adhesion = $saisonEnCours ? $adhesionRepository->findOneByLicencieEtSaison($licencie, $saisonEnCours) : null;
+        $saisonAVenir = false;
+
+        if (!$saisonEnCours) {
+            $saisonProchaine = $saisonRepository->findProchaine();
+            $adhesionProchaine = $saisonProchaine ? $adhesionRepository->findOneByLicencieEtSaison($licencie, $saisonProchaine) : null;
+            if ($adhesionProchaine) {
+                $saisonEnCours = $saisonProchaine;
+                $adhesion = $adhesionProchaine;
+                $saisonAVenir = true;
+            }
+        }
 
         // Évènements à venir.
         $evenementsAVenir = array_values(array_filter(
@@ -105,6 +124,7 @@ class MonEspaceController extends AbstractController
             'totalPresent' => $totalPresent,
             'tauxPresence' => $totalReponses > 0 ? round($totalPresent / $totalReponses * 100) : null,
             'saisonEnCours' => $saisonEnCours,
+            'saisonAVenir' => $saisonAVenir,
             'adhesion' => $adhesion,
             'evenementsAVenir' => $evenementsAVenir,
             'historiqueTournois' => $historiqueTournois,

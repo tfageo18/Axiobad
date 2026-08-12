@@ -171,10 +171,12 @@ Les **issues** et **pull requests** sont les bienvenues, voir [CONTRIBUTING.md](
 
 ### Mon espace
 
-- Chaque licencié dispose d'une page personnelle : ses prochains créneaux (calendrier
-  personnalisé), ses statistiques de présence, le statut de son adhésion, des créneaux
-  recommandés selon son classement, les évènements à venir, et son historique de participation
-  aux tournois internes et aux interclubs.
+- Chaque licencié dispose d'une page personnelle : ses prochains créneaux où il est inscrit
+  (celles marquées « je ne viens pas » sont masquées), ses statistiques de présence, le statut de
+  son adhésion, des créneaux recommandés selon son classement, les évènements à venir, et son
+  historique de participation aux tournois internes et aux interclubs.
+- Statut d'adhésion : affiche la saison en cours, ou à défaut (ex. adhésion réglée en avance avant
+  le début de la saison) la prochaine saison si une adhésion y est déjà enregistrée.
 
 ### Gymnases
 

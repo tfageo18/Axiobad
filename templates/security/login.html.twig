@@ -8,24 +8,21 @@
     {% if demo_mode %}
         <div class="demo-banner">
             <p><strong>Instance de démonstration</strong> — données entièrement fictives, réinitialisées régulièrement. Choisissez un compte pour tester :</p>
-            <table class="demo-accounts">
-                <thead>
-                    <tr>
-                        <th>Rôle</th>
-                        <th>Email</th>
-                        <th>Mot de passe</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for compte in demo_accounts %}
-                        <tr>
-                            <td>{{ compte.label }}</td>
-                            <td><code>{{ compte.email }}</code></td>
-                            <td><code>{{ demo_password }}</code></td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="demo-accounts">
+                {% for compte in demo_accounts %}
+                    <div class="demo-account">
+                        <div class="demo-account-role">{{ compte.label }}</div>
+                        <div class="demo-account-champ">
+                            <span>Email</span>
+                            <code>{{ compte.email }}</code>
+                        </div>
+                        <div class="demo-account-champ">
+                            <span>Mot de passe</span>
+                            <code>{{ demo_password }}</code>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
     {% endif %}
 

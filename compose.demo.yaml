@@ -1,0 +1,38 @@
+# Overlay pour l'instance de démonstration publique (demo.axiobad.click), à utiliser en plus de
+# l'overlay de prod, sur la même instance EC2 que la production réelle :
+#   docker compose -f compose.yaml -f compose.prod.yaml -f compose.demo.yaml --env-file .env.prod.local --env-file .env.demo.local up -d --build
+#
+# Choix pensés pour ne pas avoir à monter en gamme l'instance EC2 :
+# - un seul conteneur nginx sert les deux domaines (hac.axiobad.click et demo.axiobad.click),
+#   chacun avec son propre server_name/certificat (voir docker/nginx/demo.conf) ;
+# - une seule base PostgreSQL, avec une base "app_demo" séparée de la base de prod (pas de 2e
+#   conteneur Postgres) ;
+# - seul un conteneur PHP-FPM supplémentaire (php-demo) est ajouté, léger comparé à dupliquer
+#   toute la stack.
+services:
+  php-demo:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    volumes:
+      - uploads_demo_data:/var/www/html/public/uploads
+    environment:
+      APP_ENV: prod
+      APP_SECRET: ${DEMO_APP_SECRET}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD}@database:5432/${DEMO_POSTGRES_DB:-app_demo}?serverVersion=${POSTGRES_VERSION:-16}&charset=utf8
+      MAILER_DSN: null://null
+      MAILER_FROM: ${MAILER_FROM}
+      DEMO_MODE: "1"
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+
+  nginx:
+    volumes:
+      - ./docker/nginx/demo.conf:/etc/nginx/conf.d/demo.conf:ro
+    depends_on:
+      - php-demo
+
+volumes:
+  uploads_demo_data:

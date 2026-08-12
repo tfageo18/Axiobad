@@ -361,6 +361,23 @@ L'application est déployée sur **https://hac.axiobad.click** :
   la stack Docker, en plus du `restart: unless-stopped` des conteneurs.
 - Emails transactionnels envoyés via Amazon SES (domaine vérifié avec DKIM).
 
+## Instance de démonstration
+
+**https://demo.axiobad.click** expose une instance publique avec des données 100 % fictives
+(licenciés, créneaux, adhésions, interclubs...), pour laisser un prospect tester l'application
+sans donner accès à de vraies données de club :
+- Sert sur la même instance EC2 que la production, via le même conteneur nginx (routage par
+  `server_name`) et la même base PostgreSQL (base `app_demo` séparée) — voir `compose.demo.yaml`
+  et `docker/nginx/demo.conf`.
+- Le conteneur applicatif tourne avec `DEMO_MODE=1`, ce qui affiche sur la page de connexion les
+  identifiants d'un compte de test par rôle (bureau, entraîneur, cordeur, stock, licencié) — voir
+  `App\Demo\DemoAccounts`.
+- Les données sont entièrement réinitialisées chaque nuit (`app:demo:reset`, cron
+  `axiobad-demo-reset`) : la commande refuse de s'exécuter si `DEMO_MODE` n'est pas activé, pour
+  qu'une erreur de configuration ne puisse jamais vider la base de production.
+- `noindex`/`nofollow` envoyé sur toutes les réponses de ce domaine (pas d'indexation par les
+  moteurs de recherche).
+
 ## Déploiement AWS (option la moins chère)
 
 La base de données PostgreSQL tourne dans un conteneur (pas de RDS), sur une **seule instance EC2**
@@ -371,13 +388,17 @@ euros par mois (instance + volume EBS), contre un coût bien plus élevé avec E
 
 1. Créer une instance EC2 (Amazon Linux 2023, ARM Graviton), avec :
    - un Security Group ouvrant le port 22 (SSH, restreint), 80 (HTTP) et 443 (HTTPS) ;
+   - deux enregistrements DNS (Route53) pointant vers la même IP : `hac.axiobad.click` et
+     `demo.axiobad.click` ;
    - le script `deploy/aws/ec2-user-data.sh` en "user data" au lancement (installe Docker, clone
-     le dépôt dans `/opt/axiobad`, obtient le certificat Let's Encrypt, démarre l'application, et
-     installe le service systemd `axiobad.service` pour un démarrage garanti au boot).
+     le dépôt dans `/opt/axiobad`, obtient les certificats Let's Encrypt des deux domaines,
+     démarre l'application (prod + démo), et installe le service systemd `axiobad.service` pour
+     un démarrage garanti au boot).
 2. Configurer `.env.prod.local` sur le serveur (généré automatiquement au premier boot avec des
    secrets aléatoires ; éditer `MAILER_DSN`/`MAILER_FROM` pour un vrai envoi d'emails — voir la
    section [Configuration email](docs/guide-utilisation.md#configuration-email-production) du
-   guide).
+   guide). `.env.demo.local` (secrets de l'instance de démo) est généré de la même façon, pas
+   besoin d'y toucher.
 3. Générer une paire de clés VAPID (`php bin/console app:push:generer-cles-vapid` dans le
    conteneur `app`) et renseigner `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY`/`VAPID_SUBJECT` dans
    `.env.prod.local` pour activer les notifications push navigateur (sinon la fonctionnalité est

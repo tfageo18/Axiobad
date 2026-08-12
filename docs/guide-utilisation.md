@@ -32,9 +32,9 @@ en ligne, une fois connecté, via le menu du compte (en bas du menu latéral) �
 
 ## Se connecter
 
-Rendez-vous sur l'URL du club (ex. `https://hac.axiobad.click`) et connectez-vous avec
-votre email et votre mot de passe. Le menu latéral n'est visible qu'une fois connecté ; la
-page d'accueil (et la connexion) redirigent vers le **calendrier**.
+Rendez-vous sur l'URL de votre club (le sous-domaine dépend de l'instance : chaque club a la
+sienne) et connectez-vous avec votre email et votre mot de passe. Le menu latéral n'est visible
+qu'une fois connecté ; la page d'accueil (et la connexion) redirigent vers le **calendrier**.
 
 Une fois connecté, le menu latéral (à gauche) regroupe les fonctionnalités par section (Jouer /
 Club / Bureau) — un bouton en haut de la zone de contenu permet de le **réduire en icônes seules**

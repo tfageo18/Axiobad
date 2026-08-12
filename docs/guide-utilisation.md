@@ -32,7 +32,7 @@ en ligne, une fois connecté, via le menu du compte (en bas du menu latéral) �
 
 ## Se connecter
 
-Rendez-vous sur l'URL du club (ex. `https://axiobad.thomas-fageol.fr`) et connectez-vous avec
+Rendez-vous sur l'URL du club (ex. `https://hac.axiobad.click`) et connectez-vous avec
 votre email et votre mot de passe. Le menu latéral n'est visible qu'une fois connecté ; la
 page d'accueil (et la connexion) redirigent vers le **calendrier**.
 

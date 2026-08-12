@@ -1,7 +1,7 @@
 # Contribuer
 
-Axiobad n'est **pas un projet open source** : il est développé et maintenu par une seule
-personne, et le code n'est disponible publiquement que pour consultation — voir [LICENSE](LICENSE).
+Axiobad n'est **pas un projet open source** : il est développé et maintenu par Axioweb,
+et le code n'est disponible publiquement que pour consultation — voir [LICENSE](LICENSE).
 Aucun droit de réutilisation, de redistribution ou de fork n'est accordé.
 
 En revanche, **les issues et les pull requests sont les bienvenues** :

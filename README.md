@@ -17,7 +17,7 @@ volants), et donner à chaque licencié une page personnelle ainsi qu'un tableau
 
 ## Licence et contributions
 
-Projet non open source (voir [LICENSE](LICENSE)) — développé et maintenu par une seule personne.
+Projet non open source (voir [LICENSE](LICENSE)) — développé et maintenu par Axioweb.
 Les **issues** et **pull requests** sont les bienvenues, voir [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Interface
@@ -354,7 +354,7 @@ L'application est accessible sur http://localhost:8080.
 
 ## Environnement de production
 
-L'application est déployée sur **https://axiobad.thomas-fageol.fr** :
+L'application est déployée sur **https://hac.axiobad.click** :
 - HTTPS via Let's Encrypt (renouvellement automatique par cron).
 - Hébergée sur une seule instance EC2 (Elastic IP, DNS Route53).
 - Démarrage garanti au boot de l'instance via un service systemd (`axiobad.service`) qui relance

@@ -8,7 +8,7 @@ de façon responsable plutôt que de l'exploiter ou de la divulguer publiquement
 
 **Ne pas ouvrir d'issue ou de pull request publique pour une faille de sécurité.**
 
-Contacter directement : **thomas.fageol@gmail.com**
+Contacter directement : **contact@axioweb.fr**
 
 Merci d'indiquer si possible :
 - une description du problème et de son impact potentiel ;
@@ -21,7 +21,7 @@ Une divulgation publique coordonnée pourra être envisagée une fois le correct
 ## Périmètre
 
 - Le code source de ce dépôt (`tfageo18/Axiobad`).
-- L'instance de production : https://axiobad.thomas-fageol.fr
+- L'instance de production : https://hac.axiobad.click
 
 ## Hors périmètre
 

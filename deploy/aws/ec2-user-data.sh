@@ -7,8 +7,8 @@ set -euo pipefail
 REPO_URL="https://github.com/tfageo18/Axiobad.git"
 BRANCH="claude/readme-initial-9yd1ej"
 APP_DIR="/opt/axiobad"
-DOMAIN="axiobad.thomas-fageol.fr"
-LETSENCRYPT_EMAIL="thomas.fageol@gmail.com"
+DOMAIN="hac.axiobad.click"
+LETSENCRYPT_EMAIL="contact@axioweb.fr"
 
 dnf update -y
 dnf install -y docker git python3-pip cronie

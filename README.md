@@ -149,6 +149,13 @@ Les **issues** et **pull requests** sont les bienvenues, voir [CONTRIBUTING.md](
   les modifier ou annuler à tout moment, et fait progresser leur statut : déposée → en cours →
   prête (avec prix et lieu de retour) → récupérée (le licencié peut lui-même marquer sa raquette
   récupérée).
+- **Stock de cordage**, géré par les cordeurs (pas besoin du rôle bureau/stock) : articles en
+  **bobine** (quantité suivie en mètres, ~10 m consommés par raquette) ou en **sachet individuel**
+  (quantité suivie en sachets), avec marque, modèle, lieu de stockage et seuil d'alerte. Un même
+  cordage stocké à deux endroits différents se gère avec deux articles distincts.
+- En prenant en charge une demande, le cordeur choisit la bobine/le sachet réellement utilisé (et
+  la longueur pour une bobine) : le stock est décompté automatiquement, et restitué si la demande
+  est annulée par la suite.
 
 ### Tableau de bord (bureau)
 

@@ -37,6 +37,21 @@ class DemandeCordage
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Raquette $raquette = null;
 
+    /**
+     * Article de stock (bobine ou sachet) utilisé par le cordeur pour cette demande, choisi à la
+     * prise en charge — décompté du stock à ce moment-là (voir StockMouvementCordage).
+     */
+    #[ORM\ManyToOne(targetEntity: StockCordage::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?StockCordage $stockCordage = null;
+
+    /**
+     * Longueur en mètres décomptée de la bobine pour cette demande (non pertinent pour un
+     * sachet, où la consommation est toujours d'une unité).
+     */
+    #[ORM\Column(nullable: true)]
+    private ?int $longueurUtiliseeM = null;
+
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $tension = null;
 
@@ -107,6 +122,30 @@ class DemandeCordage
     public function setRaquette(?Raquette $raquette): static
     {
         $this->raquette = $raquette;
+
+        return $this;
+    }
+
+    public function getStockCordage(): ?StockCordage
+    {
+        return $this->stockCordage;
+    }
+
+    public function setStockCordage(?StockCordage $stockCordage): static
+    {
+        $this->stockCordage = $stockCordage;
+
+        return $this;
+    }
+
+    public function getLongueurUtiliseeM(): ?int
+    {
+        return $this->longueurUtiliseeM;
+    }
+
+    public function setLongueurUtiliseeM(?int $longueurUtiliseeM): static
+    {
+        $this->longueurUtiliseeM = $longueurUtiliseeM;
 
         return $this;
     }

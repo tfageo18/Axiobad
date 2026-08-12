@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ article ? 'Modifier' : 'Nouvel' }} article de cordage — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>{{ article ? "Modifier l'article" : 'Nouvel article de cordage' }}</h1>
+    {% if not article %}
+        <p>La quantité en stock se gère ensuite via des mouvements d'entrée/sortie depuis la liste du stock.</p>
+    {% endif %}
+
+    <form method="post" action="{{ article ? path('app_stock_cordage_edit', {id: article.id}) : path('app_stock_cordage_new') }}">
+        <div>
+            <label for="type">Type</label>
+            <select name="type" id="type" required>
+                {% for valeur, libelle in constant('App\\Entity\\StockCordage::TYPES') %}
+                    <option value="{{ valeur }}" {{ article and article.type == valeur ? 'selected' : '' }}>{{ libelle }}</option>
+                {% endfor %}
+            </select>
+            <small style="color: var(--color-text-muted);">
+                Bobine : quantité suivie en mètres ({{ constant('App\\Entity\\StockCordage::METRES_PAR_RAQUETTE') }} m ≈ une raquette).
+                Sachet individuel : quantité suivie en nombre de sachets.
+            </small>
+        </div>
+        <div>
+            <label for="marque">Marque</label>
+            <input type="text" name="marque" id="marque" value="{{ article ? article.marque : '' }}" placeholder="ex: Yonex, Babolat">
+        </div>
+        <div>
+            <label for="modele">Modèle</label>
+            <input type="text" name="modele" id="modele" value="{{ article ? article.modele : '' }}" placeholder="ex: BG65, VS 130">
+        </div>
+        <div>
+            <label for="prixUnitaire">Prix unitaire € (optionnel, par mètre ou par sachet selon le type)</label>
+            <input type="number" step="0.01" min="0" name="prixUnitaire" id="prixUnitaire" value="{{ article ? article.prixUnitaire : '' }}">
+        </div>
+        <div>
+            <label for="seuilAlerte">Seuil d'alerte (optionnel)</label>
+            <input type="number" min="0" name="seuilAlerte" id="seuilAlerte" value="{{ article ? article.seuilAlerte : '' }}" placeholder="ex: 20">
+            <small style="color: var(--color-text-muted);">Une alerte s'affiche sur la liste du stock quand la quantité descend à ce niveau ou en dessous.</small>
+        </div>
+        <div>
+            <label for="lieuStockage">Lieu de stockage (optionnel)</label>
+            <input type="text" name="lieuStockage" id="lieuStockage" value="{{ article ? article.lieuStockage : '' }}" placeholder="ex: Local matériel, tiroir cordage">
+            <small style="color: var(--color-text-muted);">
+                Un même cordage stocké à deux endroits différents (ex : deux bobines identiques,
+                un local et un sac de tournoi) se gère avec deux articles distincts.
+            </small>
+        </div>
+        <div>
+            <label for="commentaire">Commentaire</label>
+            <textarea name="commentaire" id="commentaire">{{ article ? article.commentaire : '' }}</textarea>
+        </div>
+        <button type="submit">{{ article ? 'Enregistrer' : 'Ajouter' }}</button>
+    </form>
+{% endblock %}

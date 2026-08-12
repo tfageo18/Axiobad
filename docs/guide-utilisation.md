@@ -359,10 +359,28 @@ Menu **Club → Cordage**.
   Entraîneur). Un cordeur (avec ou sans rôle bureau) voit **toutes** les demandes de cordage,
   peut les **modifier ou annuler** à tout moment (comme le bureau), et fait avancer leur statut :
   1. **Déposée** — demande créée par le licencié.
-  2. **En cours** — le cordeur la prend en charge (« Prendre en charge »).
+  2. **En cours** — le cordeur clique sur « Prendre en charge », ce qui ouvre une page pour
+     choisir (optionnel) la **bobine ou le sachet réellement utilisé** dans le stock du club — et,
+     pour une bobine, la longueur consommée (10 m par défaut, modifiable). Le stock est alors
+     décompté automatiquement ; il est restitué si la demande est annulée par la suite.
   3. **Prête** — le cordeur indique le lieu de retour et le prix, ce qui marque la raquette prête.
   4. **Récupérée** — le licencié clique sur « J'ai récupéré ma raquette » (le cordeur/bureau peut
      aussi le faire si la remise se fait en direct).
+
+### Stock de cordage (cordeurs, bureau)
+
+Menu **Cordage → Stock de cordage**, accessible à tout licencié avec le rôle **Cordeur** (pas
+besoin du rôle bureau/stock) :
+
+- Chaque article a un **type** — **bobine** (quantité suivie en mètres, un cordage de raquette
+  consomme environ 10 m) ou **sachet individuel** (quantité suivie en nombre de sachets) —, une
+  marque, un modèle, un **lieu de stockage** et un seuil d'alerte optionnels.
+- Un même cordage (même marque/modèle) stocké à deux endroits différents (ex. deux bobines
+  identiques dans deux locaux, ou une au club et une dans un sac de tournoi) se gère avec **deux
+  articles distincts**, chacun avec sa propre quantité et son propre lieu.
+- La quantité se gère par **mouvements d'entrée/sortie** (comme les vêtements et volants), et via
+  la prise en charge d'une demande de cordage qui décompte automatiquement.
+- **Historique** des mouvements par article, comme pour les autres catégories de stock.
 
 ## Vie du club / Évènements (tous les licenciés)
 

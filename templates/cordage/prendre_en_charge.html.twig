@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Prendre en charge — Axiobad{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('app_cordage_index') }}">&laquo; Retour au cordage</a></p>
+
+    <h1>Prendre en charge la demande de {{ demande.licencie.nomComplet }}</h1>
+    <p>
+        Raquette : {{ demande.raquette ? demande.raquette.libelle : '-' }}
+        — Cordage souhaité : {{ demande.typeCordage ? demande.typeCordage.nom : '-' }}
+        {{ demande.tension ? '(tension ' ~ demande.tension ~ ')' : '' }}
+    </p>
+
+    <form method="post" action="{{ path('app_cordage_prendre_en_charge', {id: demande.id}) }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('prendre-en-charge-' ~ demande.id) }}">
+        <div>
+            <label for="stockCordage">Cordage utilisé (optionnel)</label>
+            <select name="stockCordage" id="stockCordage" onchange="document.getElementById('champ-longueur').style.display = this.selectedOptions[0].dataset.bobine === '1' ? 'block' : 'none';">
+                <option value="">— Ne pas décompter le stock —</option>
+                {% for article in articles %}
+                    <option value="{{ article.id }}" data-bobine="{{ article.bobine ? '1' : '0' }}">
+                        {{ article.typeLabel }} — {{ article.libelle }}{{ article.lieuStockage ? ' (' ~ article.lieuStockage ~ ')' : '' }}
+                        — {{ article.quantite }} {{ article.uniteLabel }} en stock
+                    </option>
+                {% endfor %}
+            </select>
+            <small style="color: var(--color-text-muted);">
+                Choisir la bobine ou le sachet réellement utilisé décompte automatiquement le
+                stock. Laisser sur « ne pas décompter » si le cordage ne vient pas du stock du club.
+            </small>
+        </div>
+        <div id="champ-longueur" style="display: none;">
+            <label for="longueurUtiliseeM">Longueur utilisée (m)</label>
+            <input type="number" name="longueurUtiliseeM" id="longueurUtiliseeM" min="1" value="{{ constant('App\\Entity\\StockCordage::METRES_PAR_RAQUETTE') }}">
+        </div>
+        <button type="submit">Prendre en charge</button>
+    </form>
+{% endblock %}

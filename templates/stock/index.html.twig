@@ -29,7 +29,10 @@
 {% block body %}
     <h1>Gestion du stock</h1>
 
-    <p><a href="{{ path('app_inventaire_index') }}">Inventaire du stock</a></p>
+    <p>
+        <a href="{{ path('app_inventaire_index') }}">Inventaire du stock</a>
+        · <a href="{{ path('app_stock_cordage_index') }}">Stock de cordage</a>
+    </p>
 
     {% set articlesSousLeSeuil = (vetements|filter(v => v.estSousLeSeuil))|merge(volants|filter(v => v.estSousLeSeuil)) %}
     {% if articlesSousLeSeuil|length %}

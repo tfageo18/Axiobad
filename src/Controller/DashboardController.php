@@ -13,6 +13,7 @@ use App\Repository\DemandeCordageRepository;
 use App\Repository\LicencieRepository;
 use App\Repository\PresenceRepository;
 use App\Repository\SaisonRepository;
+use App\Repository\StockCordageRepository;
 use App\Repository\StockMouvementVolantRepository;
 use App\Repository\StockVetementRepository;
 use App\Repository\StockVolantRepository;
@@ -34,6 +35,7 @@ class DashboardController extends AbstractController
         CreneauRepository $creneauRepository,
         StockVetementRepository $vetementRepository,
         StockVolantRepository $volantRepository,
+        StockCordageRepository $stockCordageRepository,
         StockMouvementVolantRepository $mouvementVolantRepository,
         DemandeCordageRepository $demandeCordageRepository,
         CreneauOuvertureRepository $creneauOuvertureRepository,
@@ -138,6 +140,9 @@ class DashboardController extends AbstractController
         }
         foreach ($volantRepository->findAll() as $volant) {
             $valeurStock += $volant->getValeurStock();
+        }
+        foreach ($stockCordageRepository->findAll() as $cordage) {
+            $valeurStock += $cordage->getValeurStock();
         }
 
         $alertes = $this->construireAlertes(

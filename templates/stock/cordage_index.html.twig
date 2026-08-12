@@ -1,0 +1,89 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Stock de cordage — Axiobad{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .mouvement-form { display: flex; gap: 0.35rem; align-items: center; flex-wrap: wrap; }
+        .mouvement-form input[type="number"] { width: 70px; max-width: 70px; }
+        .mouvement-form input[type="text"] { width: 140px; max-width: 140px; }
+        .mouvement-form button { padding: 0.35rem 0.6rem; font-size: 0.8rem; }
+        .btn-entree { background: var(--color-success) !important; }
+        .btn-sortie { background: var(--color-error) !important; }
+        .quantite-badge {
+            display: inline-block;
+            min-width: 2rem;
+            text-align: center;
+            padding: 0.15rem 0.5rem;
+            border-radius: 999px;
+            font-weight: 700;
+            background: var(--color-primary-soft);
+            color: var(--color-primary-dark);
+        }
+        .quantite-badge.zero { background: var(--color-error-bg); color: var(--color-error); }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <h1>Stock de cordage</h1>
+    <p><a href="{{ path('app_cordage_index') }}">&laquo; Retour au cordage</a></p>
+
+    {% set articlesSousLeSeuil = articles|filter(a => a.estSousLeSeuil) %}
+    {% if articlesSousLeSeuil|length %}
+        <p class="flash-error">
+            ⚠ {{ articlesSousLeSeuil|length }} article(s) sous le seuil d'alerte : voir le badge
+            rouge ci-dessous.
+        </p>
+    {% endif %}
+
+    <p><a class="btn-cta" href="{{ path('app_stock_cordage_new') }}">+ Nouvel article</a></p>
+
+    <div class="table-scroll">
+    <table class="table-cards">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Marque</th>
+                <th>Modèle</th>
+                <th>Lieu de stockage</th>
+                <th>En stock</th>
+                <th>Mouvement</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for article in articles %}
+                <tr>
+                    <td data-label="Type">{{ article.typeLabel }}</td>
+                    <td data-label="Marque">{{ article.marque ?? '-' }}</td>
+                    <td data-label="Modèle">{{ article.modele ?? '-' }}</td>
+                    <td data-label="Lieu de stockage">{{ article.lieuStockage ?? '-' }}</td>
+                    <td data-label="En stock">
+                        <span class="quantite-badge {{ article.quantite == 0 or article.estSousLeSeuil ? 'zero' : '' }}">{{ article.quantite }} {{ article.uniteLabel }}</span>
+                        {% if article.estSousLeSeuil %}<small title="Seuil d'alerte : {{ article.seuilAlerte }}">⚠ sous le seuil</small>{% endif %}
+                    </td>
+                    <td class="td-mouvement">
+                        <form method="post" action="{{ path('app_stock_cordage_mouvement', {id: article.id}) }}" class="mouvement-form">
+                            <input type="number" name="quantite" min="1" value="{{ article.bobine ? constant('App\\Entity\\StockCordage::METRES_PAR_RAQUETTE') : 1 }}" required>
+                            <input type="text" name="motif" placeholder="Motif (optionnel)">
+                            <button type="submit" name="type" value="ENTREE" class="btn-entree">+ Entrée</button>
+                            <button type="submit" name="type" value="SORTIE" class="btn-sortie">− Sortie</button>
+                        </form>
+                    </td>
+                    <td class="td-actions">
+                        <a href="{{ path('app_stock_cordage_historique', {id: article.id}) }}">Historique</a>
+                        <a href="{{ path('app_stock_cordage_edit', {id: article.id}) }}">Modifier</a>
+                        <form method="post" action="{{ path('app_stock_cordage_delete', {id: article.id}) }}" onsubmit="return confirm('Supprimer cet article ?');" style="display:inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete-stock-cordage-' ~ article.id) }}">
+                            <button type="submit">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="7">Aucun article de cordage en stock.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+{% endblock %}

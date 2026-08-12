@@ -4,9 +4,12 @@ namespace App\Controller;
 
 use App\Entity\DemandeCordage;
 use App\Entity\Licencie;
+use App\Entity\StockCordage;
+use App\Entity\StockMouvementCordage;
 use App\Entity\TypeCordage;
 use App\Repository\DemandeCordageRepository;
 use App\Repository\RaquetteRepository;
+use App\Repository\StockCordageRepository;
 use App\Repository\TypeCordageRepository;
 use App\Service\NotificationMailer;
 use Doctrine\ORM\EntityManagerInterface;
@@ -41,8 +44,10 @@ class CordageController extends AbstractController
         $licencie = $this->getUser();
 
         if ($request->isMethod('POST')) {
-            $typeCordage = $typeCordageRepository->find($request->request->get('typeCordage'));
-            $raquette = $raquetteRepository->find($request->request->get('raquette'));
+            $typeCordageId = $request->request->get('typeCordage');
+            $typeCordage = $typeCordageId ? $typeCordageRepository->find($typeCordageId) : null;
+            $raquetteId = $request->request->get('raquette');
+            $raquette = $raquetteId ? $raquetteRepository->find($raquetteId) : null;
             if ($raquette && $raquette->getLicencie() !== $licencie) {
                 $raquette = null;
             }
@@ -75,8 +80,10 @@ class CordageController extends AbstractController
         $this->refuserSiPasBureauNiCordeur();
 
         if ($request->isMethod('POST')) {
-            $typeCordage = $typeCordageRepository->find($request->request->get('typeCordage'));
-            $raquette = $raquetteRepository->find($request->request->get('raquette'));
+            $typeCordageId = $request->request->get('typeCordage');
+            $typeCordage = $typeCordageId ? $typeCordageRepository->find($typeCordageId) : null;
+            $raquetteId = $request->request->get('raquette');
+            $raquette = $raquetteId ? $raquetteRepository->find($raquetteId) : null;
             if ($raquette && $raquette->getLicencie() !== $demande->getLicencie()) {
                 $raquette = null;
             }
@@ -110,6 +117,21 @@ class CordageController extends AbstractController
         }
 
         if ($this->isCsrfTokenValid('annuler-cordage-'.$demande->getId(), (string) $request->request->get('_token'))) {
+            if ($demande->getStockCordage()) {
+                $quantiteARestituer = $demande->getStockCordage()->isBobine()
+                    ? ($demande->getLongueurUtiliseeM() ?? StockCordage::METRES_PAR_RAQUETTE)
+                    : 1;
+
+                $mouvement = (new StockMouvementCordage())
+                    ->setArticle($demande->getStockCordage())
+                    ->setType(StockMouvementCordage::TYPE_ENTREE)
+                    ->setQuantite($quantiteARestituer)
+                    ->setMotif(sprintf('Annulation de la demande de cordage #%d', $demande->getId()))
+                    ->setAuteur($this->getUser());
+                $demande->getStockCordage()->ajusterQuantite($quantiteARestituer);
+                $entityManager->persist($mouvement);
+            }
+
             $entityManager->remove($demande);
             $entityManager->flush();
             $this->addFlash('success', 'Demande annulée.');
@@ -118,18 +140,56 @@ class CordageController extends AbstractController
         return $this->redirectToRoute('app_cordage_index');
     }
 
-    #[Route('/{id}/prendre-en-charge', name: 'app_cordage_prendre_en_charge', methods: ['POST'])]
-    public function prendreEnCharge(DemandeCordage $demande, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/prendre-en-charge', name: 'app_cordage_prendre_en_charge', methods: ['GET', 'POST'])]
+    public function prendreEnCharge(Request $request, DemandeCordage $demande, EntityManagerInterface $entityManager, StockCordageRepository $stockCordageRepository): Response
     {
         $this->refuserSiPasBureauNiCordeur();
 
-        $demande->setStatut(DemandeCordage::STATUT_EN_COURS);
-        $demande->setCordeur($this->getUser());
-        $entityManager->flush();
+        if ($request->isMethod('POST')) {
+            if (!$this->isCsrfTokenValid('prendre-en-charge-'.$demande->getId(), (string) $request->request->get('_token'))) {
+                $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
 
-        $this->addFlash('success', 'Raquette prise en charge.');
+                return $this->redirectToRoute('app_cordage_prendre_en_charge', ['id' => $demande->getId()]);
+            }
 
-        return $this->redirectToRoute('app_cordage_index');
+            $stockCordage = $stockCordageRepository->find($request->request->get('stockCordage'));
+            $longueurUtiliseeM = (int) $request->request->get('longueurUtiliseeM');
+
+            if ($stockCordage) {
+                $quantiteConsommee = $stockCordage->isBobine() ? max(1, $longueurUtiliseeM ?: StockCordage::METRES_PAR_RAQUETTE) : 1;
+
+                if ($quantiteConsommee > $stockCordage->getQuantite()) {
+                    $this->addFlash('error', sprintf('Stock insuffisant sur cet article (%d %s en stock).', $stockCordage->getQuantite(), $stockCordage->getUniteLabel()));
+
+                    return $this->redirectToRoute('app_cordage_prendre_en_charge', ['id' => $demande->getId()]);
+                }
+
+                $mouvement = (new StockMouvementCordage())
+                    ->setArticle($stockCordage)
+                    ->setType(StockMouvementCordage::TYPE_SORTIE)
+                    ->setQuantite($quantiteConsommee)
+                    ->setMotif(sprintf('Demande de cordage #%d — %s', $demande->getId(), $demande->getLicencie()->getNomComplet()))
+                    ->setAuteur($this->getUser());
+                $stockCordage->ajusterQuantite(-$quantiteConsommee);
+                $entityManager->persist($mouvement);
+
+                $demande->setStockCordage($stockCordage);
+                $demande->setLongueurUtiliseeM($stockCordage->isBobine() ? $quantiteConsommee : null);
+            }
+
+            $demande->setStatut(DemandeCordage::STATUT_EN_COURS);
+            $demande->setCordeur($this->getUser());
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Raquette prise en charge.');
+
+            return $this->redirectToRoute('app_cordage_index');
+        }
+
+        return $this->render('cordage/prendre_en_charge.html.twig', [
+            'demande' => $demande,
+            'articles' => $stockCordageRepository->findAll(),
+        ]);
     }
 
     #[Route('/{id}/marquer-prete', name: 'app_cordage_marquer_prete', methods: ['POST'])]

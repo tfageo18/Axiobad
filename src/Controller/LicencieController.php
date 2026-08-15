@@ -14,10 +14,12 @@ use App\Entity\Presence;
 use App\Entity\Raquette;
 use App\Entity\StockMouvementVetement;
 use App\Entity\StockMouvementVolant;
+use App\Ffbad\MyFfbadClient;
 use App\Repository\AdhesionRepository;
 use App\Repository\EquipeRepository;
 use App\Repository\LicencieRepository;
 use App\Repository\PaiementAdhesionRepository;
+use App\Repository\ParametresClubRepository;
 use App\Repository\PresenceRepository;
 use App\Repository\SaisonRepository;
 use App\Service\AnonymisationLicencieService;
@@ -43,6 +45,7 @@ class LicencieController extends AbstractController
         SaisonRepository $saisonRepository,
         AdhesionRepository $adhesionRepository,
         PresenceRepository $presenceRepository,
+        ParametresClubRepository $parametresClubRepository,
     ): Response {
         $saisonId = $request->query->get('saison');
         $saison = $saisonId ? $saisonRepository->find($saisonId) : $saisonRepository->findEnCours();
@@ -66,7 +69,117 @@ class LicencieController extends AbstractController
             'saison' => $saison,
             'adhesions' => $saison ? $adhesionRepository->findParLicenciePourSaison($saison) : [],
             'tauxPresence' => $tauxPresence,
+            'parametresClub' => $parametresClubRepository->obtenir(),
         ]);
+    }
+
+    #[Route('/synchroniser-myffbad', name: 'app_licencie_synchroniser_myffbad_tous', methods: ['POST'])]
+    public function synchroniserMyFfbadTous(
+        Request $request,
+        LicencieRepository $licencieRepository,
+        ParametresClubRepository $parametresClubRepository,
+        MyFfbadClient $myFfbadClient,
+        EntityManagerInterface $entityManager,
+    ): Response {
+        if (!$this->isCsrfTokenValid('synchroniser-myffbad-tous', (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        $urlEffectif = $parametresClubRepository->obtenir()->getUrlEffectifMyFfbad();
+        if (!$urlEffectif) {
+            $this->addFlash('error', "L'URL de l'effectif MyFFBaD n'est pas configurée (Paramètres du club).");
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        $effectif = $myFfbadClient->recupererEffectifComplet($urlEffectif);
+        if (!$effectif) {
+            $this->addFlash('error', "Aucune donnée récupérée depuis MyFFBaD — l'URL est peut-être incorrecte, ou le site est momentanément inaccessible.");
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        $misAJour = 0;
+        $nonTrouves = 0;
+        foreach ($licencieRepository->findAll() as $licencie) {
+            $correspondance = null;
+            foreach ($effectif as $joueur) {
+                if (MyFfbadClient::correspondNom($joueur['nomComplet'], $licencie->getPrenom(), $licencie->getNom())) {
+                    $correspondance = $joueur;
+                    break;
+                }
+            }
+
+            if ($correspondance) {
+                $this->appliquerCorrespondanceMyFfbad($licencie, $correspondance);
+                ++$misAJour;
+            } else {
+                ++$nonTrouves;
+            }
+        }
+
+        $entityManager->flush();
+
+        $this->addFlash('success', sprintf('Synchronisation MyFFBaD : %d licencié(s) mis à jour, %d sans correspondance.', $misAJour, $nonTrouves));
+
+        return $this->redirectToRoute('app_licencie_index');
+    }
+
+    #[Route('/{id}/synchroniser-myffbad', name: 'app_licencie_synchroniser_myffbad', methods: ['POST'])]
+    public function synchroniserMyFfbad(
+        Request $request,
+        Licencie $licencie,
+        ParametresClubRepository $parametresClubRepository,
+        MyFfbadClient $myFfbadClient,
+        EntityManagerInterface $entityManager,
+    ): Response {
+        if (!$this->isCsrfTokenValid('synchroniser-myffbad-'.$licencie->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        $urlEffectif = $parametresClubRepository->obtenir()->getUrlEffectifMyFfbad();
+        if (!$urlEffectif) {
+            $this->addFlash('error', "L'URL de l'effectif MyFFBaD n'est pas configurée (Paramètres du club).");
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        $correspondance = $myFfbadClient->rechercherJoueur($urlEffectif, $licencie->getPrenom(), $licencie->getNom());
+        if (!$correspondance) {
+            $this->addFlash('error', sprintf('Aucune correspondance trouvée sur MyFFBaD pour %s.', $licencie->getNomComplet()));
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        $this->appliquerCorrespondanceMyFfbad($licencie, $correspondance);
+        $entityManager->flush();
+
+        $this->addFlash('success', sprintf(
+            '%s synchronisé — n° licence %s, classements S/D/M : %s / %s / %s.',
+            $licencie->getNomComplet(),
+            $correspondance['numeroLicence'],
+            $correspondance['classementSimple'] ?? '-',
+            $correspondance['classementDouble'] ?? '-',
+            $correspondance['classementMixte'] ?? '-',
+        ));
+
+        return $this->redirectToRoute('app_licencie_index');
+    }
+
+    /**
+     * @param array{numeroLicence: string, nomComplet: string, classementSimple: ?string, classementDouble: ?string, classementMixte: ?string} $correspondance
+     */
+    private function appliquerCorrespondanceMyFfbad(Licencie $licencie, array $correspondance): void
+    {
+        $licencie
+            ->setNumeroLicence($correspondance['numeroLicence'])
+            ->setClassementSimple($correspondance['classementSimple'])
+            ->setClassementDouble($correspondance['classementDouble'])
+            ->setClassementMixte($correspondance['classementMixte']);
     }
 
     #[Route('/{id}/adhesion', name: 'app_licencie_adhesion', methods: ['GET', 'POST'])]

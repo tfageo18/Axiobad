@@ -25,6 +25,14 @@
         <a href="{{ path('app_saison_index') }}">Gérer les saisons</a>
         · <a href="{{ path('app_licencie_import') }}">Importer en masse (CSV)</a>
         · <a href="{{ path('app_presence_index') }}">Classement des présences</a>
+        {% if parametresClub.urlEffectifMyFfbad %}
+            · <form method="post" action="{{ path('app_licencie_synchroniser_myffbad_tous') }}" style="display:inline" onsubmit="return confirm('Synchroniser tous les licenciés avec MyFFBaD ? Numéros de licence et classements seront écrasés pour ceux trouvés.');">
+                <input type="hidden" name="_token" value="{{ csrf_token('synchroniser-myffbad-tous') }}">
+                <button type="submit">Synchroniser tout le club avec MyFFBaD</button>
+            </form>
+        {% else %}
+            · <a href="{{ path('app_parametres_club') }}" style="color: var(--color-text-muted);">Configurer MyFFBaD pour activer la synchronisation</a>
+        {% endif %}
     </p>
 
     <form method="get" style="margin-bottom: 1rem;">
@@ -144,6 +152,12 @@
                     </td>
                     <td class="td-actions">
                         <a href="{{ path('app_licencie_edit', {id: licencie.id}) }}">Modifier</a>
+                        {% if parametresClub.urlEffectifMyFfbad %}
+                            <form method="post" action="{{ path('app_licencie_synchroniser_myffbad', {id: licencie.id}) }}" style="display:inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('synchroniser-myffbad-' ~ licencie.id) }}">
+                                <button type="submit" title="Récupère le n° de licence et les classements depuis MyFFBaD">Synchroniser MyFFBaD</button>
+                            </form>
+                        {% endif %}
                         {% if licencie.aUnCompte and licencie.mustChangePassword %}
                             <form method="post" action="{{ path('app_licencie_renvoyer_invitation', {id: licencie.id}) }}" style="display:inline">
                                 <input type="hidden" name="_token" value="{{ csrf_token('renvoyer-invitation-' ~ licencie.id) }}">

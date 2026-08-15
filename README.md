@@ -87,7 +87,7 @@ main :
   titre informatif (avec un badge "mineur selon MyFFBaD" quand la catégorie l'indique), **et** met
   à jour un champ dédié `Catégorie d'âge` sur la fiche du licencié — une liste déroulante fermée
   (`App\Badminton\CategorieAge::CODES` : Mini-Bad, Poussin 1/2, Benjamin 1/2, Minime 1/2, Cadet 1/2,
-  Junior 1/2, Senior, Vétéran 1 à 5), modifiable manuellement par le bureau à tout moment. C'est
+  Junior 1/2, Senior, Vétéran 1 à 7), modifiable manuellement par le bureau à tout moment. C'est
   **indicatif uniquement** : MyFFBaD ne fournissant pas de date de naissance exacte, ce champ
   n'écrase jamais `dateNaissance` ni le statut légal de minorité (`Licencie::estMineur()`, seule
   source utilisée pour les responsables légaux et le consentement santé).

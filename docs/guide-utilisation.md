@@ -167,7 +167,7 @@ enregistré sur MyFFBaD.
 La **catégorie d'âge FFBaD** (ex. « Minime 2 », « Senior ») récupérée à cette occasion s'affiche à
 titre indicatif, et met aussi à jour un champ **Catégorie d'âge** sur la fiche du licencié : une
 liste déroulante fermée (Mini-Bad, Poussin 1/2, Benjamin 1/2, Minime 1/2, Cadet 1/2, Junior 1/2,
-Senior, Vétéran 1 à 5) que le bureau peut aussi modifier manuellement à tout moment, que le
+Senior, Vétéran 1 à 7) que le bureau peut aussi modifier manuellement à tout moment, que le
 licencié ait été synchronisé ou non. MyFFBaD ne fournissant pas de date de naissance exacte, cette
 catégorie n'écrase jamais la date de naissance saisie dans Axiobad, qui reste la seule à faire foi
 pour les responsables légaux et le consentement aux données de santé.

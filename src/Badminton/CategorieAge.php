@@ -28,6 +28,8 @@ final class CategorieAge
         'VETERAN_3' => 'Vétéran 3',
         'VETERAN_4' => 'Vétéran 4',
         'VETERAN_5' => 'Vétéran 5',
+        'VETERAN_6' => 'Vétéran 6',
+        'VETERAN_7' => 'Vétéran 7',
     ];
 
     /**

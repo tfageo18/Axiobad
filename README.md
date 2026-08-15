@@ -72,8 +72,9 @@ Les **issues** et **pull requests** sont les bienvenues, voir [CONTRIBUTING.md](
 
 ### Synchronisation MyFFBaD
 
-Le numéro de licence et les classements (simple/double/mixte) d'un licencié peuvent être
-synchronisés automatiquement depuis [MyFFBaD](https://myffbad.fr) plutôt que saisis à la main :
+Le numéro de licence, le genre et les classements (simple/double/mixte) d'un licencié peuvent
+être synchronisés automatiquement depuis [MyFFBaD](https://myffbad.fr) plutôt que saisis à la
+main :
 - MyFFBaD n'a pas d'API publique documentée, mais sa page de recherche joueur (Next.js) embarque
   les résultats en JSON directement dans le HTML rendu côté serveur — récupérés sans
   authentification ni exécution de JavaScript (`App\Ffbad\MyFfbadClient`).
@@ -82,6 +83,16 @@ synchronisés automatiquement depuis [MyFFBaD](https://myffbad.fr) plutôt que s
   normalisé (accents/casse ignorés).
 - Statut (réussie / aucune correspondance / jamais tentée) et date de la dernière tentative
   affichés sur la fiche du licencié et sur "Mon compte".
+- La **catégorie d'âge FFBaD** (ex. "Minime 2", "Senior") est aussi récupérée et affichée, avec un
+  badge "mineur selon MyFFBaD" quand la catégorie l'indique — **indicatif uniquement** : MyFFBaD ne
+  fournissant pas de date de naissance exacte, ça n'écrase jamais `dateNaissance` ni le statut
+  légal de minorité (`Licencie::estMineur()`, seule source utilisée pour les responsables légaux
+  et le consentement santé).
+- **Import depuis MyFFBaD** (menu Licenciés → bureau) : liste cochable (avec recherche) des
+  joueurs de l'effectif du club absents d'Axiobad (déjà présents exclus par numéro de licence).
+  Les licenciés importés n'ont pas d'email (MyFFBaD n'en fournit pas) — pas de compte de connexion
+  tant qu'il n'est pas renseigné via le bouton **« Envoyer l'invitation »** (champ email inline sur
+  la liste des licenciés, pour les comptes sans email).
 - Nécessite l'URL de l'effectif du club sur MyFFBaD, renseignée par le bureau dans
   [Paramètres du club](#paramètres-du-club).
 - Fragile par nature (dépend de la structure interne de myffbad.fr, sans garantie de stabilité) :

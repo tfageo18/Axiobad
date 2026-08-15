@@ -150,7 +150,7 @@ plutôt que saisis à la main.
 
 Une fois l'URL de l'effectif du club renseignée dans **Bureau → Paramètres du club** (voir
 [Paramètres du club](#paramètres-du-club-bureau)), trois façons de synchroniser le numéro de
-licence et les classements (simple/double/mixte) d'un licencié depuis MyFFBaD :
+licence, le genre et les classements (simple/double/mixte) d'un licencié depuis MyFFBaD :
 
 - **Sur la fiche d'un licencié** (bureau) ou **sur Mon compte** (le licencié lui-même) : bouton
   **Synchroniser MyFFBaD**, qui recherche uniquement ce licencié (rapide).
@@ -164,8 +164,30 @@ aucune correspondance trouvée, ou jamais synchronisé) et sa **date**. Si aucun
 n'est trouvée pour un licencié, vérifier que son nom/prénom dans Axiobad correspond bien à celui
 enregistré sur MyFFBaD.
 
+La **catégorie d'âge FFBaD** (ex. « Minime 2 », « Senior ») récupérée à cette occasion s'affiche
+aussi, avec un badge « mineur selon MyFFBaD » le cas échéant — à titre indicatif seulement :
+MyFFBaD ne fournissant pas de date de naissance exacte, cette information n'écrase jamais la date
+de naissance saisie dans Axiobad, qui reste la seule à faire foi pour les responsables légaux et
+le consentement aux données de santé.
+
 Cette synchronisation dépend de la structure interne du site myffbad.fr (pas d'API officielle) :
 elle peut cesser de fonctionner sans préavis si ce site change de structure.
+
+### Importer des licenciés depuis MyFFBaD
+
+Menu **Licenciés → Importer depuis MyFFBaD** (bureau) : liste, avec recherche (nom, prénom, n° de
+licence), de tous les joueurs de l'effectif du club sur MyFFBaD qui n'ont pas encore de fiche dans
+Axiobad (déjà présents exclus automatiquement, par numéro de licence). Cocher les joueurs
+souhaités (« Tout cocher »/« Tout décocher » n'agissent que sur les lignes visibles après une
+recherche), puis valider.
+
+Les licenciés créés le sont **sans adresse email** (MyFFBaD n'en fournit pas) — donc sans accès de
+connexion tant que l'email n'est pas renseigné. Sur la liste des licenciés, les comptes sans email
+affichent un champ email et un bouton **Envoyer l'invitation** : une seule action pour renseigner
+l'adresse et envoyer l'email d'activation.
+
+Pour les licenciés mineurs (catégorie d'âge FFBaD < Senior), penser à compléter après import la
+date de naissance exacte et le(s) responsable(s) légal(aux) depuis leur fiche.
 
 ## Importer des licenciés en masse (CSV)
 

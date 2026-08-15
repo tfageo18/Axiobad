@@ -95,7 +95,7 @@ class LicencieSynchroniseur
     }
 
     /**
-     * @param array{numeroLicence: string, nomComplet: string, classementSimple: ?string, classementDouble: ?string, classementMixte: ?string} $correspondance
+     * @param array{numeroLicence: string, nomComplet: string, genre: ?string, categorieAge: ?string, estMineur: ?bool, classementSimple: ?string, classementDouble: ?string, classementMixte: ?string} $correspondance
      */
     private function appliquerCorrespondance(Licencie $licencie, array $correspondance): void
     {
@@ -104,6 +104,12 @@ class LicencieSynchroniseur
             ->setClassementSimple($correspondance['classementSimple'])
             ->setClassementDouble($correspondance['classementDouble'])
             ->setClassementMixte($correspondance['classementMixte'])
-            ->setClassementMisAJourLe(new \DateTimeImmutable());
+            ->setClassementMisAJourLe(new \DateTimeImmutable())
+            ->setMyFfbadCategorieAge($correspondance['categorieAge'] ?? null)
+            ->setMyFfbadEstMineur($correspondance['estMineur'] ?? null);
+
+        if (!empty($correspondance['genre'])) {
+            $licencie->setGenre($correspondance['genre']);
+        }
     }
 }

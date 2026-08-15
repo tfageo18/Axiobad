@@ -26,7 +26,7 @@ class MyFfbadClient
      * fournie (ligue/comité/club extraits de cette URL). Retourne le premier résultat s'il y en a
      * plusieurs (nom+prénom identiques dans le même club — rare).
      *
-     * @return array{numeroLicence: string, nomComplet: string, prenom: string, nom: string, genre: ?string, classementSimple: ?string, classementDouble: ?string, classementMixte: ?string}|null
+     * @return array{numeroLicence: string, nomComplet: string, prenom: string, nom: string, genre: ?string, categorieAge: ?string, estMineur: ?bool, classementSimple: ?string, classementDouble: ?string, classementMixte: ?string}|null
      */
     public function rechercherJoueur(string $urlEffectifClub, string $prenom, string $nom): ?array
     {
@@ -50,7 +50,7 @@ class MyFfbadClient
      * Récupère tout l'effectif du club (toutes les pages) depuis l'URL fournie par le bureau dans
      * les paramètres du club.
      *
-     * @return list<array{numeroLicence: string, nomComplet: string, prenom: string, nom: string, genre: ?string, classementSimple: ?string, classementDouble: ?string, classementMixte: ?string}>
+     * @return list<array{numeroLicence: string, nomComplet: string, prenom: string, nom: string, genre: ?string, categorieAge: ?string, estMineur: ?bool, classementSimple: ?string, classementDouble: ?string, classementMixte: ?string}>
      */
     public function recupererEffectifComplet(string $urlEffectifClub): array
     {
@@ -130,7 +130,7 @@ class MyFfbadClient
     }
 
     /**
-     * @return list<array{numeroLicence: string, nomComplet: string, prenom: string, nom: string, genre: ?string, classementSimple: ?string, classementDouble: ?string, classementMixte: ?string}>
+     * @return list<array{numeroLicence: string, nomComplet: string, prenom: string, nom: string, genre: ?string, categorieAge: ?string, estMineur: ?bool, classementSimple: ?string, classementDouble: ?string, classementMixte: ?string}>
      */
     private function recupererPage(string $url): array
     {
@@ -140,7 +140,7 @@ class MyFfbadClient
     }
 
     /**
-     * @return array{0: list<array{numeroLicence: string, nomComplet: string, prenom: string, nom: string, genre: ?string, classementSimple: ?string, classementDouble: ?string, classementMixte: ?string}>, 1: int|null}
+     * @return array{0: list<array{numeroLicence: string, nomComplet: string, prenom: string, nom: string, genre: ?string, categorieAge: ?string, estMineur: ?bool, classementSimple: ?string, classementDouble: ?string, classementMixte: ?string}>, 1: int|null}
      */
     private function recupererPageAvecPagination(string $url): array
     {
@@ -163,6 +163,7 @@ class MyFfbadClient
             }
             $nomComplet = (string) $joueur['PersonName'];
             [$prenom, $nom] = self::separerPrenomNom($nomComplet);
+            $categorieAcronym = $joueur['CategoryAcronym'] ?? null;
             $resultats[] = [
                 'numeroLicence' => (string) $joueur['PersonLicence'],
                 'nomComplet' => $nomComplet,
@@ -174,6 +175,8 @@ class MyFfbadClient
                     '2' => 'FEMME',
                     default => null,
                 },
+                'categorieAge' => $joueur['CategoryName'] ?? null,
+                'estMineur' => self::categorieEstMineur($categorieAcronym),
                 'classementSimple' => $this->normaliserClassement($joueur['SimpleSubLevel'] ?? null),
                 'classementDouble' => $this->normaliserClassement($joueur['DoubleSubLevel'] ?? null),
                 'classementMixte' => $this->normaliserClassement($joueur['MixteSubLevel'] ?? null),
@@ -190,6 +193,38 @@ class MyFfbadClient
      *
      * @return array{0: string, 1: string} [prénom, nom]
      */
+    /**
+     * Indicatif seulement (pas une source légale) : les catégories d'âge FFBaD en dessous de
+     * Senior sont réservées aux mineurs au moment de leur définition en début de saison, mais un
+     * licencié peut avoir eu 18 ans depuis (ex. en fin de catégorie Junior) — seule la date de
+     * naissance saisie dans Axiobad fait foi pour le statut légal de minorité
+     * (Licencie::estMineur()). Retourne null si la catégorie est inconnue/absente.
+     */
+    private static function categorieEstMineur(?string $categorieAcronym): ?bool
+    {
+        if (null === $categorieAcronym) {
+            return null;
+        }
+
+        // Préfixes observés : Pou(ssin), Ben(jamin), Min(ime), Cad(et), Jun(ior) = mineur ;
+        // Sen(ior), Vet(éran) = majeur.
+        $prefixesMineur = ['Pou', 'Ben', 'Min', 'Cad', 'Jun'];
+        $prefixesMajeur = ['Sen', 'Vet'];
+
+        foreach ($prefixesMineur as $prefixe) {
+            if (str_starts_with($categorieAcronym, $prefixe)) {
+                return true;
+            }
+        }
+        foreach ($prefixesMajeur as $prefixe) {
+            if (str_starts_with($categorieAcronym, $prefixe)) {
+                return false;
+            }
+        }
+
+        return null;
+    }
+
     public static function separerPrenomNom(string $nomComplet): array
     {
         $mots = preg_split('/\s+/', trim($nomComplet)) ?: [];

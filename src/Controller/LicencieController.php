@@ -499,6 +499,8 @@ class LicencieController extends AbstractController
                 ->setClassementDouble($joueur['classementDouble'])
                 ->setClassementMixte($joueur['classementMixte'])
                 ->setClassementMisAJourLe(new \DateTimeImmutable())
+                ->setMyFfbadCategorieAge($joueur['categorieAge'] ?? null)
+                ->setMyFfbadEstMineur($joueur['estMineur'] ?? null)
                 ->setMustChangePassword(true);
             // Pas d'email pour l'instant (MyFFBaD n'en fournit pas) : compte créé sans accès de
             // connexion tant que le bureau n'a pas renseigné une adresse — voir « Envoyer

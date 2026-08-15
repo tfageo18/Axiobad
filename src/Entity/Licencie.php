@@ -94,6 +94,21 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface, Ema
     #[ORM\Column(nullable: true)]
     private ?bool $myFfbadSyncReussie = null;
 
+    /**
+     * Catégorie d'âge FFBaD (ex. "Minime 2", "Senior"), récupérée depuis MyFFBaD — informatif
+     * uniquement.
+     */
+    #[ORM\Column(length: 30, nullable: true)]
+    private ?string $myFfbadCategorieAge = null;
+
+    /**
+     * Indicatif seulement, déduit de la catégorie d'âge FFBaD — le statut légal de minorité
+     * (utilisé pour les responsables légaux, le consentement santé...) reste déterminé uniquement
+     * par dateNaissance (voir estMineur()), jamais par ce champ.
+     */
+    #[ORM\Column(nullable: true)]
+    private ?bool $myFfbadEstMineur = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $photo = null;
 
@@ -476,6 +491,30 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface, Ema
     public function setMyFfbadSyncReussie(?bool $myFfbadSyncReussie): static
     {
         $this->myFfbadSyncReussie = $myFfbadSyncReussie;
+
+        return $this;
+    }
+
+    public function getMyFfbadCategorieAge(): ?string
+    {
+        return $this->myFfbadCategorieAge;
+    }
+
+    public function setMyFfbadCategorieAge(?string $myFfbadCategorieAge): static
+    {
+        $this->myFfbadCategorieAge = $myFfbadCategorieAge;
+
+        return $this;
+    }
+
+    public function isMyFfbadEstMineur(): ?bool
+    {
+        return $this->myFfbadEstMineur;
+    }
+
+    public function setMyFfbadEstMineur(?bool $myFfbadEstMineur): static
+    {
+        $this->myFfbadEstMineur = $myFfbadEstMineur;
 
         return $this;
     }

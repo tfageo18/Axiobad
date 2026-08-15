@@ -76,6 +76,13 @@
                         <span style="color: var(--color-text-muted);">Jamais synchronisé avec MyFFBaD</span>
                     {% endif %}
                     <button type="submit" form="form-synchroniser-myffbad" style="margin-left: 0.75rem;">Synchroniser MyFFBaD</button>
+                    {% if licencie.myFfbadCategorieAge %}
+                        <div style="margin-top: 0.4rem; color: var(--color-text-muted); font-size: 0.88rem;">
+                            Catégorie FFBaD : {{ licencie.myFfbadCategorieAge }}
+                            {% if licencie.myFfbadEstMineur %}<span style="color: var(--color-warning);">(mineur selon MyFFBaD)</span>{% endif %}
+                            — indicatif, votre date de naissance ci-dessus fait foi.
+                        </div>
+                    {% endif %}
                 </div>
             {% endif %}
             <div>

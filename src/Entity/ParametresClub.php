@@ -27,6 +27,14 @@ class ParametresClub
     #[ORM\Column(length: 150, nullable: true)]
     private ?string $nomClubMyFfbad = null;
 
+    /**
+     * URL de la page publique MyFFBaD listant les joueurs du club (effectif), fournie directement
+     * par le bureau — évite d'avoir à retrouver le club via une recherche par nom à chaque
+     * synchronisation.
+     */
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $urlEffectifMyFfbad = null;
+
     public function getId(): int
     {
         return $this->id;
@@ -52,6 +60,18 @@ class ParametresClub
     public function setNomClubMyFfbad(?string $nomClubMyFfbad): static
     {
         $this->nomClubMyFfbad = $nomClubMyFfbad;
+
+        return $this;
+    }
+
+    public function getUrlEffectifMyFfbad(): ?string
+    {
+        return $this->urlEffectifMyFfbad;
+    }
+
+    public function setUrlEffectifMyFfbad(?string $urlEffectifMyFfbad): static
+    {
+        $this->urlEffectifMyFfbad = $urlEffectifMyFfbad;
 
         return $this;
     }

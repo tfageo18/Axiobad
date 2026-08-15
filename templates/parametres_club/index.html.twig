@@ -16,8 +16,17 @@
             <p style="color: var(--color-text-muted); font-size: 0.88rem; margin-top: 0.25rem;">
                 Tel qu'il apparaît dans la recherche de club sur
                 <a href="https://myffbad.fr/recherche/club" target="_blank" rel="noopener">myffbad.fr</a>
-                — utilisé pour synchroniser les numéros de licence et classements des licenciés.
-                Laisser vide si différent du nom du club ci-dessus.
+                — informatif, laisser vide si différent du nom du club ci-dessus.
+            </p>
+        </div>
+        <div>
+            <label for="urlEffectifMyFfbad">URL de l'effectif du club sur MyFFBaD</label>
+            <input type="url" name="urlEffectifMyFfbad" id="urlEffectifMyFfbad" value="{{ parametres.urlEffectifMyFfbad }}" placeholder="https://myffbad.fr/club/...">
+            <p style="color: var(--color-text-muted); font-size: 0.88rem; margin-top: 0.25rem;">
+                Page publique MyFFBaD qui liste les joueurs du club — cherchez votre club sur
+                <a href="https://myffbad.fr/recherche/club" target="_blank" rel="noopener">myffbad.fr</a>,
+                ouvrez sa fiche/effectif, et collez l'URL ici. Utilisée pour synchroniser les
+                numéros de licence et classements des licenciés.
             </p>
         </div>
         <button type="submit">Enregistrer</button>

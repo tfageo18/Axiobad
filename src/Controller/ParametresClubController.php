@@ -22,7 +22,8 @@ class ParametresClubController extends AbstractController
         if ($request->isMethod('POST')) {
             $parametres
                 ->setNomClub((string) $request->request->get('nomClub') ?: null)
-                ->setNomClubMyFfbad((string) $request->request->get('nomClubMyFfbad') ?: null);
+                ->setNomClubMyFfbad((string) $request->request->get('nomClubMyFfbad') ?: null)
+                ->setUrlEffectifMyFfbad((string) $request->request->get('urlEffectifMyFfbad') ?: null);
 
             $entityManager->flush();
 

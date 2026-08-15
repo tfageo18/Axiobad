@@ -83,11 +83,14 @@ main :
   normalisé (accents/casse ignorés).
 - Statut (réussie / aucune correspondance / jamais tentée) et date de la dernière tentative
   affichés sur la fiche du licencié et sur "Mon compte".
-- La **catégorie d'âge FFBaD** (ex. "Minime 2", "Senior") est aussi récupérée et affichée, avec un
-  badge "mineur selon MyFFBaD" quand la catégorie l'indique — **indicatif uniquement** : MyFFBaD ne
-  fournissant pas de date de naissance exacte, ça n'écrase jamais `dateNaissance` ni le statut
-  légal de minorité (`Licencie::estMineur()`, seule source utilisée pour les responsables légaux
-  et le consentement santé).
+- La **catégorie d'âge FFBaD** (ex. "Minime 2", "Senior") récupérée à cette occasion s'affiche à
+  titre informatif (avec un badge "mineur selon MyFFBaD" quand la catégorie l'indique), **et** met
+  à jour un champ dédié `Catégorie d'âge` sur la fiche du licencié — une liste déroulante fermée
+  (`App\Badminton\CategorieAge::CODES` : Mini-Bad, Poussin 1/2, Benjamin 1/2, Minime 1/2, Cadet 1/2,
+  Junior 1/2, Senior, Vétéran 1 à 5), modifiable manuellement par le bureau à tout moment. C'est
+  **indicatif uniquement** : MyFFBaD ne fournissant pas de date de naissance exacte, ce champ
+  n'écrase jamais `dateNaissance` ni le statut légal de minorité (`Licencie::estMineur()`, seule
+  source utilisée pour les responsables légaux et le consentement santé).
 - **Import depuis MyFFBaD** (menu Licenciés → bureau) : liste cochable (avec recherche) des
   joueurs de l'effectif du club absents d'Axiobad (déjà présents exclus par numéro de licence).
   Les licenciés importés n'ont pas d'email (MyFFBaD n'en fournit pas) — pas de compte de connexion

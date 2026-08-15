@@ -2,6 +2,7 @@
 
 namespace App\Ffbad;
 
+use App\Badminton\CategorieAge;
 use App\Entity\Licencie;
 use App\Repository\LicencieRepository;
 use App\Repository\ParametresClubRepository;
@@ -106,6 +107,7 @@ class LicencieSynchroniseur
             ->setClassementMixte($correspondance['classementMixte'])
             ->setClassementMisAJourLe(new \DateTimeImmutable())
             ->setMyFfbadCategorieAge($correspondance['categorieAge'] ?? null)
+            ->setCategorieAge(CategorieAge::depuisLibelleFfbad($correspondance['categorieAge'] ?? null) ?? $licencie->getCategorieAge())
             ->setMyFfbadEstMineur($correspondance['estMineur'] ?? null);
 
         if (!empty($correspondance['genre'])) {

@@ -109,6 +109,16 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface, Ema
     #[ORM\Column(nullable: true)]
     private ?bool $myFfbadEstMineur = null;
 
+    /**
+     * Catégorie d'âge du licencié (voir App\Badminton\CategorieAge::CODES) — champ modifiable
+     * manuellement dans la fiche, et mis à jour automatiquement lors d'une synchronisation
+     * MyFFBaD (manuelle ou groupée) quand une correspondance est trouvée. Purement indicatif :
+     * sans effet sur le statut légal de minorité, déterminé uniquement par dateNaissance (voir
+     * estMineur()).
+     */
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $categorieAge = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $photo = null;
 
@@ -491,6 +501,18 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface, Ema
     public function setMyFfbadSyncReussie(?bool $myFfbadSyncReussie): static
     {
         $this->myFfbadSyncReussie = $myFfbadSyncReussie;
+
+        return $this;
+    }
+
+    public function getCategorieAge(): ?string
+    {
+        return $this->categorieAge;
+    }
+
+    public function setCategorieAge(?string $categorieAge): static
+    {
+        $this->categorieAge = $categorieAge;
 
         return $this;
     }

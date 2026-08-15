@@ -102,6 +102,18 @@
                 </select>
             </div>
             <div>
+                <label for="categorieAge">Catégorie d'âge (optionnel)</label>
+                <select name="categorieAge" id="categorieAge">
+                    <option value="">-</option>
+                    {% for code, libelle in constant('App\\Badminton\\CategorieAge::CODES') %}
+                        <option value="{{ code }}" {{ licencie.categorieAge == code ? 'selected' : '' }}>{{ libelle }}</option>
+                    {% endfor %}
+                </select>
+                <small style="color: var(--color-text-muted);">
+                    Mise à jour automatiquement par la synchronisation MyFFBaD, modifiable manuellement.
+                </small>
+            </div>
+            <div>
                 <label for="classementSimple">Classement simple</label>
                 <select name="classementSimple" id="classementSimple">
                     <option value="">-</option>

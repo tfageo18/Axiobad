@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Badminton\CategorieAge;
 use App\Badminton\ClassementFfbad;
 use App\Entity\Adhesion;
 use App\Entity\CleGymnase;
@@ -500,6 +501,7 @@ class LicencieController extends AbstractController
                 ->setClassementMixte($joueur['classementMixte'])
                 ->setClassementMisAJourLe(new \DateTimeImmutable())
                 ->setMyFfbadCategorieAge($joueur['categorieAge'] ?? null)
+                ->setCategorieAge(CategorieAge::depuisLibelleFfbad($joueur['categorieAge'] ?? null))
                 ->setMyFfbadEstMineur($joueur['estMineur'] ?? null)
                 ->setMustChangePassword(true);
             // Pas d'email pour l'instant (MyFFBaD n'en fournit pas) : compte créé sans accès de
@@ -678,6 +680,7 @@ class LicencieController extends AbstractController
                 ->setDateNaissance($dateNaissance ? new \DateTimeImmutable($dateNaissance) : null)
                 ->setNumeroLicence($numeroLicence ?: null)
                 ->setGenre((string) $request->request->get('genre') ?: null)
+                ->setCategorieAge((string) $request->request->get('categorieAge') ?: null)
                 ->setClassementSimple($classementSimple)
                 ->setClassementDouble($classementDouble)
                 ->setClassementMixte($classementMixte)

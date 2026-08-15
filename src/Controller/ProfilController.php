@@ -4,8 +4,10 @@ namespace App\Controller;
 
 use App\Badminton\ClassementFfbad;
 use App\Entity\Licencie;
+use App\Ffbad\LicencieSynchroniseur;
 use App\Repository\EquipeRepository;
 use App\Repository\LicencieRepository;
+use App\Repository\ParametresClubRepository;
 use App\Service\LicencieDataExporter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,6 +27,7 @@ class ProfilController extends AbstractController
         LicencieRepository $licencieRepository,
         EquipeRepository $equipeRepository,
         SluggerInterface $slugger,
+        ParametresClubRepository $parametresClubRepository,
     ): Response {
         /** @var Licencie $licencie */
         $licencie = $this->getUser();
@@ -100,7 +103,33 @@ class ProfilController extends AbstractController
         return $this->render('licencie/profil.html.twig', [
             'licencie' => $licencie,
             'mesEquipes' => $mesEquipes,
+            'urlEffectifMyFfbad' => $parametresClubRepository->obtenir()->getUrlEffectifMyFfbad(),
         ]);
+    }
+
+    #[Route('/mon-compte/synchroniser-myffbad', name: 'app_mon_profil_synchroniser_myffbad', methods: ['POST'])]
+    public function synchroniserMyFfbad(Request $request, LicencieSynchroniseur $licencieSynchroniseur): Response
+    {
+        /** @var Licencie $licencie */
+        $licencie = $this->getUser();
+
+        if (!$this->isCsrfTokenValid('synchroniser-myffbad-mon-compte', (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+            return $this->redirectToRoute('app_mon_profil');
+        }
+
+        $resultat = $licencieSynchroniseur->synchroniserUn($licencie);
+
+        if (LicencieSynchroniseur::ERREUR_URL_NON_CONFIGUREE === $resultat['erreur']) {
+            $this->addFlash('error', 'La synchronisation MyFFBaD n\'est pas configurée pour ce club.');
+        } elseif (!$resultat['trouve']) {
+            $this->addFlash('error', "Aucune correspondance trouvée sur MyFFBaD pour votre nom — vérifiez qu'il correspond bien à celui enregistré sur MyFFBaD, ou contactez le bureau.");
+        } else {
+            $this->addFlash('success', 'Vos informations ont été synchronisées avec MyFFBaD.');
+        }
+
+        return $this->redirectToRoute('app_mon_profil');
     }
 
     #[Route('/mon-compte/mes-donnees', name: 'app_mon_profil_export', methods: ['GET'])]

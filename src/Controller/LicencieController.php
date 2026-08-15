@@ -14,7 +14,7 @@ use App\Entity\Presence;
 use App\Entity\Raquette;
 use App\Entity\StockMouvementVetement;
 use App\Entity\StockMouvementVolant;
-use App\Ffbad\MyFfbadClient;
+use App\Ffbad\LicencieSynchroniseur;
 use App\Repository\AdhesionRepository;
 use App\Repository\EquipeRepository;
 use App\Repository\LicencieRepository;
@@ -74,112 +74,60 @@ class LicencieController extends AbstractController
     }
 
     #[Route('/synchroniser-myffbad', name: 'app_licencie_synchroniser_myffbad_tous', methods: ['POST'])]
-    public function synchroniserMyFfbadTous(
-        Request $request,
-        LicencieRepository $licencieRepository,
-        ParametresClubRepository $parametresClubRepository,
-        MyFfbadClient $myFfbadClient,
-        EntityManagerInterface $entityManager,
-    ): Response {
+    public function synchroniserMyFfbadTous(Request $request, LicencieSynchroniseur $licencieSynchroniseur): Response
+    {
         if (!$this->isCsrfTokenValid('synchroniser-myffbad-tous', (string) $request->request->get('_token'))) {
             $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
 
             return $this->redirectToRoute('app_licencie_index');
         }
 
-        $urlEffectif = $parametresClubRepository->obtenir()->getUrlEffectifMyFfbad();
-        if (!$urlEffectif) {
+        $resultat = $licencieSynchroniseur->synchroniserTous();
+
+        if (LicencieSynchroniseur::ERREUR_URL_NON_CONFIGUREE === $resultat['erreur']) {
             $this->addFlash('error', "L'URL de l'effectif MyFFBaD n'est pas configurée (Paramètres du club).");
-
-            return $this->redirectToRoute('app_licencie_index');
-        }
-
-        $effectif = $myFfbadClient->recupererEffectifComplet($urlEffectif);
-        if (!$effectif) {
+        } elseif (LicencieSynchroniseur::ERREUR_AUCUNE_DONNEE === $resultat['erreur']) {
             $this->addFlash('error', "Aucune donnée récupérée depuis MyFFBaD — l'URL est peut-être incorrecte, ou le site est momentanément inaccessible.");
-
-            return $this->redirectToRoute('app_licencie_index');
+        } else {
+            $this->addFlash('success', sprintf('Synchronisation MyFFBaD : %d licencié(s) mis à jour, %d sans correspondance.', $resultat['misAJour'], $resultat['nonTrouves']));
         }
-
-        $misAJour = 0;
-        $nonTrouves = 0;
-        foreach ($licencieRepository->findAll() as $licencie) {
-            $correspondance = null;
-            foreach ($effectif as $joueur) {
-                if (MyFfbadClient::correspondNom($joueur['nomComplet'], $licencie->getPrenom(), $licencie->getNom())) {
-                    $correspondance = $joueur;
-                    break;
-                }
-            }
-
-            if ($correspondance) {
-                $this->appliquerCorrespondanceMyFfbad($licencie, $correspondance);
-                ++$misAJour;
-            } else {
-                ++$nonTrouves;
-            }
-        }
-
-        $entityManager->flush();
-
-        $this->addFlash('success', sprintf('Synchronisation MyFFBaD : %d licencié(s) mis à jour, %d sans correspondance.', $misAJour, $nonTrouves));
 
         return $this->redirectToRoute('app_licencie_index');
     }
 
     #[Route('/{id}/synchroniser-myffbad', name: 'app_licencie_synchroniser_myffbad', methods: ['POST'])]
-    public function synchroniserMyFfbad(
-        Request $request,
-        Licencie $licencie,
-        ParametresClubRepository $parametresClubRepository,
-        MyFfbadClient $myFfbadClient,
-        EntityManagerInterface $entityManager,
-    ): Response {
+    public function synchroniserMyFfbad(Request $request, Licencie $licencie, LicencieSynchroniseur $licencieSynchroniseur): Response
+    {
         if (!$this->isCsrfTokenValid('synchroniser-myffbad-'.$licencie->getId(), (string) $request->request->get('_token'))) {
             $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
 
             return $this->redirectToRoute('app_licencie_index');
         }
 
-        $urlEffectif = $parametresClubRepository->obtenir()->getUrlEffectifMyFfbad();
-        if (!$urlEffectif) {
+        $resultat = $licencieSynchroniseur->synchroniserUn($licencie);
+
+        if (LicencieSynchroniseur::ERREUR_URL_NON_CONFIGUREE === $resultat['erreur']) {
             $this->addFlash('error', "L'URL de l'effectif MyFFBaD n'est pas configurée (Paramètres du club).");
-
-            return $this->redirectToRoute('app_licencie_index');
-        }
-
-        $correspondance = $myFfbadClient->rechercherJoueur($urlEffectif, $licencie->getPrenom(), $licencie->getNom());
-        if (!$correspondance) {
+        } elseif (!$resultat['trouve']) {
             $this->addFlash('error', sprintf('Aucune correspondance trouvée sur MyFFBaD pour %s.', $licencie->getNomComplet()));
-
-            return $this->redirectToRoute('app_licencie_index');
+        } else {
+            $correspondance = $resultat['correspondance'];
+            $this->addFlash('success', sprintf(
+                '%s synchronisé — n° licence %s, classements S/D/M : %s / %s / %s.',
+                $licencie->getNomComplet(),
+                $correspondance['numeroLicence'],
+                $correspondance['classementSimple'] ?? '-',
+                $correspondance['classementDouble'] ?? '-',
+                $correspondance['classementMixte'] ?? '-',
+            ));
         }
 
-        $this->appliquerCorrespondanceMyFfbad($licencie, $correspondance);
-        $entityManager->flush();
-
-        $this->addFlash('success', sprintf(
-            '%s synchronisé — n° licence %s, classements S/D/M : %s / %s / %s.',
-            $licencie->getNomComplet(),
-            $correspondance['numeroLicence'],
-            $correspondance['classementSimple'] ?? '-',
-            $correspondance['classementDouble'] ?? '-',
-            $correspondance['classementMixte'] ?? '-',
-        ));
+        $referer = $request->headers->get('referer');
+        if ($referer && str_contains($referer, '/modifier')) {
+            return $this->redirectToRoute('app_licencie_edit', ['id' => $licencie->getId()]);
+        }
 
         return $this->redirectToRoute('app_licencie_index');
-    }
-
-    /**
-     * @param array{numeroLicence: string, nomComplet: string, classementSimple: ?string, classementDouble: ?string, classementMixte: ?string} $correspondance
-     */
-    private function appliquerCorrespondanceMyFfbad(Licencie $licencie, array $correspondance): void
-    {
-        $licencie
-            ->setNumeroLicence($correspondance['numeroLicence'])
-            ->setClassementSimple($correspondance['classementSimple'])
-            ->setClassementDouble($correspondance['classementDouble'])
-            ->setClassementMixte($correspondance['classementMixte']);
     }
 
     #[Route('/{id}/adhesion', name: 'app_licencie_adhesion', methods: ['GET', 'POST'])]
@@ -535,7 +483,7 @@ class LicencieController extends AbstractController
     }
 
     #[Route('/{id}/modifier', name: 'app_licencie_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Licencie $licencie, EntityManagerInterface $entityManager, AuditLogger $auditLogger, EquipeRepository $equipeRepository): Response
+    public function edit(Request $request, Licencie $licencie, EntityManagerInterface $entityManager, AuditLogger $auditLogger, EquipeRepository $equipeRepository, ParametresClubRepository $parametresClubRepository): Response
     {
         $sesEquipes = $equipeRepository->findByMembre($licencie);
 
@@ -636,6 +584,7 @@ class LicencieController extends AbstractController
             'licencie' => $licencie,
             'responsablesPossibles' => $entityManager->getRepository(Licencie::class)->findBy([], ['nom' => 'ASC']),
             'sesEquipes' => $sesEquipes,
+            'parametresClub' => $parametresClubRepository->obtenir(),
         ]);
     }
 

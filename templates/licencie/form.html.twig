@@ -70,6 +70,21 @@
                 <label for="numeroLicence">Numéro de licence FFBaD</label>
                 <input type="text" name="numeroLicence" id="numeroLicence" value="{{ licencie.numeroLicence }}">
             </div>
+            {% if parametresClub.urlEffectifMyFfbad %}
+                <div style="background: var(--color-surface-2); border-radius: var(--radius); padding: 0.75rem 1rem; margin-bottom: 1rem;">
+                    {% if licencie.myFfbadDerniereSyncLe %}
+                        {% if licencie.myFfbadSyncReussie %}
+                            <span style="color: var(--color-success);">✓ Synchronisé avec MyFFBaD</span>
+                        {% else %}
+                            <span style="color: var(--color-error);">✗ Aucune correspondance trouvée sur MyFFBaD</span>
+                        {% endif %}
+                        — dernière tentative le {{ licencie.myFfbadDerniereSyncLe|date('d/m/Y à H:i') }}
+                    {% else %}
+                        <span style="color: var(--color-text-muted);">Jamais synchronisé avec MyFFBaD</span>
+                    {% endif %}
+                    <button type="submit" form="form-synchroniser-myffbad" style="margin-left: 0.75rem;">Synchroniser MyFFBaD</button>
+                </div>
+            {% endif %}
             <div>
                 <label for="genre">Genre (optionnel)</label>
                 <select name="genre" id="genre">
@@ -188,4 +203,10 @@
 
         <button type="submit">{{ licencie ? 'Enregistrer' : "Créer" }}</button>
     </form>
+
+    {% if licencie and parametresClub.urlEffectifMyFfbad %}
+        <form id="form-synchroniser-myffbad" method="post" action="{{ path('app_licencie_synchroniser_myffbad', {id: licencie.id}) }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('synchroniser-myffbad-' ~ licencie.id) }}">
+        </form>
+    {% endif %}
 {% endblock %}

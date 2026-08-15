@@ -79,6 +79,21 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface, Ema
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $classementMisAJourLe = null;
 
+    /**
+     * Date de la dernière tentative de synchronisation MyFFBaD (réussie ou non) — voir
+     * App\Ffbad\LicencieSynchroniseur. Distinct de classementMisAJourLe, qui suit toute
+     * modification du classement (manuelle comprise).
+     */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $myFfbadDerniereSyncLe = null;
+
+    /**
+     * Résultat de la dernière tentative : null = jamais tentée, true = correspondance trouvée
+     * et données mises à jour, false = aucune correspondance trouvée sur MyFFBaD.
+     */
+    #[ORM\Column(nullable: true)]
+    private ?bool $myFfbadSyncReussie = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $photo = null;
 
@@ -437,6 +452,30 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface, Ema
     public function setClassementMisAJourLe(?\DateTimeImmutable $classementMisAJourLe): static
     {
         $this->classementMisAJourLe = $classementMisAJourLe;
+
+        return $this;
+    }
+
+    public function getMyFfbadDerniereSyncLe(): ?\DateTimeImmutable
+    {
+        return $this->myFfbadDerniereSyncLe;
+    }
+
+    public function setMyFfbadDerniereSyncLe(?\DateTimeImmutable $myFfbadDerniereSyncLe): static
+    {
+        $this->myFfbadDerniereSyncLe = $myFfbadDerniereSyncLe;
+
+        return $this;
+    }
+
+    public function isMyFfbadSyncReussie(): ?bool
+    {
+        return $this->myFfbadSyncReussie;
+    }
+
+    public function setMyFfbadSyncReussie(?bool $myFfbadSyncReussie): static
+    {
+        $this->myFfbadSyncReussie = $myFfbadSyncReussie;
 
         return $this;
     }

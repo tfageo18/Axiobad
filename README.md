@@ -51,8 +51,9 @@ Les **issues** et **pull requests** sont les bienvenues, voir [CONTRIBUTING.md](
   droite) : photo, email, téléphone, date de naissance, numéro de licence, classement, et son
   **équipe interclub par défaut** (parmi ses équipes) si membre de plusieurs — modifiable aussi par
   le bureau depuis la fiche du licencié.
-- Classement saisi manuellement (simple/double/mixte), sur l'échelle officielle FFBaD (NC à N1) —
-  il n'existe pas d'API publique fiable pour le récupérer automatiquement.
+- Classement (simple/double/mixte) et numéro de licence saisis manuellement, sur l'échelle
+  officielle FFBaD (NC à N1) — ou récupérés automatiquement via la
+  [synchronisation MyFFBaD](#synchronisation-myffbad).
 - La liste des licenciés propose une recherche instantanée, un tri par colonne, la désactivation/
   réactivation d'un compte (bloque la connexion sans supprimer les données), et la suppression.
 - Le lien d'activation (pour définir son mot de passe) peut être **renvoyé** par le bureau si le
@@ -68,6 +69,24 @@ Les **issues** et **pull requests** sont les bienvenues, voir [CONTRIBUTING.md](
   - **Accès au stock** : accède au module stock sans être membre du bureau (les membres du bureau
     y ont accès automatiquement).
 - Menu masqué tant que l'utilisateur n'est pas connecté.
+
+### Synchronisation MyFFBaD
+
+Le numéro de licence et les classements (simple/double/mixte) d'un licencié peuvent être
+synchronisés automatiquement depuis [MyFFBaD](https://myffbad.fr) plutôt que saisis à la main :
+- MyFFBaD n'a pas d'API publique documentée, mais sa page de recherche joueur (Next.js) embarque
+  les résultats en JSON directement dans le HTML rendu côté serveur — récupérés sans
+  authentification ni exécution de JavaScript (`App\Ffbad\MyFfbadClient`).
+- Recherche individuelle (fiche d'un licencié, ou "Mon compte" pour le licencié lui-même) ou
+  synchronisation groupée de tout le club (liste des licenciés, bureau) — matching par nom/prénom
+  normalisé (accents/casse ignorés).
+- Statut (réussie / aucune correspondance / jamais tentée) et date de la dernière tentative
+  affichés sur la fiche du licencié et sur "Mon compte".
+- Nécessite l'URL de l'effectif du club sur MyFFBaD, renseignée par le bureau dans
+  [Paramètres du club](#paramètres-du-club).
+- Fragile par nature (dépend de la structure interne de myffbad.fr, sans garantie de stabilité) :
+  toute erreur réseau ou de parsing est traitée comme "aucune correspondance" plutôt que de faire
+  planter la page.
 
 ### Mineurs et responsables légaux
 
@@ -307,6 +326,13 @@ Les **issues** et **pull requests** sont les bienvenues, voir [CONTRIBUTING.md](
 - Chaque entrée indique l'auteur, la date, l'objet concerné, et l'ancienne/nouvelle valeur quand
   c'est pertinent (jamais le contenu des données de santé elles-mêmes, pour ne pas dupliquer une
   donnée sensible). Filtrable par type d'action et par auteur.
+
+### Paramètres du club
+
+Menu **Bureau → Paramètres du club** : nom du club, nom du club sur MyFFBaD (peut différer,
+informatif), et URL de l'effectif du club sur MyFFBaD (nécessaire pour activer la
+[synchronisation MyFFBaD](#synchronisation-myffbad) — les boutons de synchro restent masqués tant
+qu'elle n'est pas renseignée). Réglages en base, une seule ligne, créée à la demande.
 
 ### RGPD
 

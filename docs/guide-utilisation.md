@@ -9,6 +9,7 @@ en ligne, une fois connecté, via le menu du compte (en bas du menu latéral) �
 - [Rôles et permissions](#rôles-et-permissions)
 - [Gérer les licenciés (bureau)](#gérer-les-licenciés-bureau)
 - [Mineurs et responsables légaux](#mineurs-et-responsables-légaux)
+- [Synchronisation MyFFBaD (numéro de licence et classements)](#synchronisation-myffbad-numéro-de-licence-et-classements)
 - [Importer des licenciés en masse (CSV)](#importer-des-licenciés-en-masse-csv)
 - [Saisons et adhésions (bureau)](#saisons-et-adhésions-bureau)
 - [Gérer les gymnases (bureau)](#gérer-les-gymnases-bureau)
@@ -28,6 +29,7 @@ en ligne, une fois connecté, via le menu du compte (en bas du menu latéral) �
 - [Mes données personnelles (RGPD)](#mes-données-personnelles-rgpd)
 - [Communication ciblée (bureau)](#communication-ciblée-bureau)
 - [Notifications automatiques](#notifications-automatiques)
+- [Paramètres du club (bureau)](#paramètres-du-club-bureau)
 - [Configuration email (production)](#configuration-email-production)
 
 ## Se connecter
@@ -135,12 +137,35 @@ enfant à charge (la liste est alors vide).
 
 ### Modifier le classement d'un licencié
 
-Il n'existe pas d'API publique fiable de la Fédération Française de Badminton pour récupérer
-automatiquement un classement (testé : ni `api.ffbad.org`, ni badiste.fr, ni myffbad.fr n'offrent
-un accès exploitable). Le classement simple/double/mixte se saisit donc manuellement — par le
-bureau depuis la fiche du licencié, ou par le licencié lui-même depuis son profil — sur l'échelle
-officielle FFBaD (NC, P12, P11, P10, D9, D8, D7, R6, R5, R4, N3, N2, N1, du plus faible au plus
-fort), en la consultant sur [myffbad.fr](https://myffbad.fr/recherche/joueur).
+Le classement simple/double/mixte se saisit sur l'échelle officielle FFBaD (NC, P12, P11, P10, D9,
+D8, D7, R6, R5, R4, N3, N2, N1, du plus faible au plus fort) — par le bureau depuis la fiche du
+licencié, ou par le licencié lui-même depuis son profil.
+
+Il n'existe pas d'API publique documentée de la Fédération Française de Badminton, mais le numéro
+de licence et les classements peuvent être **synchronisés automatiquement depuis MyFFBaD**
+(voir [Synchronisation MyFFBaD](#synchronisation-myffbad-numéro-de-licence-et-classements))
+plutôt que saisis à la main.
+
+## Synchronisation MyFFBaD (numéro de licence et classements)
+
+Une fois l'URL de l'effectif du club renseignée dans **Bureau → Paramètres du club** (voir
+[Paramètres du club](#paramètres-du-club-bureau)), trois façons de synchroniser le numéro de
+licence et les classements (simple/double/mixte) d'un licencié depuis MyFFBaD :
+
+- **Sur la fiche d'un licencié** (bureau) ou **sur Mon compte** (le licencié lui-même) : bouton
+  **Synchroniser MyFFBaD**, qui recherche uniquement ce licencié (rapide).
+- **Sur la liste des licenciés** (bureau) : bouton **Synchroniser tout le club avec MyFFBaD**, qui
+  récupère l'effectif complet du club et met à jour tous les licenciés reconnus (par
+  correspondance de nom/prénom, insensible à la casse et aux accents) — pratique en début de
+  saison ou après une mise à jour groupée des classements par la fédération.
+
+La fiche du licencié et Mon compte affichent le **statut de la dernière tentative** (réussie,
+aucune correspondance trouvée, ou jamais synchronisé) et sa **date**. Si aucune correspondance
+n'est trouvée pour un licencié, vérifier que son nom/prénom dans Axiobad correspond bien à celui
+enregistré sur MyFFBaD.
+
+Cette synchronisation dépend de la structure interne du site myffbad.fr (pas d'API officielle) :
+elle peut cesser de fonctionner sans préavis si ce site change de structure.
 
 ## Importer des licenciés en masse (CSV)
 
@@ -626,6 +651,19 @@ Menu **Bureau → Historique des notifications** : liste chaque notification aut
 communication ciblée envoyée, avec la date, le destinataire, le sujet, un court extrait, et si
 l'envoi a réussi par **email** et/ou par **notification push**. Filtrable par destinataire. Ne
 stocke pas le corps intégral du message.
+
+## Paramètres du club (bureau)
+
+Menu **Bureau → Paramètres du club** :
+
+- **Nom du club** : informatif, affiché nulle part de façon critique pour l'instant.
+- **Nom du club sur MyFFBaD** : tel qu'il apparaît dans la recherche de club sur
+  [myffbad.fr](https://myffbad.fr/recherche/club) — informatif, peut différer du nom ci-dessus
+  (abréviations, orthographe officielle FFBaD).
+- **URL de l'effectif du club sur MyFFBaD** : la page publique MyFFBaD qui liste les joueurs du
+  club (cherchez votre club sur myffbad.fr, ouvrez sa fiche/effectif, collez l'URL ici) —
+  indispensable pour activer la [synchronisation MyFFBaD](#synchronisation-myffbad-numéro-de-licence-et-classements).
+  Tant qu'elle n'est pas renseignée, les boutons de synchronisation restent masqués.
 
 ## Configuration email (production)
 

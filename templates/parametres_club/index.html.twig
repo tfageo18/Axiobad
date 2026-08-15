@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Paramètres du club — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>Paramètres du club</h1>
+
+    <form method="post" action="{{ path('app_parametres_club') }}">
+        <div>
+            <label for="nomClub">Nom du club</label>
+            <input type="text" name="nomClub" id="nomClub" value="{{ parametres.nomClub }}" placeholder="ex: Le Havre Athlétic Club Badminton">
+        </div>
+        <div>
+            <label for="nomClubMyFfbad">Nom du club sur MyFFBaD</label>
+            <input type="text" name="nomClubMyFfbad" id="nomClubMyFfbad" value="{{ parametres.nomClubMyFfbad }}" placeholder="ex: LE HAVRE AC BADMINTON">
+            <p style="color: var(--color-text-muted); font-size: 0.88rem; margin-top: 0.25rem;">
+                Tel qu'il apparaît dans la recherche de club sur
+                <a href="https://myffbad.fr/recherche/club" target="_blank" rel="noopener">myffbad.fr</a>
+                — utilisé pour synchroniser les numéros de licence et classements des licenciés.
+                Laisser vide si différent du nom du club ci-dessus.
+            </p>
+        </div>
+        <button type="submit">Enregistrer</button>
+    </form>
+{% endblock %}

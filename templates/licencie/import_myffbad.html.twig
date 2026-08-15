@@ -2,6 +2,16 @@
 
 {% block title %}Importer depuis MyFFBaD — Axiobad{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        #recherche-import-myffbad { max-width: 320px; margin-bottom: 1rem; }
+        @media (max-width: 768px) {
+            #recherche-import-myffbad { max-width: 100%; }
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
     <h1>Importer des licenciés depuis MyFFBaD</h1>
 
@@ -29,13 +39,18 @@
         <form method="post" action="{{ path('app_licencie_import_myffbad_valider') }}">
             <input type="hidden" name="_token" value="{{ csrf_token('importer-myffbad') }}">
 
+            <div>
+                <label for="recherche-import-myffbad">Rechercher</label>
+                <input type="search" id="recherche-import-myffbad" placeholder="Nom, prénom, n° de licence...">
+            </div>
+
             <p>
-                <button type="button" onclick="document.querySelectorAll('.case-joueur').forEach(c => c.checked = true);">Tout cocher</button>
-                <button type="button" onclick="document.querySelectorAll('.case-joueur').forEach(c => c.checked = false);">Tout décocher</button>
+                <button type="button" id="tout-cocher">Tout cocher (visibles)</button>
+                <button type="button" id="tout-decocher">Tout décocher (visibles)</button>
             </p>
 
             <div class="table-scroll">
-            <table class="table-cards">
+            <table class="table-cards" id="table-import-myffbad">
                 <thead>
                     <tr>
                         <th></th>
@@ -71,4 +86,41 @@
             <button type="submit">Importer la sélection</button>
         </form>
     {% endif %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        (function () {
+            var input = document.getElementById('recherche-import-myffbad');
+            var table = document.getElementById('table-import-myffbad');
+            if (!input || !table) { return; }
+            var lignes = Array.prototype.slice.call(table.querySelectorAll('tbody tr'));
+
+            function estVisible(tr) {
+                return tr.style.display !== 'none';
+            }
+
+            input.addEventListener('input', function () {
+                var terme = input.value.trim().toLowerCase();
+                lignes.forEach(function (tr) {
+                    var texte = tr.textContent.toLowerCase();
+                    tr.style.display = texte.indexOf(terme) === -1 ? 'none' : '';
+                });
+            });
+
+            document.getElementById('tout-cocher').addEventListener('click', function () {
+                lignes.filter(estVisible).forEach(function (tr) {
+                    var c = tr.querySelector('.case-joueur');
+                    if (c) { c.checked = true; }
+                });
+            });
+            document.getElementById('tout-decocher').addEventListener('click', function () {
+                lignes.filter(estVisible).forEach(function (tr) {
+                    var c = tr.querySelector('.case-joueur');
+                    if (c) { c.checked = false; }
+                });
+            });
+        })();
+    </script>
 {% endblock %}

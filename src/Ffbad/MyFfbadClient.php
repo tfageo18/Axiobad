@@ -26,7 +26,7 @@ class MyFfbadClient
      * fournie (ligue/comité/club extraits de cette URL). Retourne le premier résultat s'il y en a
      * plusieurs (nom+prénom identiques dans le même club — rare).
      *
-     * @return array{numeroLicence: string, nomComplet: string, classementSimple: ?string, classementDouble: ?string, classementMixte: ?string}|null
+     * @return array{numeroLicence: string, nomComplet: string, prenom: string, nom: string, genre: ?string, classementSimple: ?string, classementDouble: ?string, classementMixte: ?string}|null
      */
     public function rechercherJoueur(string $urlEffectifClub, string $prenom, string $nom): ?array
     {
@@ -50,7 +50,7 @@ class MyFfbadClient
      * Récupère tout l'effectif du club (toutes les pages) depuis l'URL fournie par le bureau dans
      * les paramètres du club.
      *
-     * @return list<array{numeroLicence: string, nomComplet: string, classementSimple: ?string, classementDouble: ?string, classementMixte: ?string}>
+     * @return list<array{numeroLicence: string, nomComplet: string, prenom: string, nom: string, genre: ?string, classementSimple: ?string, classementDouble: ?string, classementMixte: ?string}>
      */
     public function recupererEffectifComplet(string $urlEffectifClub): array
     {
@@ -130,7 +130,7 @@ class MyFfbadClient
     }
 
     /**
-     * @return list<array{numeroLicence: string, nomComplet: string, classementSimple: ?string, classementDouble: ?string, classementMixte: ?string}>
+     * @return list<array{numeroLicence: string, nomComplet: string, prenom: string, nom: string, genre: ?string, classementSimple: ?string, classementDouble: ?string, classementMixte: ?string}>
      */
     private function recupererPage(string $url): array
     {
@@ -140,7 +140,7 @@ class MyFfbadClient
     }
 
     /**
-     * @return array{0: list<array{numeroLicence: string, nomComplet: string, classementSimple: ?string, classementDouble: ?string, classementMixte: ?string}>, 1: int|null}
+     * @return array{0: list<array{numeroLicence: string, nomComplet: string, prenom: string, nom: string, genre: ?string, classementSimple: ?string, classementDouble: ?string, classementMixte: ?string}>, 1: int|null}
      */
     private function recupererPageAvecPagination(string $url): array
     {
@@ -161,9 +161,19 @@ class MyFfbadClient
             if (empty($joueur['PersonLicence']) || empty($joueur['PersonName'])) {
                 continue;
             }
+            $nomComplet = (string) $joueur['PersonName'];
+            [$prenom, $nom] = self::separerPrenomNom($nomComplet);
             $resultats[] = [
                 'numeroLicence' => (string) $joueur['PersonLicence'],
-                'nomComplet' => (string) $joueur['PersonName'],
+                'nomComplet' => $nomComplet,
+                'prenom' => $prenom,
+                'nom' => $nom,
+                // Convention observée côté FFBaD (non documentée) : 1 = homme, 2 = femme.
+                'genre' => match ($joueur['PersonSex'] ?? null) {
+                    '1' => 'HOMME',
+                    '2' => 'FEMME',
+                    default => null,
+                },
                 'classementSimple' => $this->normaliserClassement($joueur['SimpleSubLevel'] ?? null),
                 'classementDouble' => $this->normaliserClassement($joueur['DoubleSubLevel'] ?? null),
                 'classementMixte' => $this->normaliserClassement($joueur['MixteSubLevel'] ?? null),
@@ -171,6 +181,40 @@ class MyFfbadClient
         }
 
         return [$resultats, $maxPages];
+    }
+
+    /**
+     * Sépare un "PersonName" MyFFBaD (ex. "Marius LELEU LABORIE") en prénom et nom : le nom est
+     * la suite des mots en MAJUSCULES à la fin (potentiellement plusieurs, ex. noms composés), le
+     * prénom tout ce qui précède.
+     *
+     * @return array{0: string, 1: string} [prénom, nom]
+     */
+    public static function separerPrenomNom(string $nomComplet): array
+    {
+        $mots = preg_split('/\s+/', trim($nomComplet)) ?: [];
+        if ([] === $mots) {
+            return ['', ''];
+        }
+
+        $indexNom = count($mots);
+        for ($i = count($mots) - 1; $i >= 0; --$i) {
+            if (mb_strtoupper($mots[$i]) === $mots[$i] && preg_match('/\p{L}/u', $mots[$i])) {
+                $indexNom = $i;
+            } else {
+                break;
+            }
+        }
+
+        if ($indexNom === count($mots)) {
+            // Aucun mot tout en majuscules trouvé (cas imprévu) : dernier mot = nom par défaut.
+            $indexNom = max(0, count($mots) - 1);
+        }
+
+        $prenom = implode(' ', array_slice($mots, 0, $indexNom));
+        $nom = implode(' ', array_slice($mots, $indexNom));
+
+        return [$prenom ?: $nom, $nom];
     }
 
     /**

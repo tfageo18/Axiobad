@@ -15,6 +15,7 @@ use App\Entity\Raquette;
 use App\Entity\StockMouvementVetement;
 use App\Entity\StockMouvementVolant;
 use App\Ffbad\LicencieSynchroniseur;
+use App\Ffbad\MyFfbadClient;
 use App\Repository\AdhesionRepository;
 use App\Repository\EquipeRepository;
 use App\Repository\LicencieRepository;
@@ -409,6 +410,154 @@ class LicencieController extends AbstractController
         }
 
         return $this->render('licencie/import.html.twig');
+    }
+
+    #[Route('/importer-myffbad', name: 'app_licencie_import_myffbad', methods: ['GET'])]
+    public function importMyFfbad(ParametresClubRepository $parametresClubRepository, MyFfbadClient $myFfbadClient, LicencieRepository $licencieRepository): Response
+    {
+        $urlEffectif = $parametresClubRepository->obtenir()->getUrlEffectifMyFfbad();
+        if (!$urlEffectif) {
+            $this->addFlash('error', "L'URL de l'effectif MyFFBaD n'est pas configurée (Paramètres du club).");
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        $effectif = $myFfbadClient->recupererEffectifComplet($urlEffectif);
+        if (!$effectif) {
+            $this->addFlash('error', "Aucune donnée récupérée depuis MyFFBaD — l'URL est peut-être incorrecte, ou le site est momentanément inaccessible.");
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        $numerosDejaPresents = array_filter(array_map(
+            static fn (Licencie $l) => $l->getNumeroLicence(),
+            $licencieRepository->findAll()
+        ));
+
+        $aImporter = array_values(array_filter(
+            $effectif,
+            static fn (array $joueur) => !in_array($joueur['numeroLicence'], $numerosDejaPresents, true)
+        ));
+
+        return $this->render('licencie/import_myffbad.html.twig', [
+            'joueurs' => $aImporter,
+            'nombreDejaPresents' => count($effectif) - count($aImporter),
+        ]);
+    }
+
+    #[Route('/importer-myffbad', name: 'app_licencie_import_myffbad_valider', methods: ['POST'])]
+    public function importMyFfbadValider(
+        Request $request,
+        ParametresClubRepository $parametresClubRepository,
+        MyFfbadClient $myFfbadClient,
+        LicencieRepository $licencieRepository,
+        UserPasswordHasherInterface $passwordHasher,
+        EntityManagerInterface $entityManager,
+    ): Response {
+        if (!$this->isCsrfTokenValid('importer-myffbad', (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+            return $this->redirectToRoute('app_licencie_import_myffbad');
+        }
+
+        $selection = array_map('strval', $request->request->all('numerosLicence'));
+        if (!$selection) {
+            $this->addFlash('error', 'Aucun licencié sélectionné.');
+
+            return $this->redirectToRoute('app_licencie_import_myffbad');
+        }
+
+        $urlEffectif = $parametresClubRepository->obtenir()->getUrlEffectifMyFfbad();
+        if (!$urlEffectif) {
+            $this->addFlash('error', "L'URL de l'effectif MyFFBaD n'est pas configurée (Paramètres du club).");
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        $effectif = $myFfbadClient->recupererEffectifComplet($urlEffectif);
+
+        $numerosDejaPresents = array_filter(array_map(
+            static fn (Licencie $l) => $l->getNumeroLicence(),
+            $licencieRepository->findAll()
+        ));
+
+        $crees = 0;
+        foreach ($effectif as $joueur) {
+            if (!in_array($joueur['numeroLicence'], $selection, true)) {
+                continue;
+            }
+            if (in_array($joueur['numeroLicence'], $numerosDejaPresents, true)) {
+                continue; // déjà importé entre-temps (double clic, autre onglet...)
+            }
+
+            $licencie = (new Licencie())
+                ->setPrenom($joueur['prenom'])
+                ->setNom($joueur['nom'])
+                ->setGenre($joueur['genre'])
+                ->setNumeroLicence($joueur['numeroLicence'])
+                ->setClassementSimple($joueur['classementSimple'])
+                ->setClassementDouble($joueur['classementDouble'])
+                ->setClassementMixte($joueur['classementMixte'])
+                ->setClassementMisAJourLe(new \DateTimeImmutable())
+                ->setMustChangePassword(true);
+            // Pas d'email pour l'instant (MyFFBaD n'en fournit pas) : compte créé sans accès de
+            // connexion tant que le bureau n'a pas renseigné une adresse — voir « Envoyer
+            // l'invitation » sur la liste des licenciés.
+            $licencie->setPassword($passwordHasher->hashPassword($licencie, bin2hex(random_bytes(32))));
+
+            $entityManager->persist($licencie);
+            ++$crees;
+        }
+
+        $entityManager->flush();
+
+        $this->addFlash('success', sprintf(
+            '%d licencié(s) importé(s) depuis MyFFBaD. Il ne reste plus qu\'à renseigner leur adresse email (bouton « Envoyer l\'invitation » sur la liste) pour leur donner accès à leur compte.',
+            $crees
+        ));
+
+        return $this->redirectToRoute('app_licencie_index');
+    }
+
+    #[Route('/{id}/envoyer-invitation', name: 'app_licencie_envoyer_invitation', methods: ['POST'])]
+    public function envoyerInvitation(Licencie $licencie, Request $request, EntityManagerInterface $entityManager, InvitationMailer $invitationMailer): Response
+    {
+        if (!$this->isCsrfTokenValid('envoyer-invitation-'.$licencie->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        if ($licencie->aUnCompte()) {
+            $this->addFlash('error', 'Ce licencié a déjà un compte — utilisez « Renvoyer l\'invitation » ou « Réinitialiser le mot de passe ».');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        $email = trim((string) $request->request->get('email'));
+        if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $this->addFlash('error', 'Adresse email invalide.');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        if ($entityManager->getRepository(Licencie::class)->findOneBy(['email' => $email])) {
+            $this->addFlash('error', 'Cet email est déjà utilisé par un autre compte.');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
+        $licencie->setEmail($email);
+        $token = $licencie->generateActivationToken();
+        $entityManager->flush();
+
+        if ($invitationMailer->envoyerInvitation($licencie, $token)) {
+            $this->addFlash('success', sprintf('Compte créé et invitation envoyée à %s.', $email));
+        } else {
+            $this->addFlash('error', sprintf("L'email a été enregistré, mais l'invitation n'a pas pu être envoyée à %s. Utilisez « Renvoyer l'invitation » une fois le problème résolu.", $email));
+        }
+
+        return $this->redirectToRoute('app_licencie_index');
     }
 
     #[Route('/nouveau', name: 'app_licencie_new', methods: ['GET', 'POST'])]

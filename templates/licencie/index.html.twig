@@ -26,12 +26,13 @@
         · <a href="{{ path('app_licencie_import') }}">Importer en masse (CSV)</a>
         · <a href="{{ path('app_presence_index') }}">Classement des présences</a>
         {% if parametresClub.urlEffectifMyFfbad %}
+            · <a href="{{ path('app_licencie_import_myffbad') }}">Importer depuis MyFFBaD</a>
             · <form method="post" action="{{ path('app_licencie_synchroniser_myffbad_tous') }}" style="display:inline" onsubmit="return confirm('Synchroniser tous les licenciés avec MyFFBaD ? Numéros de licence et classements seront écrasés pour ceux trouvés.');">
                 <input type="hidden" name="_token" value="{{ csrf_token('synchroniser-myffbad-tous') }}">
                 <button type="submit">Synchroniser tout le club avec MyFFBaD</button>
             </form>
         {% else %}
-            · <a href="{{ path('app_parametres_club') }}" style="color: var(--color-text-muted);">Configurer MyFFBaD pour activer la synchronisation</a>
+            · <a href="{{ path('app_parametres_club') }}" style="color: var(--color-text-muted);">Configurer MyFFBaD pour activer la synchronisation et l'import</a>
         {% endif %}
     </p>
 
@@ -167,6 +168,12 @@
                             <form method="post" action="{{ path('app_licencie_reinitialiser_mot_de_passe', {id: licencie.id}) }}" style="display:inline">
                                 <input type="hidden" name="_token" value="{{ csrf_token('reinitialiser-mot-de-passe-' ~ licencie.id) }}">
                                 <button type="submit">Réinitialiser le mot de passe</button>
+                            </form>
+                        {% else %}
+                            <form method="post" action="{{ path('app_licencie_envoyer_invitation', {id: licencie.id}) }}" style="display:inline-flex; gap: 0.3rem; align-items: center;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('envoyer-invitation-' ~ licencie.id) }}">
+                                <input type="email" name="email" placeholder="email à inviter" required style="width: 11rem; min-width: 0;">
+                                <button type="submit">Envoyer l'invitation</button>
                             </form>
                         {% endif %}
                         {% if licencie.email == constant('App\\Entity\\Licencie::EMAIL_ADMIN_DEFAUT') %}

@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Importer depuis MyFFBaD — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>Importer des licenciés depuis MyFFBaD</h1>
+
+    <p><a href="{{ path('app_licencie_index') }}">&laquo; Retour à la liste des licenciés</a></p>
+
+    <p style="color: var(--color-text-muted);">
+        Cochez les joueurs à importer, puis validez : ils seront créés sans adresse email (MyFFBaD
+        n'en fournit pas). Utilisez ensuite « Envoyer l'invitation » sur la liste des licenciés
+        pour renseigner leur email et leur donner accès à leur compte.
+        {% if nombreDejaPresents %}
+            {{ nombreDejaPresents }} joueur(s) de l'effectif MyFFBaD {{ nombreDejaPresents > 1 ? 'ont' : 'a' }}
+            déjà un numéro de licence correspondant à un licencié existant — ils ne sont pas
+            proposés ici.
+        {% endif %}
+    </p>
+
+    {% if joueurs is empty %}
+        <p>Aucun nouveau joueur à importer.</p>
+    {% else %}
+        <form method="post" action="{{ path('app_licencie_import_myffbad_valider') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('importer-myffbad') }}">
+
+            <p>
+                <button type="button" onclick="document.querySelectorAll('.case-joueur').forEach(c => c.checked = true);">Tout cocher</button>
+                <button type="button" onclick="document.querySelectorAll('.case-joueur').forEach(c => c.checked = false);">Tout décocher</button>
+            </p>
+
+            <div class="table-scroll">
+            <table class="table-cards">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Prénom</th>
+                        <th>Nom</th>
+                        <th>N° de licence</th>
+                        <th>Classement S/D/M</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for joueur in joueurs %}
+                        <tr>
+                            <td>
+                                <input class="case-joueur" type="checkbox" name="numerosLicence[]" value="{{ joueur.numeroLicence }}" id="joueur-{{ joueur.numeroLicence }}">
+                            </td>
+                            <td data-label="Prénom"><label for="joueur-{{ joueur.numeroLicence }}">{{ joueur.prenom }}</label></td>
+                            <td data-label="Nom">{{ joueur.nom }}</td>
+                            <td data-label="N° de licence">{{ joueur.numeroLicence }}</td>
+                            <td data-label="Classement">{{ joueur.classementSimple ?? '-' }} / {{ joueur.classementDouble ?? '-' }} / {{ joueur.classementMixte ?? '-' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            </div>
+
+            <button type="submit">Importer la sélection</button>
+        </form>
+    {% endif %}
+{% endblock %}

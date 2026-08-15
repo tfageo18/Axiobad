@@ -538,6 +538,12 @@ class LicencieController extends AbstractController
             return $this->redirectToRoute('app_licencie_index');
         }
 
+        if ($licencie->estMineur()) {
+            $this->addFlash('error', 'Ce licencié est mineur — pas de compte de connexion direct, utilisez le compte de son responsable légal.');
+
+            return $this->redirectToRoute('app_licencie_index');
+        }
+
         $email = trim((string) $request->request->get('email'));
         if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $this->addFlash('error', 'Adresse email invalide.');

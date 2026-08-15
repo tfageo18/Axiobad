@@ -185,11 +185,15 @@ recherche), puis valider.
 
 Les licenciés créés le sont **sans adresse email** (MyFFBaD n'en fournit pas) — donc sans accès de
 connexion tant que l'email n'est pas renseigné. Sur la liste des licenciés, les comptes sans email
-affichent un champ email et un bouton **Envoyer l'invitation** : une seule action pour renseigner
-l'adresse et envoyer l'email d'activation.
+affichent un champ email et un bouton **Envoyer l'invitation** : une seule action qui enregistre
+l'adresse sur la fiche du licencié et envoie l'email d'activation.
 
-Pour les licenciés mineurs (catégorie d'âge FFBaD < Senior), penser à compléter après import la
-date de naissance exacte et le(s) responsable(s) légal(aux) depuis leur fiche.
+Ce bouton n'apparaît pas pour un licencié mineur (déterminé par sa date de naissance dans Axiobad,
+seule source fiable) : un mineur n'a pas de compte de connexion direct, c'est le compte de son
+responsable légal qui est utilisé. Pour les licenciés mineurs importés (catégorie d'âge FFBaD <
+Senior), penser à compléter après import la date de naissance exacte et le(s) responsable(s)
+légal(aux) depuis leur fiche — le bouton d'invitation disparaîtra automatiquement une fois la date
+de naissance renseignée si le licencié est bien mineur.
 
 ## Importer des licenciés en masse (CSV)
 

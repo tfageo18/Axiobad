@@ -169,6 +169,8 @@
                                 <input type="hidden" name="_token" value="{{ csrf_token('reinitialiser-mot-de-passe-' ~ licencie.id) }}">
                                 <button type="submit">Réinitialiser le mot de passe</button>
                             </form>
+                        {% elseif licencie.estMineur %}
+                            <span style="font-size: 0.82rem; color: var(--color-text-muted);" title="Un mineur ne se voit pas proposer de compte de connexion direct — utilisez le compte de son responsable légal.">Mineur — pas d'invitation directe</span>
                         {% else %}
                             <form method="post" action="{{ path('app_licencie_envoyer_invitation', {id: licencie.id}) }}" style="display:inline-flex; gap: 0.3rem; align-items: center;">
                                 <input type="hidden" name="_token" value="{{ csrf_token('envoyer-invitation-' ~ licencie.id) }}">

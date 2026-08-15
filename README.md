@@ -95,7 +95,9 @@ main :
   joueurs de l'effectif du club absents d'Axiobad (déjà présents exclus par numéro de licence).
   Les licenciés importés n'ont pas d'email (MyFFBaD n'en fournit pas) — pas de compte de connexion
   tant qu'il n'est pas renseigné via le bouton **« Envoyer l'invitation »** (champ email inline sur
-  la liste des licenciés, pour les comptes sans email).
+  la liste des licenciés, pour les comptes sans email). Ce bouton n'est pas proposé pour un
+  licencié mineur (basé sur `dateNaissance`) : pas de compte de connexion direct pour un mineur,
+  il passe par le compte de son responsable légal.
 - Nécessite l'URL de l'effectif du club sur MyFFBaD, renseignée par le bureau dans
   [Paramètres du club](#paramètres-du-club).
 - Fragile par nature (dépend de la structure interne de myffbad.fr, sans garantie de stabilité) :

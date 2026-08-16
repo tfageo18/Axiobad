@@ -532,6 +532,12 @@ distinct des licenciés bénévoles : nom, poste, type de contrat (CDI, CDD, vac
 dates de début/fin, téléphone, email, notes libres. Comme pour les gymnases, un salarié peut être
 désactivé (conserve l'historique) ou supprimé définitivement.
 
+Un salarié (ex. un entraîneur salarié) peut aussi être **licencié du club** : le champ « Licencié
+du club » du formulaire permet de le lier à sa fiche existante, ce qui préremplit
+automatiquement prénom, nom, téléphone et email. Ce lien est purement informatif et n'accorde
+aucun droit particulier au compte licencié — un badge « 👤 licencié du club », cliquable vers sa
+fiche, s'affiche alors dans la liste des salariés.
+
 Ce module ne couvre pas la paie ni la comptabilité (trop lié à la réglementation en vigueur,
 volontairement hors périmètre).
 

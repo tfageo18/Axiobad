@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Salarie;
+use App\Repository\LicencieRepository;
 use App\Repository\SalarieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -28,11 +29,11 @@ class SalarieController extends AbstractController
     }
 
     #[Route('/nouveau', name: 'app_salarie_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, LicencieRepository $licencieRepository): Response
     {
         if ($request->isMethod('POST')) {
             $salarie = new Salarie();
-            $this->hydrater($salarie, $request);
+            $this->hydrater($salarie, $request, $licencieRepository);
 
             $entityManager->persist($salarie);
             $entityManager->flush();
@@ -45,14 +46,15 @@ class SalarieController extends AbstractController
         return $this->render('salarie/form.html.twig', [
             'salarie' => null,
             'typesContrat' => Salarie::CONTRATS_LABELS,
+            'licencies' => $licencieRepository->findBy([], ['nom' => 'ASC']),
         ]);
     }
 
     #[Route('/{id}/modifier', name: 'app_salarie_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Salarie $salarie, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Salarie $salarie, EntityManagerInterface $entityManager, LicencieRepository $licencieRepository): Response
     {
         if ($request->isMethod('POST')) {
-            $this->hydrater($salarie, $request);
+            $this->hydrater($salarie, $request, $licencieRepository);
             $entityManager->flush();
 
             $this->addFlash('success', 'Salarié modifié.');
@@ -63,6 +65,7 @@ class SalarieController extends AbstractController
         return $this->render('salarie/form.html.twig', [
             'salarie' => $salarie,
             'typesContrat' => Salarie::CONTRATS_LABELS,
+            'licencies' => $licencieRepository->findBy([], ['nom' => 'ASC']),
         ]);
     }
 
@@ -89,11 +92,12 @@ class SalarieController extends AbstractController
         return $this->redirectToRoute('app_salarie_index');
     }
 
-    private function hydrater(Salarie $salarie, Request $request): void
+    private function hydrater(Salarie $salarie, Request $request, LicencieRepository $licencieRepository): void
     {
         $typeContrat = (string) $request->request->get('typeContrat');
         $dateDebut = (string) $request->request->get('dateDebut');
         $dateFin = (string) $request->request->get('dateFin');
+        $licencieId = $request->request->get('licencie');
 
         $salarie
             ->setPrenom((string) $request->request->get('prenom'))
@@ -104,6 +108,7 @@ class SalarieController extends AbstractController
             ->setDateFin($dateFin ? new \DateTimeImmutable($dateFin) : null)
             ->setTelephone((string) $request->request->get('telephone') ?: null)
             ->setEmail((string) $request->request->get('email') ?: null)
-            ->setNotes((string) $request->request->get('notes') ?: null);
+            ->setNotes((string) $request->request->get('notes') ?: null)
+            ->setLicencie($licencieId ? $licencieRepository->find($licencieId) : null);
     }
 }

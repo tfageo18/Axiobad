@@ -7,6 +7,18 @@
 
     <form method="post" action="{{ salarie ? path('app_salarie_edit', {id: salarie.id}) : path('app_salarie_new') }}">
         <div>
+            <label for="licencie">Licencié du club (optionnel)</label>
+            <select name="licencie" id="licencie">
+                <option value="">-</option>
+                {% for l in licencies %}
+                    <option value="{{ l.id }}" data-prenom="{{ l.prenom }}" data-nom="{{ l.nom }}" data-telephone="{{ l.telephone }}" data-email="{{ l.email }}" {{ salarie and salarie.licencie and salarie.licencie.id == l.id ? 'selected' : '' }}>{{ l.nomComplet }}</option>
+                {% endfor %}
+            </select>
+            <small style="color: var(--color-text-muted);">
+                Un salarié peut aussi être licencié du club (ex. entraîneur salarié) — le lier ici préremplit les champs ci-dessous. Purement informatif : aucun droit RH n'est accordé au compte licencié.
+            </small>
+        </div>
+        <div>
             <label for="prenom">Prénom</label>
             <input type="text" name="prenom" id="prenom" value="{{ salarie ? salarie.prenom : '' }}" required>
         </div>
@@ -48,4 +60,18 @@
         </div>
         <button type="submit">{{ salarie ? 'Enregistrer' : 'Créer' }}</button>
     </form>
+
+    <script>
+        (function () {
+            var select = document.getElementById('licencie');
+            select.addEventListener('change', function () {
+                var option = select.options[select.selectedIndex];
+                if (!option.value) { return; }
+                document.getElementById('prenom').value = option.getAttribute('data-prenom') || '';
+                document.getElementById('nom').value = option.getAttribute('data-nom') || '';
+                document.getElementById('telephone').value = option.getAttribute('data-telephone') || '';
+                document.getElementById('email').value = option.getAttribute('data-email') || '';
+            });
+        })();
+    </script>
 {% endblock %}

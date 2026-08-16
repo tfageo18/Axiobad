@@ -198,6 +198,9 @@ main :
   vacation, stage, autre), dates de début/fin, coordonnées, notes.
 - Ne couvre pas la paie ni la comptabilité (hors périmètre, trop lié à la réglementation en
   vigueur).
+- **Lien optionnel vers un licencié** : un salarié (ex. entraîneur salarié) peut aussi être
+  licencié du club — le lier à sa fiche préremplit prénom/nom/téléphone/email dans le formulaire.
+  Purement informatif, sans effet sur les droits du compte licencié.
 
 ### Cordage
 

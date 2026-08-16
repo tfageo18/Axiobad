@@ -28,7 +28,12 @@
         <tbody>
             {% for salarie in salaries %}
                 <tr class="{{ salarie.actif ? '' : 'ligne-inactive' }}">
-                    <td data-label="Nom">{{ salarie.nomComplet }}</td>
+                    <td data-label="Nom">
+                        {{ salarie.nomComplet }}
+                        {% if salarie.licencie %}
+                            <br><a href="{{ path('app_licencie_edit', {id: salarie.licencie.id}) }}" style="font-size: 0.78rem;">👤 licencié du club</a>
+                        {% endif %}
+                    </td>
                     <td data-label="Poste">{{ salarie.poste }}</td>
                     <td data-label="Contrat">{{ salarie.typeContratLabel }}</td>
                     <td data-label="Début">{{ salarie.dateDebut ? salarie.dateDebut|date('d/m/Y') : '-' }}</td>

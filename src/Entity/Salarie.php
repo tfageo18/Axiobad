@@ -62,6 +62,14 @@ class Salarie
     #[ORM\Column]
     private bool $actif = true;
 
+    /**
+     * Un salarié peut aussi être licencié du club (ex. entraîneur salarié) — lien optionnel vers
+     * sa fiche licencié, purement informatif (aucun droit RH accordé au compte licencié).
+     */
+    #[ORM\ManyToOne(targetEntity: Licencie::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?Licencie $licencie = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -193,6 +201,18 @@ class Salarie
     public function setActif(bool $actif): static
     {
         $this->actif = $actif;
+
+        return $this;
+    }
+
+    public function getLicencie(): ?Licencie
+    {
+        return $this->licencie;
+    }
+
+    public function setLicencie(?Licencie $licencie): static
+    {
+        $this->licencie = $licencie;
 
         return $this;
     }

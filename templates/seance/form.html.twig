@@ -57,7 +57,7 @@
     <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
         {% for schema in seance.schemas %}
             <div style="background: var(--color-surface-2); border-radius: var(--radius); padding: 0.75rem; width: 280px;">
-                <canvas class="apercu-schema" width="900" height="420" data-schema='{{ schema.donnees|raw }}' style="width: 100%; aspect-ratio: 900 / 420; border-radius: calc(var(--radius) - 4px); display: block;"></canvas>
+                <canvas class="apercu-schema" width="900" height="420" data-schema="{{ schema.donnees }}" style="width: 100%; aspect-ratio: 900 / 420; border-radius: calc(var(--radius) - 4px); display: block;"></canvas>
                 <p style="margin: 0.5rem 0 0.35rem; font-weight: 600;">{{ schema.titre ?: 'Sans titre' }}</p>
                 <a href="{{ path('app_seance_schema_edit', {id: creneau.id, date: date|date('Y-m-d'), schemaId: schema.id}) }}">Modifier</a>
             </div>

@@ -48,7 +48,7 @@
             <button type="button" id="bouton-effacer-schema">🗑 Tout effacer</button>
         </div>
 
-        <canvas id="canvas-schema" width="900" height="420" data-schema='{{ schema.donnees|raw }}'></canvas>
+        <canvas id="canvas-schema" width="900" height="420" data-schema="{{ schema.donnees }}"></canvas>
         <p style="color: var(--color-text-muted); font-size: 0.85rem;">
             Clic (ou toucher) puis glisser pour un trait ou une flèche. Clic simple pour placer un joueur ou du texte.
         </p>

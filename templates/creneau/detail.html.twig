@@ -71,7 +71,7 @@
                 <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 0.75rem;">
                     {% for schema in seance.schemas %}
                         <div style="width: 260px;">
-                            <canvas class="apercu-schema" width="900" height="420" data-schema='{{ schema.donnees|raw }}' style="width: 100%; aspect-ratio: 900 / 420; border-radius: var(--radius); display: block;"></canvas>
+                            <canvas class="apercu-schema" width="900" height="420" data-schema="{{ schema.donnees }}" style="width: 100%; aspect-ratio: 900 / 420; border-radius: var(--radius); display: block;"></canvas>
                             {% if schema.titre %}<p style="margin: 0.35rem 0 0; font-size: 0.9rem;">{{ schema.titre }}</p>{% endif %}
                         </div>
                     {% endfor %}

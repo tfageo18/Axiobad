@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Schéma — {{ creneau.nom }} — {{ date|date('d/m/Y') }} — Axiobad{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .tableau-blanc-barre { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-bottom: 0.75rem; }
+        .tableau-blanc-barre label { display: flex; align-items: center; gap: 0.35rem; font-size: 0.9rem; }
+        #canvas-schema { width: 100%; max-width: 900px; aspect-ratio: 900 / 420; border-radius: var(--radius); touch-action: none; display: block; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('app_seance_edit', {id: creneau.id, date: date|date('Y-m-d')}) }}">&laquo; Retour à la séance</a></p>
+
+    <h1>Schéma tactique — {{ creneau.nom }}</h1>
+    <p style="color: var(--color-text-muted);">{{ creneau.jourSemaine }} {{ date|date('d/m/Y') }}</p>
+
+    <form method="post" action="{{ schema.id ? path('app_seance_schema_edit', {id: creneau.id, date: date|date('Y-m-d'), schemaId: schema.id}) : path('app_seance_schema_new', {id: creneau.id, date: date|date('Y-m-d')}) }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('seance-schema-' ~ creneau.id ~ '-' ~ date|date('Y-m-d') ~ '-' ~ (schema.id ?? 'nouveau')) }}">
+        <input type="hidden" name="donnees" id="champ-donnees" value="{{ schema.donnees }}">
+
+        <div>
+            <label for="titre">Titre du schéma (optionnel)</label>
+            <input type="text" name="titre" id="titre" value="{{ schema.titre }}" placeholder="Ex. Exercice dégagé fond de court" style="max-width: 30rem;">
+        </div>
+
+        <div class="tableau-blanc-barre">
+            <label>Outil
+                <select id="outil-schema">
+                    <option value="trait">✏️ Trait libre</option>
+                    <option value="fleche">➜ Flèche (trajectoire)</option>
+                    <option value="joueur">● Joueur</option>
+                    <option value="texte">Texte</option>
+                </select>
+            </label>
+            <label>Couleur
+                <input type="color" id="couleur-schema" value="#22c55e">
+            </label>
+            <label>Terrain(s)
+                <select id="terrains-schema">
+                    <option value="1">1 terrain</option>
+                    <option value="2">2 terrains</option>
+                </select>
+            </label>
+            <button type="button" id="bouton-annuler-schema">↩ Annuler le dernier trait</button>
+            <button type="button" id="bouton-effacer-schema">🗑 Tout effacer</button>
+        </div>
+
+        <canvas id="canvas-schema" width="900" height="420" data-schema='{{ schema.donnees|raw }}'></canvas>
+        <p style="color: var(--color-text-muted); font-size: 0.85rem;">
+            Clic (ou toucher) puis glisser pour un trait ou une flèche. Clic simple pour placer un joueur ou du texte.
+        </p>
+
+        <button type="submit">Enregistrer le schéma</button>
+    </form>
+
+    {% if schema.id %}
+        <form method="post" action="{{ path('app_seance_schema_delete', {id: creneau.id, date: date|date('Y-m-d'), schemaId: schema.id}) }}" style="margin-top: 1rem;" onsubmit="return confirm('Supprimer ce schéma ?');">
+            <input type="hidden" name="_token" value="{{ csrf_token('schema-delete-' ~ schema.id) }}">
+            <button type="submit">Supprimer ce schéma</button>
+        </form>
+    {% endif %}
+
+    <script src="{{ asset('js/tableau-blanc.js') }}"></script>
+    <script>
+        (function () {
+            var canvas = document.getElementById('canvas-schema');
+            var donnees;
+            try { donnees = JSON.parse(canvas.getAttribute('data-schema') || '{}'); } catch (e) { donnees = {}; }
+            document.getElementById('terrains-schema').value = String(donnees.terrains === 2 ? 2 : 1);
+
+            window.TableauBlanc.initEditeur(canvas, {
+                champCache: document.getElementById('champ-donnees'),
+                selecteurOutil: document.getElementById('outil-schema'),
+                selecteurCouleur: document.getElementById('couleur-schema'),
+                selecteurTerrains: document.getElementById('terrains-schema'),
+                boutonAnnuler: document.getElementById('bouton-annuler-schema'),
+                boutonEffacer: document.getElementById('bouton-effacer-schema')
+            });
+        })();
+    </script>
+{% endblock %}

@@ -277,6 +277,12 @@ main :
 - **Publication** : case à cocher « Publier aux licenciés inscrits ». Une séance non publiée reste
   visible des seuls entraîneurs du créneau et du bureau (espace de préparation) ; publiée, elle
   s'affiche en lecture seule sur la page de l'occurrence pour tout licencié qui la consulte.
+- **Tableau blanc terrain de badminton** (`SeanceSchema`) : une séance peut contenir plusieurs
+  schémas tactiques (un par exercice), dessinés dans un éditeur canvas maison (pas de dépendance
+  externe, `public/js/tableau-blanc.js`) — 1 ou 2 terrains de badminton en fond, traits libres,
+  flèches de trajectoire, joueurs positionnables (repère optionnel), texte, undo/tout effacer.
+  Stocké en JSON vectoriel (coordonnées relatives, pas une image figée) donc réouvrable et
+  modifiable. Suit la même règle de publication que le reste de la séance.
 
 ### Calendrier
 

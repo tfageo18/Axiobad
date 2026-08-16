@@ -47,4 +47,32 @@
 
         <button type="submit">Enregistrer la séance</button>
     </form>
+
+    <h2>Schémas tactiques</h2>
+    <p style="color: var(--color-text-muted);">
+        Un schéma par exercice si besoin — tableau blanc avec terrain(s) de badminton, traits,
+        flèches de trajectoire, joueurs et texte.
+    </p>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+        {% for schema in seance.schemas %}
+            <div style="background: var(--color-surface-2); border-radius: var(--radius); padding: 0.75rem; width: 280px;">
+                <canvas class="apercu-schema" width="900" height="420" data-schema='{{ schema.donnees|raw }}' style="width: 100%; aspect-ratio: 900 / 420; border-radius: calc(var(--radius) - 4px); display: block;"></canvas>
+                <p style="margin: 0.5rem 0 0.35rem; font-weight: 600;">{{ schema.titre ?: 'Sans titre' }}</p>
+                <a href="{{ path('app_seance_schema_edit', {id: creneau.id, date: date|date('Y-m-d'), schemaId: schema.id}) }}">Modifier</a>
+            </div>
+        {% else %}
+            <p><em>Aucun schéma pour l'instant.</em></p>
+        {% endfor %}
+    </div>
+    <p style="margin-top: 1rem;">
+        <a href="{{ path('app_seance_schema_new', {id: creneau.id, date: date|date('Y-m-d')}) }}">+ Ajouter un schéma</a>
+    </p>
+
+    <script src="{{ asset('js/tableau-blanc.js') }}"></script>
+    <script>
+        document.querySelectorAll('.apercu-schema').forEach(function (canvas) {
+            window.TableauBlanc.initLectureSeule(canvas);
+        });
+    </script>
 {% endblock %}

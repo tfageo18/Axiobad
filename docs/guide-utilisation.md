@@ -365,6 +365,24 @@ sur le créneau du jour, ou liste des créneaux → détail).
 5. N'importe quel entraîneur associé au créneau peut modifier une séance déjà saisie par un
    collègue (utile quand plusieurs entraîneurs se partagent un créneau).
 
+### Tableau blanc (schémas tactiques)
+
+En bas de la fiche de séance, section **Schémas tactiques** : une séance peut contenir plusieurs
+schémas (un par exercice par exemple).
+
+1. Cliquer sur **+ Ajouter un schéma** (ou sur une vignette existante pour la modifier).
+2. Choisir un **titre** optionnel, puis dessiner sur le terrain avec les outils :
+   - **Trait libre** : cliquer/toucher et glisser pour tracer.
+   - **Flèche** : cliquer/toucher et glisser pour une trajectoire (ex. déplacement du volant).
+   - **Joueur** : clic simple pour placer un repère, avec une lettre/chiffre optionnel.
+   - **Texte** : clic simple, puis saisir le texte à afficher.
+   - Choix de la **couleur**, du nombre de **terrains** (1 ou 2 côte à côte), **Annuler le
+     dernier trait** et **Tout effacer**.
+3. **Enregistrer le schéma**. Il reste modifiable ensuite (le tracé est stocké sous forme de
+   formes, pas une image figée) et peut être supprimé individuellement.
+4. Les schémas suivent la même règle de publication que le reste de la séance : visibles des
+   licenciés uniquement si la case « Publier aux licenciés inscrits » est cochée.
+
 ## Le calendrier
 
 Menu **Jouer → Calendrier** : vue du mois en cours par défaut (mois précédent/suivant navigable).

@@ -59,6 +59,7 @@
             </a>
             {% if seance and not seance.estVide %}
                 — {{ seance.publiee ? 'publiée aux licenciés' : 'non publiée (visible des entraîneurs/bureau uniquement)' }}
+                {% if seance.schemas|length %} · {{ seance.schemas|length }} schéma{{ seance.schemas|length > 1 ? 's' : '' }}{% endif %}
             {% endif %}
         </div>
     {% elseif seance and seance.publiee and not seance.estVide %}
@@ -66,6 +67,22 @@
             <h2 style="margin-top: 0;">📝 Séance du jour</h2>
             {% if seance.objectifs %}<p><strong>Objectifs :</strong> {{ seance.objectifs|nl2br }}</p>{% endif %}
             {% if seance.contenu %}<p><strong>Contenu :</strong><br>{{ seance.contenu|nl2br }}</p>{% endif %}
+            {% if seance.schemas|length %}
+                <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 0.75rem;">
+                    {% for schema in seance.schemas %}
+                        <div style="width: 260px;">
+                            <canvas class="apercu-schema" width="900" height="420" data-schema='{{ schema.donnees|raw }}' style="width: 100%; aspect-ratio: 900 / 420; border-radius: var(--radius); display: block;"></canvas>
+                            {% if schema.titre %}<p style="margin: 0.35rem 0 0; font-size: 0.9rem;">{{ schema.titre }}</p>{% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+                <script src="{{ asset('js/tableau-blanc.js') }}"></script>
+                <script>
+                    document.querySelectorAll('.apercu-schema').forEach(function (canvas) {
+                        window.TableauBlanc.initLectureSeule(canvas);
+                    });
+                </script>
+            {% endif %}
         </div>
     {% endif %}
 

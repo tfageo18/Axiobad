@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\SeanceRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -45,9 +47,25 @@ class Seance
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $modifieLe = null;
 
+    /**
+     * @var Collection<int, SeanceSchema>
+     */
+    #[ORM\OneToMany(targetEntity: SeanceSchema::class, mappedBy: 'seance', orphanRemoval: true)]
+    #[ORM\OrderBy(['ordre' => 'ASC'])]
+    private Collection $schemas;
+
     public function __construct()
     {
         $this->creeLe = new \DateTimeImmutable();
+        $this->schemas = new ArrayCollection();
+    }
+
+    /**
+     * @return Collection<int, SeanceSchema>
+     */
+    public function getSchemas(): Collection
+    {
+        return $this->schemas;
     }
 
     public function getId(): ?int
@@ -149,6 +167,6 @@ class Seance
      */
     public function estVide(): bool
     {
-        return !$this->objectifs && !$this->contenu;
+        return !$this->objectifs && !$this->contenu && $this->schemas->isEmpty();
     }
 }

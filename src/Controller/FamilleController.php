@@ -4,14 +4,17 @@ namespace App\Controller;
 
 use App\Entity\Adhesion;
 use App\Entity\Creneau;
+use App\Entity\LienFamilial;
 use App\Entity\Licencie;
 use App\Entity\PaiementAdhesion;
 use App\Repository\AdhesionRepository;
 use App\Repository\CreneauExceptionRepository;
 use App\Repository\CreneauRepository;
 use App\Repository\LicencieRepository;
+use App\Repository\LienFamilialRepository;
 use App\Repository\PresenceRepository;
 use App\Repository\SaisonRepository;
+use App\Service\AuditLogger;
 use App\Service\GestionInscriptionCreneau;
 use App\Service\LicencieDataExporter;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,6 +37,7 @@ class FamilleController extends AbstractController
         SaisonRepository $saisonRepository,
         AdhesionRepository $adhesionRepository,
         CreneauExceptionRepository $exceptionRepository,
+        LienFamilialRepository $lienFamilialRepository,
     ): Response {
         /** @var Licencie $responsable */
         $responsable = $this->getUser();
@@ -55,10 +59,228 @@ class FamilleController extends AbstractController
             ];
         }
 
+        // Comptes "pour lesquels je peux agir" (moi-même + les mineurs dont je suis responsable
+        // légal) : sert à la fois à afficher les demandes reçues pour eux et à proposer de créer
+        // un lien en leur nom.
+        $comptesGeres = array_merge([$responsable], $enfants);
+
+        $liensVus = [];
+        $demandesRecues = [];
+        $liensAcceptes = [];
+        foreach ($comptesGeres as $compte) {
+            foreach ($lienFamilialRepository->findPourLicencie($compte) as $lien) {
+                if (isset($liensVus[$lien->getId()])) {
+                    continue;
+                }
+                $liensVus[$lien->getId()] = true;
+
+                $autrePersonne = $lien->getAutrePersonne($compte);
+                if (!$autrePersonne) {
+                    continue;
+                }
+
+                if ($lien->estEnAttente() && $lien->getCible() === $compte) {
+                    $demandesRecues[] = ['lien' => $lien, 'pour' => $compte, 'autrePersonne' => $autrePersonne];
+                } elseif ($lien->estAccepte()) {
+                    $liensAcceptes[] = [
+                        'lien' => $lien,
+                        'pour' => $compte,
+                        'autrePersonne' => $autrePersonne,
+                        'prochainsCreneaux' => $this->calculerProchainsCreneaux($autrePersonne, $creneauxActifs, $presenceRepository, $exceptionRepository),
+                        'adhesion' => $saisonEnCours ? $adhesionRepository->findOneByLicencieEtSaison($autrePersonne, $saisonEnCours) : null,
+                    ];
+                }
+            }
+        }
+
+        $demandesEnvoyees = array_values(array_filter(
+            $lienFamilialRepository->findPourLicencie($responsable),
+            static fn (LienFamilial $l) => $l->estEnAttente() && $l->getDemandeur() === $responsable
+        ));
+
+        $licenciesLiables = array_values(array_filter(
+            $licencieRepository->findBy([], ['nom' => 'ASC']),
+            fn (Licencie $l) => !in_array($l, $comptesGeres, true)
+        ));
+
         return $this->render('famille/index.html.twig', [
             'fiches' => $fiches,
             'saisonEnCours' => $saisonEnCours,
+            'comptesGeres' => $comptesGeres,
+            'demandesRecues' => $demandesRecues,
+            'demandesEnvoyees' => $demandesEnvoyees,
+            'liensAcceptes' => $liensAcceptes,
+            'licenciesLiables' => $licenciesLiables,
+            'typesLien' => LienFamilial::TYPES,
         ]);
+    }
+
+    #[Route('/liens', name: 'app_famille_lien_new', methods: ['POST'])]
+    public function nouveauLien(Request $request, EntityManagerInterface $entityManager, LicencieRepository $licencieRepository, LienFamilialRepository $lienFamilialRepository, AuditLogger $auditLogger): Response
+    {
+        if (!$this->isCsrfTokenValid('lien-familial-new', (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+            return $this->redirectToRoute('app_famille_index');
+        }
+
+        /** @var Licencie $responsable */
+        $responsable = $this->getUser();
+
+        $demandeurId = $request->request->get('demandeur');
+        $demandeur = $demandeurId ? $licencieRepository->find($demandeurId) : $responsable;
+        if (!$demandeur || (!$responsable->estResponsableDe($demandeur) && $demandeur !== $responsable)) {
+            $this->addFlash('error', "Vous ne pouvez pas créer de lien au nom de ce compte.");
+
+            return $this->redirectToRoute('app_famille_index');
+        }
+
+        $cible = $licencieRepository->find($request->request->get('cible'));
+        $typeLien = (string) $request->request->get('typeLien');
+
+        if (!$cible || !array_key_exists($typeLien, LienFamilial::TYPES)) {
+            $this->addFlash('error', 'Sélection invalide.');
+
+            return $this->redirectToRoute('app_famille_index');
+        }
+
+        if ($cible === $demandeur) {
+            $this->addFlash('error', 'Impossible de créer un lien avec soi-même.');
+
+            return $this->redirectToRoute('app_famille_index');
+        }
+
+        if ($lienFamilialRepository->existeEntre($demandeur, $cible)) {
+            $this->addFlash('error', sprintf('Un lien existe déjà (ou est en attente) avec %s.', $cible->getNomComplet()));
+
+            return $this->redirectToRoute('app_famille_index');
+        }
+
+        $lien = (new LienFamilial())
+            ->setDemandeur($demandeur)
+            ->setCible($cible)
+            ->setTypeLien($typeLien);
+
+        $entityManager->persist($lien);
+        $entityManager->flush();
+
+        $auditLogger->log(
+            AuditLogger::LIEN_FAMILIAL_CHANGE,
+            'LienFamilial',
+            sprintf('%s ↔ %s', $demandeur->getNomComplet(), $cible->getNomComplet()),
+            null,
+            sprintf('Demande envoyée (%s)', $lien->getTypeLienLabel())
+        );
+
+        $this->addFlash('success', sprintf('Demande de lien familial envoyée à %s, en attente de son accord.', $cible->getNomComplet()));
+
+        return $this->redirectToRoute('app_famille_index');
+    }
+
+    #[Route('/liens/{id}/accepter', name: 'app_famille_lien_accepter', methods: ['POST'])]
+    public function accepterLien(Request $request, LienFamilial $lien, EntityManagerInterface $entityManager, AuditLogger $auditLogger): Response
+    {
+        if (!$this->isCsrfTokenValid('lien-familial-accepter-'.$lien->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+            return $this->redirectToRoute('app_famille_index');
+        }
+
+        if (!$this->peutAgirPour($lien->getCible()) || !$lien->estEnAttente()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $lien->accepter();
+        $entityManager->flush();
+
+        $auditLogger->log(
+            AuditLogger::LIEN_FAMILIAL_CHANGE,
+            'LienFamilial',
+            sprintf('%s ↔ %s', $lien->getDemandeur()->getNomComplet(), $lien->getCible()->getNomComplet()),
+            'En attente',
+            'Accepté'
+        );
+
+        $this->addFlash('success', sprintf('Lien familial avec %s accepté.', $lien->getDemandeur()->getNomComplet()));
+
+        return $this->redirectToRoute('app_famille_index');
+    }
+
+    #[Route('/liens/{id}/refuser', name: 'app_famille_lien_refuser', methods: ['POST'])]
+    public function refuserLien(Request $request, LienFamilial $lien, EntityManagerInterface $entityManager, AuditLogger $auditLogger): Response
+    {
+        if (!$this->isCsrfTokenValid('lien-familial-refuser-'.$lien->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+            return $this->redirectToRoute('app_famille_index');
+        }
+
+        if (!$this->peutAgirPour($lien->getCible()) || !$lien->estEnAttente()) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $auditLogger->log(
+            AuditLogger::LIEN_FAMILIAL_CHANGE,
+            'LienFamilial',
+            sprintf('%s ↔ %s', $lien->getDemandeur()->getNomComplet(), $lien->getCible()->getNomComplet()),
+            'En attente',
+            'Refusé'
+        );
+
+        $entityManager->remove($lien);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Demande de lien familial refusée.');
+
+        return $this->redirectToRoute('app_famille_index');
+    }
+
+    #[Route('/liens/{id}/retirer', name: 'app_famille_lien_retirer', methods: ['POST'])]
+    public function retirerLien(Request $request, LienFamilial $lien, EntityManagerInterface $entityManager, AuditLogger $auditLogger): Response
+    {
+        if (!$this->isCsrfTokenValid('lien-familial-retirer-'.$lien->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+            return $this->redirectToRoute('app_famille_index');
+        }
+
+        if (!$this->peutAgirPour($lien->getDemandeur()) && !$this->peutAgirPour($lien->getCible()) && !$this->isGranted('ROLE_BUREAU')) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $auditLogger->log(
+            AuditLogger::LIEN_FAMILIAL_CHANGE,
+            'LienFamilial',
+            sprintf('%s ↔ %s', $lien->getDemandeur()->getNomComplet(), $lien->getCible()->getNomComplet()),
+            $lien->getStatut(),
+            'Retiré'
+        );
+
+        $entityManager->remove($lien);
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Lien familial retiré.');
+
+        return $this->redirectToRoute('app_famille_index');
+    }
+
+    /**
+     * L'utilisateur connecté peut-il agir "pour" ce compte : soit lui-même, soit son
+     * responsable légal (si mineur), soit le bureau.
+     */
+    private function peutAgirPour(?Licencie $compte): bool
+    {
+        if (!$compte) {
+            return false;
+        }
+        if ($this->isGranted('ROLE_BUREAU')) {
+            return true;
+        }
+
+        /** @var Licencie $utilisateur */
+        $utilisateur = $this->getUser();
+
+        return $utilisateur === $compte || $utilisateur->estResponsableDe($compte);
     }
 
     #[Route('/{id}/creneaux/{creneauId}/presence', name: 'app_famille_presence', methods: ['POST'])]

@@ -118,6 +118,13 @@ main :
   responsable légal : prochains créneaux (avec réponse présence en son nom), et statut/paiement
   de leur adhésion.
 - Le bouton « Renvoyer l'invitation » n'apparaît que pour les licenciés ayant un compte.
+- **Liens familiaux élargis** (`App\Entity\LienFamilial`) : au-delà du responsable légal, « Ma
+  famille » permet de lier son compte à d'autres membres (oncle-tante, grand-parent, frère/sœur,
+  cousin/cousine, beau-parent...) via une demande soumise au consentement de la personne visée
+  (ou de son responsable légal si elle est mineure). Lien purement déclaratif, **lecture seule**
+  (prochains créneaux, statut d'adhésion) — aucun accès aux données sensibles ni action sur le
+  compte de l'autre, contrairement au responsable légal. Révocable à tout moment par les deux
+  parties. Journalisé (`AuditLogger::LIEN_FAMILIAL_CHANGE`).
 
 ### Saisons et adhésions
 
@@ -338,7 +345,7 @@ main :
 - Menu **Bureau → Journal d'audit** : trace les actions sensibles — paiement ajouté/supprimé,
   consultation ou modification des informations de santé, changement de responsable légal,
   suppression de compte (simple ou forcée), changement de rôle, correction de stock (inventaire),
-  annulation de créneau, modification d'adhésion.
+  annulation de créneau, modification d'adhésion, lien familial (demande, acceptation, retrait).
 - Chaque entrée indique l'auteur, la date, l'objet concerné, et l'ancienne/nouvelle valeur quand
   c'est pertinent (jamais le contenu des données de santé elles-mêmes, pour ne pas dupliquer une
   donnée sensible). Filtrable par type d'action et par auteur.

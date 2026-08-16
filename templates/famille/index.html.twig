@@ -73,4 +73,148 @@
             {% endif %}
         </div>
     {% endfor %}
+
+    <h2>Liens familiaux</h2>
+    <p style="color: var(--color-text-muted);">
+        Au-delà des enfants dont vous êtes responsable légal, vous pouvez lier votre compte à
+        d'autres membres de la famille (oncle, tante, grand-parent, frère, sœur, beau-parent...).
+        Ce lien donne uniquement une vision des prochains créneaux et de l'adhésion — aucune
+        action possible sur le compte de l'autre personne. Un adulte doit toujours accepter
+        explicitement avant que le lien soit actif ; pour un mineur, ce sont ses responsables
+        légaux qui valident.
+    </p>
+
+    {% if demandesRecues|length %}
+        <h3>Demandes reçues</h3>
+        <table class="table-cards">
+            <thead><tr><th>De</th><th>Pour</th><th>Lien proposé</th><th>Actions</th></tr></thead>
+            <tbody>
+                {% for d in demandesRecues %}
+                    <tr>
+                        <td data-label="De">{{ d.autrePersonne.nomComplet }}</td>
+                        <td data-label="Pour">{{ d.pour.nomComplet }}</td>
+                        <td data-label="Lien proposé">{{ d.lien.typeLienLabel }}</td>
+                        <td data-label="Actions" style="display:flex; gap:0.4rem;">
+                            <form method="post" action="{{ path('app_famille_lien_accepter', {id: d.lien.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('lien-familial-accepter-' ~ d.lien.id) }}">
+                                <button type="submit">Accepter</button>
+                            </form>
+                            <form method="post" action="{{ path('app_famille_lien_refuser', {id: d.lien.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('lien-familial-refuser-' ~ d.lien.id) }}">
+                                <button type="submit">Refuser</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    {% if demandesEnvoyees|length %}
+        <h3>Demandes envoyées, en attente</h3>
+        <table class="table-cards">
+            <thead><tr><th>À</th><th>Lien proposé</th><th>Actions</th></tr></thead>
+            <tbody>
+                {% for lien in demandesEnvoyees %}
+                    <tr>
+                        <td data-label="À">{{ lien.cible.nomComplet }}</td>
+                        <td data-label="Lien proposé">{{ lien.typeLienLabel }}</td>
+                        <td data-label="Actions">
+                            <form method="post" action="{{ path('app_famille_lien_retirer', {id: lien.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('lien-familial-retirer-' ~ lien.id) }}">
+                                <button type="submit">Annuler</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+
+    {% for l in liensAcceptes %}
+        <div class="fiche-enfant">
+            <h3>{{ l.autrePersonne.nomComplet }} <small style="color: var(--color-text-muted); font-weight: 400;">({{ l.lien.typeLienLabel }})</small></h3>
+
+            <p>
+                Adhésion{{ saisonEnCours ? ' — ' ~ saisonEnCours.libelle : '' }} :
+                {% if not saisonEnCours %}
+                    <em>Aucune saison en cours.</em>
+                {% else %}
+                    {% set statut = l.adhesion ? l.adhesion.statut : 'EN_ATTENTE' %}
+                    {% set libelle = l.adhesion ? l.adhesion.statutLabel : 'En attente' %}
+                    <span class="badge-statut-adhesion badge-{{ statut }}">{{ libelle }}</span>
+                {% endif %}
+            </p>
+
+            <h4>Prochains créneaux</h4>
+            {% if l.prochainsCreneaux|length %}
+                <table class="table-cards">
+                    <thead><tr><th>Date</th><th>Créneau</th><th>Réponse</th></tr></thead>
+                    <tbody>
+                        {% for ligne in l.prochainsCreneaux %}
+                            <tr>
+                                <td data-label="Date">{{ ligne.date|date('d/m/Y') }} ({{ ligne.creneau.jourSemaine }})</td>
+                                <td data-label="Créneau">{{ ligne.creneau.nom }}</td>
+                                <td data-label="Réponse">
+                                    {% if ligne.presence %}
+                                        {{ ligne.presence.present ? '✓ Vient' : '✗ Ne vient pas' }}
+                                    {% else %}
+                                        <em>Pas encore répondu</em>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>Aucun créneau à venir correspondant au profil de {{ l.autrePersonne.prenom }}.</p>
+            {% endif %}
+
+            <form method="post" action="{{ path('app_famille_lien_retirer', {id: l.lien.id}) }}" onsubmit="return confirm('Retirer ce lien familial ?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('lien-familial-retirer-' ~ l.lien.id) }}">
+                <button type="submit">Retirer ce lien</button>
+            </form>
+        </div>
+    {% endfor %}
+
+    <div class="fiche-enfant">
+        <h3>Ajouter un membre de la famille</h3>
+        <form method="post" action="{{ path('app_famille_lien_new') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('lien-familial-new') }}">
+
+            {% if comptesGeres|length > 1 %}
+                <div>
+                    <label for="demandeur">Pour</label>
+                    <select name="demandeur" id="demandeur">
+                        {% for compte in comptesGeres %}
+                            <option value="{{ compte.id }}">{{ compte.nomComplet }}{{ loop.first ? ' (moi-même)' : '' }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            {% endif %}
+            <div>
+                <label for="cible">Membre de la famille</label>
+                <select name="cible" id="cible" required>
+                    <option value="">-</option>
+                    {% for l in licenciesLiables %}
+                        <option value="{{ l.id }}">{{ l.nomComplet }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="typeLien">Lien</label>
+                <select name="typeLien" id="typeLien" required>
+                    <option value="">-</option>
+                    {% for code, libelle in typesLien %}
+                        <option value="{{ code }}">{{ libelle }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit">Envoyer la demande</button>
+        </form>
+        <small style="color: var(--color-text-muted);">
+            La personne visée (ou son responsable légal si elle est mineure) devra accepter la
+            demande avant que le lien soit actif.
+        </small>
+    </div>
 {% endblock %}

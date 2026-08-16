@@ -124,6 +124,26 @@ prochains créneaux (avec possibilité de répondre présent/absent en leur nom)
 paiement de leur adhésion. « Ma famille » est visible de tous les licenciés connectés, même sans
 enfant à charge (la liste est alors vide).
 
+#### Liens familiaux élargis (oncle, tante, grand-parent, frère/sœur, beau-parent...)
+
+Au-delà du responsable légal (qui reste la seule relation donnant des droits légaux sur un
+mineur — santé, autorisations...), **Ma famille** permet de lier son compte à d'autres membres de
+la famille : oncle/tante, grand-parent, frère/sœur, cousin/cousine, beau-parent... Ce lien est
+purement déclaratif et donne uniquement une **visibilité en lecture seule** (prochains créneaux,
+statut d'adhésion) sur le membre lié — aucune action possible sur son compte (pas de réponse
+présence en son nom, pas d'accès à ses données de santé).
+
+- Depuis « Ajouter un membre de la famille », choisir le licencié visé et le type de lien, puis
+  envoyer la demande.
+- **Consentement obligatoire** : le lien ne devient actif qu'après acceptation par la personne
+  visée si elle est majeure, ou par son/ses responsable(s) légal(aux) si elle est mineure. La
+  demande apparaît dans « Demandes reçues » sur la page Ma famille de la personne concernée (pas
+  d'email envoyé, à consulter en se connectant).
+- Un responsable légal peut aussi créer un lien **au nom de son enfant mineur** (ex. lier l'enfant
+  à ses grands-parents) via le sélecteur « Pour » du formulaire.
+- Chaque lien reste **révocable à tout moment**, par l'une ou l'autre partie (bouton « Retirer ce
+  lien » / « Annuler »).
+
 ### Rechercher, trier, désactiver, supprimer
 
 - Un champ de **recherche instantanée** filtre la liste par nom, email ou rôle.

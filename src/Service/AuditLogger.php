@@ -10,7 +10,7 @@ use Symfony\Bundle\SecurityBundle\Security;
 /**
  * Journal d'audit des actions sensibles : paiement modifié, consultation/modification des
  * informations de santé, changement de responsable légal, suppression de compte, changement de
- * rôle, correction de stock, annulation de créneau, modification d'adhésion.
+ * rôle, correction de stock, annulation de créneau, modification d'adhésion, lien familial.
  */
 class AuditLogger
 {
@@ -25,6 +25,7 @@ class AuditLogger
     public const STOCK_CORRECTION = 'stock.correction';
     public const CRENEAU_ANNULE = 'creneau.annule';
     public const ADHESION_MODIFIEE = 'adhesion.modifiee';
+    public const LIEN_FAMILIAL_CHANGE = 'lien_familial.change';
 
     public const LIBELLES = [
         self::PAIEMENT_MODIFIE => 'Paiement modifié',
@@ -38,6 +39,7 @@ class AuditLogger
         self::STOCK_CORRECTION => 'Correction de stock',
         self::CRENEAU_ANNULE => 'Créneau annulé',
         self::ADHESION_MODIFIEE => 'Adhésion modifiée',
+        self::LIEN_FAMILIAL_CHANGE => 'Lien familial modifié',
     ];
 
     public function __construct(

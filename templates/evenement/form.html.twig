@@ -41,14 +41,15 @@
             <input type="number" name="nombrePlaces" id="nombrePlaces" min="1" value="{{ evenement ? evenement.nombrePlaces : '' }}">
         </div>
         <div>
-            <label for="visibilite">Visible par</label>
-            <select name="visibilite" id="visibilite">
-                {% for code, libelle in constant('App\\Entity\\Evenement::VISIBILITES_LABELS') %}
-                    <option value="{{ code }}" {{ evenement and evenement.visibilite == code ? 'selected' : '' }}>{{ libelle }}</option>
-                {% endfor %}
-            </select>
+            <label>Visible par (optionnel)</label>
+            {% for code, libelle in constant('App\\Entity\\Evenement::ROLES_RESTRICTION_LABELS') %}
+                <label style="display: block; font-weight: 400;">
+                    <input type="checkbox" name="rolesVisibles[]" value="{{ code }}" {{ evenement and code in evenement.rolesVisibles ? 'checked' : '' }}>
+                    {{ libelle }}
+                </label>
+            {% endfor %}
             <small style="color: var(--color-text-muted);">
-                « Bureau uniquement » masque l'événement (et ses documents) aux autres licenciés — pratique pour les réunions du bureau.
+                Ne cocher aucune case = visible de tous les licenciés (par défaut). Cocher une ou plusieurs cases restreint l'événement (et ses documents) aux licenciés ayant au moins un de ces rôles — ex. « Cordeurs » + « Gestion du stock » à la fois. Le bureau voit toujours tout.
             </small>
         </div>
         <button type="submit">{{ evenement ? 'Enregistrer' : 'Créer' }}</button>

@@ -297,6 +297,6 @@ class EvenementController extends AbstractController
             ->setDateDebut(new \DateTimeImmutable($dateDebut))
             ->setDateFin($dateFin ? new \DateTimeImmutable($dateFin) : null)
             ->setNombrePlaces(null !== $nombrePlaces && '' !== $nombrePlaces ? (int) $nombrePlaces : null)
-            ->setVisibilite((string) $request->request->get('visibilite'));
+            ->setRolesVisibles($request->request->all('rolesVisibles'));
     }
 }

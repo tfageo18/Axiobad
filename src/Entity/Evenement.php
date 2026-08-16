@@ -24,12 +24,16 @@ class Evenement
         self::TYPE_AUTRE => 'Autre',
     ];
 
-    public const VISIBILITE_TOUS = 'TOUS';
-    public const VISIBILITE_BUREAU = 'BUREAU';
-
-    public const VISIBILITES_LABELS = [
-        self::VISIBILITE_TOUS => 'Tous les licenciés',
-        self::VISIBILITE_BUREAU => 'Bureau uniquement',
+    /**
+     * Rôles pouvant restreindre la visibilité d'un événement (cumulables — ex. réservé aux
+     * cordeurs ET à la gestion du stock à la fois). Bureau exclu de la liste ci-dessous car un
+     * membre du bureau voit toujours tous les événements, quelle que soit la restriction.
+     */
+    public const ROLES_RESTRICTION_LABELS = [
+        Licencie::ROLE_BUREAU => 'Bureau',
+        Licencie::ROLE_ENTRAINEUR => 'Entraîneurs',
+        Licencie::ROLE_CORDEUR => 'Cordeurs',
+        Licencie::ROLE_STOCK => 'Gestion du stock',
     ];
 
     #[ORM\Id]
@@ -59,11 +63,14 @@ class Evenement
     private ?int $nombrePlaces = null;
 
     /**
-     * Qui peut voir/s'inscrire à cet événement — TOUS (défaut) ou BUREAU uniquement (ex.
-     * réunions du bureau).
+     * Rôles auxquels l'événement est restreint — vide (défaut) = visible de tous les licenciés.
+     * Cumulable (ex. ["ROLE_CORDEUR", "ROLE_STOCK"] : visible des cordeurs ET de la gestion de
+     * stock). Un membre du bureau voit toujours tout, quelle que soit cette liste.
+     *
+     * @var list<string>
      */
-    #[ORM\Column(length: 20)]
-    private string $visibilite = self::VISIBILITE_TOUS;
+    #[ORM\Column]
+    private array $rolesVisibles = [];
 
     /**
      * @var Collection<int, Inscription>
@@ -186,35 +193,54 @@ class Evenement
         return $this;
     }
 
-    public function getVisibilite(): string
+    /**
+     * @return list<string>
+     */
+    public function getRolesVisibles(): array
     {
-        return $this->visibilite;
+        return $this->rolesVisibles;
     }
 
-    public function getVisibiliteLabel(): string
+    /**
+     * @param list<string> $rolesVisibles
+     */
+    public function setRolesVisibles(array $rolesVisibles): static
     {
-        return self::VISIBILITES_LABELS[$this->visibilite] ?? $this->visibilite;
-    }
-
-    public function setVisibilite(string $visibilite): static
-    {
-        $this->visibilite = in_array($visibilite, [self::VISIBILITE_TOUS, self::VISIBILITE_BUREAU], true)
-            ? $visibilite
-            : self::VISIBILITE_TOUS;
+        $this->rolesVisibles = array_values(array_intersect($rolesVisibles, array_keys(self::ROLES_RESTRICTION_LABELS)));
 
         return $this;
     }
 
+    public function getRolesVisiblesLabel(): string
+    {
+        if (!$this->rolesVisibles) {
+            return 'Tous les licenciés';
+        }
+
+        $libelles = array_map(static fn (string $role) => self::ROLES_RESTRICTION_LABELS[$role] ?? $role, $this->rolesVisibles);
+
+        return implode(', ', $libelles);
+    }
+
     /**
-     * L'événement est-il visible (et ouvert à l'inscription) pour ce licencié ?
+     * L'événement est-il visible (et ouvert à l'inscription) pour ce licencié ? Vide = visible de
+     * tous ; sinon il faut au moins un rôle en commun. Le bureau voit toujours tout.
      */
     public function estVisiblePar(?Licencie $licencie): bool
     {
-        if (self::VISIBILITE_TOUS === $this->visibilite) {
+        if (!$this->rolesVisibles) {
             return true;
         }
 
-        return null !== $licencie && in_array(Licencie::ROLE_BUREAU, $licencie->getRoles(), true);
+        if (null === $licencie) {
+            return false;
+        }
+
+        if (in_array(Licencie::ROLE_BUREAU, $licencie->getRoles(), true)) {
+            return true;
+        }
+
+        return [] !== array_intersect($this->rolesVisibles, $licencie->getRoles());
     }
 
     /**

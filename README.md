@@ -186,10 +186,13 @@ main :
   évènement (convocation, ordre du jour, procès-verbal...) — utile notamment pour les assemblées
   générales et réunions, déjà gérées comme un type d'évènement dédié. Téléchargeables par tout
   licencié connecté ; ajout/suppression réservés au bureau.
-- **Visibilité restreinte** : un évènement peut être limité au **bureau uniquement** (ex. une
-  réunion de bureau) — invisible dans la liste, sur le calendrier, sur « Mon espace » et refusé
-  (403) en accès direct pour tout licencié n'ayant pas le rôle bureau ; ses documents et
-  inscriptions suivent la même restriction. Par défaut, un évènement reste visible de tous.
+- **Visibilité restreinte par rôle(s)** (`Evenement::rolesVisibles`) : un évènement peut être
+  limité à un ou plusieurs rôles cumulables — bureau, entraîneurs, cordeurs, gestion du stock (ex.
+  une réunion de bureau, ou une réunion réservée aux cordeurs **et** à la gestion du stock à la
+  fois). Invisible dans la liste, sur le calendrier et sur « Mon espace », et refusé (403) en accès
+  direct pour tout licencié n'ayant aucun des rôles requis ; ses documents et inscriptions suivent
+  la même restriction. Le bureau voit toujours tout. Par défaut (aucun rôle coché), un évènement
+  reste visible de tous.
 
 ### Salariés (RH)
 

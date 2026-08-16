@@ -518,10 +518,14 @@ Menu **Club → Vie du club**.
   ordre du jour, procès-verbal...) — pratique pour les **assemblées générales et réunions**,
   gérées comme un type d'événement dédié (« Assemblée générale »). Tout licencié connecté peut les
   télécharger ; seul le bureau peut en ajouter ou en supprimer.
-- **Visibilité** : « Tous les licenciés » (par défaut) ou **« Bureau uniquement »** — pratique pour
-  une réunion de bureau. Un événement « Bureau uniquement » n'apparaît dans aucune liste (Vie du
-  club, calendrier, Mon espace) pour un licencié sans le rôle bureau, et sa page (ainsi que ses
-  documents et son inscription) lui est refusée même en accès direct.
+- **Visibilité par rôle(s)** : par défaut (aucune case cochée), un événement est visible de tous
+  les licenciés. Cocher une ou plusieurs cases (Bureau, Entraîneurs, Cordeurs, Gestion du stock)
+  le restreint aux licenciés ayant **au moins un** de ces rôles — les cases sont cumulables, par
+  exemple « Cordeurs » + « Gestion du stock » pour une réunion commune à ces deux équipes. Le
+  bureau voit toujours tous les événements, quelle que soit la restriction. Un événement restreint
+  n'apparaît dans aucune liste (Vie du club, calendrier, Mon espace) pour un licencié n'ayant aucun
+  des rôles requis, et sa page (ainsi que ses documents et son inscription) lui est refusée même en
+  accès direct.
 
 ## Salariés (bureau)
 

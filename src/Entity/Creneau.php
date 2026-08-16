@@ -83,9 +83,15 @@ class Creneau
     #[ORM\Column(nullable: true)]
     private ?int $delaiAnnulationHeures = null;
 
-    #[ORM\ManyToOne(targetEntity: Licencie::class)]
-    #[ORM\JoinColumn(nullable: true)]
-    private ?Licencie $entraineur = null;
+    /**
+     * Entraîneur(s) encadrant ce créneau — plusieurs entraîneurs peuvent se partager un même
+     * créneau (ex. en alternance) ; chacun peut alors saisir le contenu des séances.
+     *
+     * @var Collection<int, Licencie>
+     */
+    #[ORM\ManyToMany(targetEntity: Licencie::class)]
+    #[ORM\JoinTable(name: 'creneau_entraineur')]
+    private Collection $entraineurs;
 
     /**
      * @var Collection<int, Presence>
@@ -96,6 +102,7 @@ class Creneau
     public function __construct()
     {
         $this->presences = new ArrayCollection();
+        $this->entraineurs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -185,22 +192,46 @@ class Creneau
         $this->encadre = $encadre;
 
         if (!$encadre) {
-            $this->entraineur = null;
+            $this->entraineurs->clear();
         }
 
         return $this;
     }
 
-    public function getEntraineur(): ?Licencie
+    /**
+     * @return Collection<int, Licencie>
+     */
+    public function getEntraineurs(): Collection
     {
-        return $this->entraineur;
+        return $this->entraineurs;
     }
 
-    public function setEntraineur(?Licencie $entraineur): static
+    public function addEntraineur(Licencie $entraineur): static
     {
-        $this->entraineur = $entraineur;
+        if (!$this->entraineurs->contains($entraineur)) {
+            $this->entraineurs->add($entraineur);
+        }
 
         return $this;
+    }
+
+    public function removeEntraineur(Licencie $entraineur): static
+    {
+        $this->entraineurs->removeElement($entraineur);
+
+        return $this;
+    }
+
+    public function estEncadrePar(?Licencie $licencie): bool
+    {
+        return null !== $licencie && $this->entraineurs->contains($licencie);
+    }
+
+    public function getEntraineursLabel(): string
+    {
+        $noms = array_map(static fn (Licencie $l) => $l->getNomComplet(), $this->entraineurs->toArray());
+
+        return $noms ? implode(', ', $noms) : '-';
     }
 
     /**

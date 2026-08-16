@@ -241,7 +241,7 @@ main :
 
 - Chaque créneau est rattaché à un gymnase, a un nom, une **activité** (Badminton par défaut,
   Footing/Musculation suggérés, texte libre sinon), un jour de la semaine, un horaire.
-- Peut être **encadré** (associé à un entraîneur) ou libre.
+- Peut être **encadré** (associé à un ou plusieurs entraîneurs, ex. en alternance) ou libre.
 - **Catégorie** (adultes ou enfants) et **classement minimum requis** (échelle FFBaD), utilisés
   pour filtrer les créneaux adaptés à chaque licencié.
 - **Type** : loisir et/ou compétiteur (cases cumulables), **ouvert aux personnes extérieures au
@@ -264,6 +264,19 @@ main :
   entraîneur, note) sans toucher au créneau récurrent ni à ses autres occurrences. Depuis le
   calendrier ou en **fermeture groupée sur une période** (ex. vacances scolaires), qui annule en
   une fois toutes les occurrences concernées.
+
+### Séances dirigées (contenu de séance)
+
+- Sur un créneau **encadré**, chacun des entraîneurs qui lui sont associés (ou le bureau) peut
+  saisir le contenu d'une **séance** : une par occurrence (créneau + date précise), accessible
+  depuis la fiche détail de l'occurrence (`Seance`, `App\Controller\SeanceController`).
+- Champs : **objectifs** et **contenu/exercices** (texte libre), rédigés par un des entraîneurs du
+  créneau — n'importe lequel d'entre eux peut modifier une séance déjà saisie par un collègue.
+- **« Reprendre la séance précédente comme base »** : préremplit le formulaire avec le contenu de
+  la dernière séance renseignée sur ce créneau, pour ne pas retaper à chaque fois.
+- **Publication** : case à cocher « Publier aux licenciés inscrits ». Une séance non publiée reste
+  visible des seuls entraîneurs du créneau et du bureau (espace de préparation) ; publiée, elle
+  s'affiche en lecture seule sur la page de l'occurrence pour tout licencié qui la consulte.
 
 ### Calendrier
 

@@ -15,6 +15,7 @@ en ligne, une fois connecté, via le menu du compte (en bas du menu latéral) �
 - [Gérer les gymnases (bureau)](#gérer-les-gymnases-bureau)
 - [Gérer les équipes (bureau, capitaines)](#gérer-les-équipes-bureau-capitaines)
 - [Gérer les créneaux (bureau)](#gérer-les-créneaux-bureau)
+- [Séances dirigées (entraîneurs)](#séances-dirigées-entraîneurs)
 - [Le calendrier](#le-calendrier)
 - [Indiquer sa présence à un créneau (tous les licenciés)](#indiquer-sa-présence-à-un-créneau-tous-les-licenciés)
 - [Gérer le stock (bureau)](#gérer-le-stock-bureau)
@@ -83,7 +84,7 @@ Chaque licencié peut cumuler plusieurs rôles :
 |---|---|---|
 | **Licencié** | Rôle de base, attribué automatiquement à tout le monde | Consulter le calendrier et les créneaux, indiquer sa présence, gérer son profil |
 | **Membre du bureau** | Rôle administrateur | Tout ce que peut faire un licencié + gestion des licenciés, saisons, gymnases, créneaux et stock |
-| **Entraîneur** | Peut encadrer des créneaux | Peut être sélectionné comme entraîneur sur un créneau encadré ; accède à l'historique des présences |
+| **Entraîneur** | Peut encadrer des créneaux | Peut être sélectionné comme entraîneur sur un créneau encadré (plusieurs entraîneurs possibles par créneau) ; saisit le contenu des séances de ses créneaux ; accède à l'historique des présences |
 | **Cordeur** | Gère les demandes de cordage | Voit toutes les demandes de cordage et fait avancer leur statut |
 | **Accès au stock** | Accède au module stock | Comme un membre du bureau, mais uniquement pour le stock (les membres du bureau y accèdent déjà) |
 
@@ -293,8 +294,10 @@ Menu **Jouer → Créneaux**.
    apparaît (liste, détail, calendrier).
 7. Si besoin, un **classement minimum requis** (échelle FFBaD) pour filtrer les licenciés d'un
    certain niveau (laisser vide si aucun niveau minimum).
-8. Cocher **Créneau encadré** si un entraîneur doit être associé, puis le sélectionner dans la
-   liste (seuls les licenciés ayant le rôle Entraîneur apparaissent).
+8. Cocher **Créneau encadré** si un ou plusieurs entraîneurs doivent être associés, puis les
+   sélectionner dans la liste (seuls les licenciés ayant le rôle Entraîneur apparaissent —
+   Ctrl/Cmd+clic pour en choisir plusieurs). Plusieurs entraîneurs peuvent ainsi se partager un
+   même créneau (ex. en alternance) ; chacun d'eux peut ensuite saisir le contenu des séances.
 9. Optionnel : **capacité maximale** et **heure limite d'annulation** (voir ci-dessous).
 10. Valider.
 
@@ -343,6 +346,24 @@ occurrences ni au créneau lui-même :
 Depuis la liste des créneaux, lien **Fermeture par période** : indiquer une date de début, une
 date de fin et un motif optionnel — toutes les occurrences de tous les créneaux actifs sur cette
 période sont annulées d'un coup (chacune peut être rétablie individuellement ensuite si besoin).
+
+## Séances dirigées (entraîneurs)
+
+Sur un créneau **encadré**, chaque entraîneur qui lui est associé (ou le bureau) peut saisir le
+contenu de la séance pour une date précise, depuis la page de l'occurrence (calendrier → cliquer
+sur le créneau du jour, ou liste des créneaux → détail).
+
+1. Sur la fiche de l'occurrence, cliquer sur **📝 Saisir la séance** (ou **Modifier la séance** si
+   déjà renseignée).
+2. Renseigner les **objectifs** de la séance et le **contenu / exercices** (texte libre — par
+   exemple une liste d'exercices avec leur durée).
+3. Si une séance précédente existe sur ce créneau, un lien **« Reprendre la séance du .../.../...
+   comme base »** préremplit le formulaire avec son contenu, pour aller plus vite.
+4. Cocher **« Publier aux licenciés inscrits »** pour la rendre visible en lecture seule sur la
+   page de l'occurrence à tout licencié qui la consulte. Non cochée, elle reste un espace de
+   préparation/compte-rendu visible des seuls entraîneurs de ce créneau et du bureau.
+5. N'importe quel entraîneur associé au créneau peut modifier une séance déjà saisie par un
+   collègue (utile quand plusieurs entraîneurs se partagent un créneau).
 
 ## Le calendrier
 

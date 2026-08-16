@@ -105,14 +105,15 @@
             </label>
         </div>
         <div id="entraineur-field" style="display: {{ creneau and creneau.encadre ? 'block' : 'none' }};">
-            <label for="entraineur">Entraîneur</label>
-            <select name="entraineur" id="entraineur">
+            <label for="entraineurs">Entraîneur(s)</label>
+            <select name="entraineurs[]" id="entraineurs" multiple size="5">
                 {% for entraineur in entraineurs %}
                     {% if 'ROLE_ENTRAINEUR' in entraineur.roles %}
-                        <option value="{{ entraineur.id }}" {{ creneau and creneau.entraineur and creneau.entraineur.id == entraineur.id ? 'selected' : '' }}>{{ entraineur.nomComplet }}</option>
+                        <option value="{{ entraineur.id }}" {{ creneau and creneau.estEncadrePar(entraineur) ? 'selected' : '' }}>{{ entraineur.nomComplet }}</option>
                     {% endif %}
                 {% endfor %}
             </select>
+            <small>Plusieurs entraîneurs peuvent se partager un créneau (Ctrl/Cmd+clic pour sélectionner plusieurs) — chacun peut ensuite saisir le contenu des séances.</small>
         </div>
         <div>
             <label for="capaciteMax">Capacité maximale (optionnel, vide = illimité)</label>

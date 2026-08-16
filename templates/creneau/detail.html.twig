@@ -11,7 +11,7 @@
         {{ creneau.activite }} · {{ creneau.gymnase.nom }} · {{ creneau.heureDebut|date('H:i') }} - {{ creneau.heureFin|date('H:i') }}<br>
         {{ creneau.categorie == 'ENFANT' ? 'Enfants' : 'Adultes' }} · {{ creneau.typeLabel }}
         {% if creneau.classementMinimum %} · niveau min. {{ creneau.classementMinimum }}{% endif %}<br>
-        {{ creneau.encadre ? 'Encadré par ' ~ creneau.entraineur.nomComplet : 'Créneau libre' }}<br>
+        {{ creneau.encadre ? 'Encadré par ' ~ creneau.entraineursLabel : 'Créneau libre' }}<br>
         {{ creneau.ouvertExternes ? 'Ouvert aux personnes extérieures au club' : 'Réservé aux licenciés du club' }}
         {% if creneau.ouvertAdos %} · Ouvert aux ados{% endif %}
         {% if creneau.capaciteMax %}<br>Capacité : {{ viennent|length }} / {{ creneau.capaciteMax }}{{ placesRestantes == 0 ? ' (complet)' : '' }}{% endif %}
@@ -50,6 +50,23 @@
             <a href="{{ path('app_creneau_ics', {id: creneau.id, date: date|date('Y-m-d')}) }}">📅 Ajouter à mon agenda (téléphone/ordinateur)</a>
             · <a href="{{ path('app_creneau_google_agenda', {id: creneau.id, date: date|date('Y-m-d')}) }}" target="_blank" rel="noopener">Ajouter à Google Agenda</a>
         </p>
+    {% endif %}
+
+    {% if peutGererSeance %}
+        <div style="background: var(--color-surface-2); border-radius: var(--radius); padding: 0.75rem 1rem; margin: 1rem 0;">
+            <a href="{{ path('app_seance_edit', {id: creneau.id, date: date|date('Y-m-d')}) }}">
+                📝 {{ seance and not seance.estVide ? 'Modifier la séance' : 'Saisir la séance' }}
+            </a>
+            {% if seance and not seance.estVide %}
+                — {{ seance.publiee ? 'publiée aux licenciés' : 'non publiée (visible des entraîneurs/bureau uniquement)' }}
+            {% endif %}
+        </div>
+    {% elseif seance and seance.publiee and not seance.estVide %}
+        <div style="background: var(--color-surface-2); border-radius: var(--radius); padding: 0.75rem 1rem; margin: 1rem 0;">
+            <h2 style="margin-top: 0;">📝 Séance du jour</h2>
+            {% if seance.objectifs %}<p><strong>Objectifs :</strong> {{ seance.objectifs|nl2br }}</p>{% endif %}
+            {% if seance.contenu %}<p><strong>Contenu :</strong><br>{{ seance.contenu|nl2br }}</p>{% endif %}
+        </div>
     {% endif %}
 
     <h2>Viennent ({{ viennent|length }}{{ creneau.capaciteMax ? ' / ' ~ creneau.capaciteMax : '' }})</h2>

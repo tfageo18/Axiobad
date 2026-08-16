@@ -176,7 +176,7 @@ class ResetDemoDataCommand extends Command
             ->setNom('Entraînement compétiteurs')->setActivite('Badminton')->setGymnase($gymnase)
             ->setJourSemaine('Jeudi')
             ->setHeureDebut(new \DateTimeImmutable('20:00'))->setHeureFin(new \DateTimeImmutable('22:00'))
-            ->setCategorie('ADULTE')->setEncadre(true)->setEntraineur($comptesDemo[1])
+            ->setCategorie('ADULTE')->setEncadre(true)->addEntraineur($comptesDemo[1])
             ->setLoisir(false)->setCompetiteur(true)->setClassementMinimum('D9')->setCapaciteMax(12)->setActif(true);
         $em->persist($creneauCompet);
 
@@ -184,7 +184,7 @@ class ResetDemoDataCommand extends Command
             ->setNom('École de badminton')->setActivite('Badminton')->setGymnase($gymnase)
             ->setJourSemaine('Mercredi')
             ->setHeureDebut(new \DateTimeImmutable('14:00'))->setHeureFin(new \DateTimeImmutable('15:30'))
-            ->setCategorie('ENFANT')->setEncadre(true)->setEntraineur($comptesDemo[1])
+            ->setCategorie('ENFANT')->setEncadre(true)->addEntraineur($comptesDemo[1])
             ->setLoisir(true)->setCompetiteur(false)->setCapaciteMax(10)->setActif(true);
         $em->persist($creneauJeunes);
         $em->flush();

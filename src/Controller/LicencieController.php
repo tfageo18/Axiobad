@@ -984,8 +984,8 @@ class LicencieController extends AbstractController
         }
 
         // Références secondaires : on détache plutôt que supprimer les données qui n'appartiennent pas au licencié.
-        foreach ($entityManager->getRepository(\App\Entity\Creneau::class)->findBy(['entraineur' => $licencie]) as $creneau) {
-            $creneau->setEntraineur(null);
+        foreach ($entityManager->getRepository(\App\Entity\Creneau::class)->findAll() as $creneau) {
+            $creneau->removeEntraineur($licencie);
         }
         foreach ($entityManager->getRepository(\App\Entity\Equipe::class)->findBy(['capitaine' => $licencie]) as $equipe) {
             $equipe->setCapitaine(null);

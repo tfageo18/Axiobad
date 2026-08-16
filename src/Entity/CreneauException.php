@@ -50,6 +50,10 @@ class CreneauException
     #[ORM\Column(nullable: true)]
     private ?int $capaciteMax = null;
 
+    /**
+     * Remplace ponctuellement, pour cette seule date, l'entraîneur habituel du créneau (ex.
+     * remplacement) — laisser vide pour garder les entraîneurs habituels du créneau.
+     */
     #[ORM\ManyToOne(targetEntity: Licencie::class)]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?Licencie $entraineur = null;
@@ -204,8 +208,18 @@ class CreneauException
         return $this->estAnnulee() ? null : ($this->capaciteMax ?? $this->creneau?->getCapaciteMax());
     }
 
-    public function getEntraineurEffectif(): ?Licencie
+    /**
+     * Entraîneur(s) effectifs de cette occurrence : celui de l'exception s'il remplace
+     * ponctuellement les autres, sinon la liste habituelle des entraîneurs du créneau.
+     *
+     * @return list<Licencie>
+     */
+    public function getEntraineursEffectifs(): array
     {
-        return $this->entraineur ?? $this->creneau?->getEntraineur();
+        if ($this->entraineur) {
+            return [$this->entraineur];
+        }
+
+        return $this->creneau?->getEntraineurs()->toArray() ?? [];
     }
 }

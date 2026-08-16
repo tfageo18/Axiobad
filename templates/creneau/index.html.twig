@@ -67,7 +67,7 @@
                     <td data-label="Niveau min.">{{ creneau.classementMinimum ?? '-' }}</td>
                     <td data-label="Encadrement">
                         {% if creneau.encadre %}
-                            Encadré par {{ creneau.entraineur.nomComplet }}
+                            Encadré par {{ creneau.entraineursLabel }}
                         {% else %}
                             Libre
                         {% endif %}

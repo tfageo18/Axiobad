@@ -14,6 +14,7 @@ use App\Repository\CreneauRepository;
 use App\Repository\GymnaseRepository;
 use App\Repository\LicencieRepository;
 use App\Repository\PresenceRepository;
+use App\Repository\SeanceRepository;
 use App\Service\AuditLogger;
 use App\Service\GestionInscriptionCreneau;
 use Doctrine\ORM\EntityManagerInterface;
@@ -280,8 +281,14 @@ class CreneauController extends AbstractController
         LicencieRepository $licencieRepository,
         PresenceRepository $presenceRepository,
         CreneauOuvertureRepository $ouvertureRepository,
+        SeanceRepository $seanceRepository,
     ): Response {
         $date = new \DateTimeImmutable((string) $request->query->get('date', 'today'));
+
+        /** @var Licencie $utilisateur */
+        $utilisateur = $this->getUser();
+        $peutGererSeance = $creneau->isEncadre() && ($creneau->estEncadrePar($utilisateur) || $this->isGranted('ROLE_BUREAU'));
+        $seance = $creneau->isEncadre() ? $seanceRepository->findOneByCreneauEtDate($creneau, $date) : null;
 
         $participants = array_values(array_filter($licencieRepository->findAll(), static fn (Licencie $l) => $creneau->correspondA($l)));
 
@@ -323,6 +330,8 @@ class CreneauController extends AbstractController
             'maPresence' => $presencesParLicencie[$this->getUser()->getId()] ?? null,
             'placesRestantes' => $creneau->getCapaciteMax() !== null ? max(0, $creneau->getCapaciteMax() - count($confirmes)) : null,
             'licenciesDisponibles' => $licencieRepository->findAll(),
+            'seance' => $seance,
+            'peutGererSeance' => $peutGererSeance,
         ]);
     }
 
@@ -482,11 +491,17 @@ class CreneauController extends AbstractController
         }
 
         $encadre = (bool) $request->request->get('encadre');
-        $entraineur = null;
+        $entraineurs = [];
         if ($encadre) {
-            $entraineur = $licencieRepository->find($request->request->get('entraineur'));
-            if (!$entraineur instanceof Licencie || !$entraineur->isEntraineur()) {
-                $this->addFlash('error', 'Un entraîneur valide est requis pour un créneau encadré.');
+            $entraineurIds = $request->request->all('entraineurs');
+            foreach ($entraineurIds as $entraineurId) {
+                $entraineur = $licencieRepository->find($entraineurId);
+                if ($entraineur instanceof Licencie && $entraineur->isEntraineur()) {
+                    $entraineurs[] = $entraineur;
+                }
+            }
+            if (!$entraineurs) {
+                $this->addFlash('error', 'Au moins un entraîneur valide est requis pour un créneau encadré.');
 
                 return false;
             }
@@ -515,7 +530,6 @@ class CreneauController extends AbstractController
             ->setHeureDebut(new \DateTimeImmutable((string) $request->request->get('heureDebut')))
             ->setHeureFin(new \DateTimeImmutable((string) $request->request->get('heureFin')))
             ->setEncadre($encadre)
-            ->setEntraineur($entraineur)
             ->setCategorie($categorie)
             ->setActivite($activite)
             ->setClassementMinimum($classementMinimum)
@@ -527,6 +541,15 @@ class CreneauController extends AbstractController
             ->setRecurrenceFin($recurrenceFinRaw ? new \DateTimeImmutable($recurrenceFinRaw) : null)
             ->setCapaciteMax(null !== $capaciteMaxRaw && '' !== $capaciteMaxRaw ? (int) $capaciteMaxRaw : null)
             ->setDelaiAnnulationHeures(null !== $delaiAnnulationRaw && '' !== $delaiAnnulationRaw ? (int) $delaiAnnulationRaw : null);
+
+        foreach ($creneau->getEntraineurs()->toArray() as $ancienEntraineur) {
+            if (!in_array($ancienEntraineur, $entraineurs, true)) {
+                $creneau->removeEntraineur($ancienEntraineur);
+            }
+        }
+        foreach ($entraineurs as $entraineur) {
+            $creneau->addEntraineur($entraineur);
+        }
 
         return true;
     }

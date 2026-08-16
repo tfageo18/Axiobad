@@ -67,6 +67,15 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface, Ema
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $numeroLicence = null;
 
+    /**
+     * Le licencié possède-t-il une seconde licence FFBaD dans un autre club (double licence) ?
+     */
+    #[ORM\Column]
+    private bool $doubleLicence = false;
+
+    #[ORM\Column(length: 150, nullable: true)]
+    private ?string $clubDoubleLicence = null;
+
     #[ORM\Column(length: 5, nullable: true)]
     private ?string $classementSimple = null;
 
@@ -410,6 +419,30 @@ class Licencie implements UserInterface, PasswordAuthenticatedUserInterface, Ema
     public function setNumeroLicence(?string $numeroLicence): static
     {
         $this->numeroLicence = $numeroLicence;
+
+        return $this;
+    }
+
+    public function isDoubleLicence(): bool
+    {
+        return $this->doubleLicence;
+    }
+
+    public function setDoubleLicence(bool $doubleLicence): static
+    {
+        $this->doubleLicence = $doubleLicence;
+
+        return $this;
+    }
+
+    public function getClubDoubleLicence(): ?string
+    {
+        return $this->clubDoubleLicence;
+    }
+
+    public function setClubDoubleLicence(?string $clubDoubleLicence): static
+    {
+        $this->clubDoubleLicence = $clubDoubleLicence;
 
         return $this;
     }

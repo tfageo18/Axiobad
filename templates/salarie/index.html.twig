@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Salariés — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>Salariés</h1>
+    <p style="color: var(--color-text-muted);">
+        Gestion RH simple du personnel salarié du club (entraîneur salarié, secrétariat,
+        entretien...), distinct des licenciés bénévoles. Ne couvre pas la paie/comptabilité.
+    </p>
+
+    <p><a class="btn-cta" href="{{ path('app_salarie_new') }}">+ Nouveau salarié</a></p>
+
+    <div class="table-scroll">
+    <table class="table-cards">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Poste</th>
+                <th>Contrat</th>
+                <th>Début</th>
+                <th>Fin</th>
+                <th>Contact</th>
+                <th>Statut</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for salarie in salaries %}
+                <tr class="{{ salarie.actif ? '' : 'ligne-inactive' }}">
+                    <td data-label="Nom">{{ salarie.nomComplet }}</td>
+                    <td data-label="Poste">{{ salarie.poste }}</td>
+                    <td data-label="Contrat">{{ salarie.typeContratLabel }}</td>
+                    <td data-label="Début">{{ salarie.dateDebut ? salarie.dateDebut|date('d/m/Y') : '-' }}</td>
+                    <td data-label="Fin">{{ salarie.dateFin ? salarie.dateFin|date('d/m/Y') : '-' }}</td>
+                    <td data-label="Contact">
+                        {{ salarie.telephone ?? '' }}{{ salarie.telephone and salarie.email ? ' · ' : '' }}{{ salarie.email ?? '' }}
+                        {% if not salarie.telephone and not salarie.email %}-{% endif %}
+                    </td>
+                    <td data-label="Statut">{{ (salarie.actif ? '<span class="badge-actif">Actif</span>' : '<span class="badge-inactif">Inactif</span>')|raw }}</td>
+                    <td class="td-actions">
+                        <a href="{{ path('app_salarie_edit', {id: salarie.id}) }}">Modifier</a>
+                        <form method="post" action="{{ path('app_salarie_toggle_actif', {id: salarie.id}) }}" style="display:inline">
+                            <button type="submit">{{ salarie.actif ? 'Désactiver' : 'Réactiver' }}</button>
+                        </form>
+                        <form method="post" action="{{ path('app_salarie_delete', {id: salarie.id}) }}" onsubmit="return confirm('Supprimer ce salarié ?');" style="display:inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete-salarie-' ~ salarie.id) }}">
+                            <button type="submit">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="8">Aucun salarié.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+{% endblock %}

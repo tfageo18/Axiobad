@@ -54,6 +54,9 @@ Les **issues** et **pull requests** sont les bienvenues, voir [CONTRIBUTING.md](
 - Classement (simple/double/mixte) et numéro de licence saisis manuellement, sur l'échelle
   officielle FFBaD (NC à N1) — ou récupérés automatiquement via la
   [synchronisation MyFFBaD](#synchronisation-myffbad).
+- **Double licence** : case à cocher (fiche licencié, bureau) indiquant qu'un licencié possède
+  également une licence dans un autre club, avec le nom du club en champ optionnel — informatif,
+  affiché en badge sur la liste des licenciés.
 - La liste des licenciés propose une recherche instantanée, un tri par colonne, la désactivation/
   réactivation d'un compte (bloque la connexion sans supprimer les données), et la suppression.
 - Le lien d'activation (pour définir son mot de passe) peut être **renvoyé** par le bureau si le
@@ -179,6 +182,18 @@ main :
   un nombre de places optionnel.
 - Tout licencié peut s'inscrire ; si l'évènement est complet, il passe en **liste d'attente**,
   promue automatiquement dès qu'une place se libère.
+- **Documents joints** (`EvenementDocument`) : le bureau peut attacher des fichiers à un
+  évènement (convocation, ordre du jour, procès-verbal...) — utile notamment pour les assemblées
+  générales et réunions, déjà gérées comme un type d'évènement dédié. Téléchargeables par tout
+  licencié connecté ; ajout/suppression réservés au bureau.
+
+### Salariés (RH)
+
+- Menu **Bureau → Salariés** : gestion simple du personnel salarié du club (entraîneur salarié,
+  secrétariat, entretien...), distinct des licenciés bénévoles — poste, type de contrat (CDI, CDD,
+  vacation, stage, autre), dates de début/fin, coordonnées, notes.
+- Ne couvre pas la paie ni la comptabilité (hors périmètre, trop lié à la réglementation en
+  vigueur).
 
 ### Cordage
 

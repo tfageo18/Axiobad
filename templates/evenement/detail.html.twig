@@ -19,6 +19,38 @@
         <p><a href="{{ path('app_evenement_edit', {id: evenement.id}) }}">Modifier l'événement</a></p>
     {% endif %}
 
+    <h2>Documents</h2>
+    <p style="color: var(--color-text-muted); font-size: 0.9rem;">
+        Convocation, ordre du jour, PV... — utile notamment pour les assemblées générales et réunions.
+    </p>
+    {% if evenement.documents|length %}
+        <ul>
+            {% for document in evenement.documents %}
+                <li>
+                    <a href="{{ path('app_evenement_document_telecharger', {id: evenement.id, documentId: document.id}) }}">{{ document.nomOriginal }}</a>
+                    <small style="color: var(--color-text-muted);">
+                        — ajouté le {{ document.ajouteLe|date('d/m/Y') }}{{ document.ajoutePar ? ' par ' ~ document.ajoutePar.nomComplet : '' }}
+                    </small>
+                    {% if is_granted('ROLE_BUREAU') %}
+                        <form method="post" action="{{ path('app_evenement_document_delete', {id: evenement.id, documentId: document.id}) }}" style="display:inline" onsubmit="return confirm('Supprimer ce document ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('evenement-document-delete-' ~ document.id) }}">
+                            <button type="submit">Supprimer</button>
+                        </form>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p><em>Aucun document pour l'instant.</em></p>
+    {% endif %}
+    {% if is_granted('ROLE_BUREAU') %}
+        <form method="post" action="{{ path('app_evenement_document_new', {id: evenement.id}) }}" enctype="multipart/form-data" style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+            <input type="hidden" name="_token" value="{{ csrf_token('evenement-document-new-' ~ evenement.id) }}">
+            <input type="file" name="document" required>
+            <button type="submit">Ajouter un document</button>
+        </form>
+    {% endif %}
+
     <h2>Inscription</h2>
     {% if monInscription %}
         <p>

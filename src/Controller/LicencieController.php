@@ -685,6 +685,8 @@ class LicencieController extends AbstractController
                 ->setRoles(array_values(array_intersect($roles, [Licencie::ROLE_BUREAU, Licencie::ROLE_ENTRAINEUR, Licencie::ROLE_CORDEUR, Licencie::ROLE_STOCK])))
                 ->setDateNaissance($dateNaissance ? new \DateTimeImmutable($dateNaissance) : null)
                 ->setNumeroLicence($numeroLicence ?: null)
+                ->setDoubleLicence((bool) $request->request->get('doubleLicence'))
+                ->setClubDoubleLicence((string) $request->request->get('clubDoubleLicence') ?: null)
                 ->setGenre((string) $request->request->get('genre') ?: null)
                 ->setCategorieAge((string) $request->request->get('categorieAge') ?: null)
                 ->setClassementSimple($classementSimple)

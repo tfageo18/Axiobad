@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ salarie ? 'Modifier' : 'Nouveau' }} salarié — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>{{ salarie ? 'Modifier le salarié' : 'Nouveau salarié' }}</h1>
+
+    <form method="post" action="{{ salarie ? path('app_salarie_edit', {id: salarie.id}) : path('app_salarie_new') }}">
+        <div>
+            <label for="prenom">Prénom</label>
+            <input type="text" name="prenom" id="prenom" value="{{ salarie ? salarie.prenom : '' }}" required>
+        </div>
+        <div>
+            <label for="nom">Nom</label>
+            <input type="text" name="nom" id="nom" value="{{ salarie ? salarie.nom : '' }}" required>
+        </div>
+        <div>
+            <label for="poste">Poste</label>
+            <input type="text" name="poste" id="poste" value="{{ salarie ? salarie.poste : '' }}" placeholder="Ex. Entraîneur salarié, Secrétariat..." required>
+        </div>
+        <div>
+            <label for="typeContrat">Type de contrat</label>
+            <select name="typeContrat" id="typeContrat">
+                {% for code, libelle in typesContrat %}
+                    <option value="{{ code }}" {{ salarie and salarie.typeContrat == code ? 'selected' : '' }}>{{ libelle }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="dateDebut">Date de début (optionnel)</label>
+            <input type="date" name="dateDebut" id="dateDebut" value="{{ salarie and salarie.dateDebut ? salarie.dateDebut|date('Y-m-d') : '' }}">
+        </div>
+        <div>
+            <label for="dateFin">Date de fin (optionnel)</label>
+            <input type="date" name="dateFin" id="dateFin" value="{{ salarie and salarie.dateFin ? salarie.dateFin|date('Y-m-d') : '' }}">
+        </div>
+        <div>
+            <label for="telephone">Téléphone (optionnel)</label>
+            <input type="tel" name="telephone" id="telephone" value="{{ salarie ? salarie.telephone : '' }}">
+        </div>
+        <div>
+            <label for="email">Email (optionnel)</label>
+            <input type="email" name="email" id="email" value="{{ salarie ? salarie.email : '' }}">
+        </div>
+        <div>
+            <label for="notes">Notes (optionnel)</label>
+            <textarea name="notes" id="notes" rows="4">{{ salarie ? salarie.notes : '' }}</textarea>
+        </div>
+        <button type="submit">{{ salarie ? 'Enregistrer' : 'Créer' }}</button>
+    </form>
+{% endblock %}

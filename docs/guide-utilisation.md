@@ -22,6 +22,7 @@ en ligne, une fois connecté, via le menu du compte (en bas du menu latéral) �
 - [Historique des présences (bureau, entraîneurs)](#historique-des-présences-bureau-entraîneurs)
 - [Cordage (tous les licenciés, cordeurs)](#cordage-tous-les-licenciés-cordeurs)
 - [Vie du club / Évènements (tous les licenciés)](#vie-du-club--évènements-tous-les-licenciés)
+- [Salariés (bureau)](#salariés-bureau)
 - [Championnats / Interclubs (tous les licenciés, bureau)](#championnats--interclubs-tous-les-licenciés-bureau)
 - [Tableau de bord (bureau)](#tableau-de-bord-bureau)
 - [Mon espace (tous les licenciés)](#mon-espace-tous-les-licenciés)
@@ -166,6 +167,12 @@ Il n'existe pas d'API publique documentée de la Fédération Française de Badm
 de licence et les classements peuvent être **synchronisés automatiquement depuis MyFFBaD**
 (voir [Synchronisation MyFFBaD](#synchronisation-myffbad-numéro-de-licence-et-classements))
 plutôt que saisis à la main.
+
+### Double licence
+
+Sur la fiche d'un licencié (bureau), une case **« Double licence »** indique que le licencié
+possède également une licence dans un autre club, avec un champ optionnel pour préciser le nom de
+ce club. Purement informatif — affiché en petit badge (🔗) sur la liste des licenciés.
 
 ## Synchronisation MyFFBaD (numéro de licence et classements)
 
@@ -507,6 +514,22 @@ Menu **Club → Vie du club**.
   liste d'attente, la première personne en attente est **automatiquement promue** en participant
   confirmé.
 - Le bureau voit et peut retirer n'importe quel participant ou personne en liste d'attente.
+- **Documents** : depuis la page d'un événement, le bureau peut joindre des fichiers (convocation,
+  ordre du jour, procès-verbal...) — pratique pour les **assemblées générales et réunions**,
+  gérées comme un type d'événement dédié (« Assemblée générale »). Tout licencié connecté peut les
+  télécharger ; seul le bureau peut en ajouter ou en supprimer.
+
+## Salariés (bureau)
+
+Menu **Bureau → Salariés**.
+
+Gestion RH simple du personnel salarié du club (entraîneur salarié, secrétariat, entretien...),
+distinct des licenciés bénévoles : nom, poste, type de contrat (CDI, CDD, vacation, stage, autre),
+dates de début/fin, téléphone, email, notes libres. Comme pour les gymnases, un salarié peut être
+désactivé (conserve l'historique) ou supprimé définitivement.
+
+Ce module ne couvre pas la paie ni la comptabilité (trop lié à la réglementation en vigueur,
+volontairement hors périmètre).
 
 ## Championnats / Interclubs (tous les licenciés, bureau)
 

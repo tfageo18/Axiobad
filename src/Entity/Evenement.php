@@ -56,9 +56,25 @@ class Evenement
     #[ORM\OneToMany(targetEntity: Inscription::class, mappedBy: 'evenement', orphanRemoval: true)]
     private Collection $inscriptions;
 
+    /**
+     * @var Collection<int, EvenementDocument>
+     */
+    #[ORM\OneToMany(targetEntity: EvenementDocument::class, mappedBy: 'evenement', orphanRemoval: true)]
+    #[ORM\OrderBy(['ajouteLe' => 'DESC'])]
+    private Collection $documents;
+
     public function __construct()
     {
         $this->inscriptions = new ArrayCollection();
+        $this->documents = new ArrayCollection();
+    }
+
+    /**
+     * @return Collection<int, EvenementDocument>
+     */
+    public function getDocuments(): Collection
+    {
+        return $this->documents;
     }
 
     public function getId(): ?int

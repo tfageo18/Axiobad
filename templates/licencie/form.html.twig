@@ -70,6 +70,16 @@
                 <label for="numeroLicence">Numéro de licence FFBaD</label>
                 <input type="text" name="numeroLicence" id="numeroLicence" value="{{ licencie.numeroLicence }}">
             </div>
+            <div>
+                <label>
+                    <input type="checkbox" name="doubleLicence" id="doubleLicence" value="1" {{ licencie.doubleLicence ? 'checked' : '' }} onchange="document.getElementById('club-double-licence-field').style.display = this.checked ? 'block' : 'none';">
+                    Double licence (licencié également dans un autre club)
+                </label>
+            </div>
+            <div id="club-double-licence-field" style="display: {{ licencie.doubleLicence ? 'block' : 'none' }};">
+                <label for="clubDoubleLicence">Club de la double licence (optionnel)</label>
+                <input type="text" name="clubDoubleLicence" id="clubDoubleLicence" value="{{ licencie.clubDoubleLicence }}">
+            </div>
             {% if parametresClub.urlEffectifMyFfbad %}
                 <div style="background: var(--color-surface-2); border-radius: var(--radius); padding: 0.75rem 1rem; margin-bottom: 1rem;">
                     {% if licencie.myFfbadDerniereSyncLe %}

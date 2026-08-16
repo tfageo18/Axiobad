@@ -506,8 +506,8 @@ besoin du rôle bureau/stock) :
 Menu **Club → Vie du club**.
 
 - Le **bureau** crée les événements : type (tournoi interne, barbecue, assemblée générale, stage,
-  autre), titre, description, lieu, date/heure de début (et de fin optionnelle), et un nombre de
-  places optionnel (laissé vide = illimité).
+  autre), titre, description, lieu, date/heure de début (et de fin optionnelle), un nombre de
+  places optionnel (laissé vide = illimité), et sa **visibilité**.
 - Tout licencié peut s'**inscrire** à un événement depuis sa page. Si l'événement est complet, il
   est automatiquement placé en **liste d'attente**.
 - Un licencié peut se **désinscrire** à tout moment ; si une place se libère et qu'il y a une
@@ -518,6 +518,10 @@ Menu **Club → Vie du club**.
   ordre du jour, procès-verbal...) — pratique pour les **assemblées générales et réunions**,
   gérées comme un type d'événement dédié (« Assemblée générale »). Tout licencié connecté peut les
   télécharger ; seul le bureau peut en ajouter ou en supprimer.
+- **Visibilité** : « Tous les licenciés » (par défaut) ou **« Bureau uniquement »** — pratique pour
+  une réunion de bureau. Un événement « Bureau uniquement » n'apparaît dans aucune liste (Vie du
+  club, calendrier, Mon espace) pour un licencié sans le rôle bureau, et sa page (ainsi que ses
+  documents et son inscription) lui est refusée même en accès direct.
 
 ## Salariés (bureau)
 

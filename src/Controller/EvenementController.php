@@ -25,8 +25,16 @@ class EvenementController extends AbstractController
     #[Route('', name: 'app_evenement_index', methods: ['GET'])]
     public function index(EvenementRepository $evenementRepository): Response
     {
+        /** @var Licencie|null $user */
+        $user = $this->getUser();
+
+        $evenements = array_values(array_filter(
+            $evenementRepository->findBy([], ['dateDebut' => 'ASC']),
+            static fn (Evenement $e) => $e->estVisiblePar($user)
+        ));
+
         return $this->render('evenement/index.html.twig', [
-            'evenements' => $evenementRepository->findBy([], ['dateDebut' => 'ASC']),
+            'evenements' => $evenements,
         ]);
     }
 
@@ -57,6 +65,10 @@ class EvenementController extends AbstractController
     {
         /** @var Licencie|null $user */
         $user = $this->getUser();
+
+        if (!$evenement->estVisiblePar($user)) {
+            throw $this->createAccessDeniedException();
+        }
 
         return $this->render('evenement/detail.html.twig', [
             'evenement' => $evenement,
@@ -123,6 +135,13 @@ class EvenementController extends AbstractController
     #[Route('/{id}/documents/{documentId}/telecharger', name: 'app_evenement_document_telecharger', methods: ['GET'])]
     public function telechargerDocument(Evenement $evenement, int $documentId, EvenementDocumentRepository $evenementDocumentRepository): BinaryFileResponse
     {
+        /** @var Licencie|null $user */
+        $user = $this->getUser();
+
+        if (!$evenement->estVisiblePar($user)) {
+            throw $this->createAccessDeniedException();
+        }
+
         $document = $evenementDocumentRepository->find($documentId);
         if (!$document || $document->getEvenement() !== $evenement || !is_file($document->getChemin())) {
             throw $this->createNotFoundException();
@@ -190,6 +209,10 @@ class EvenementController extends AbstractController
     {
         /** @var Licencie $user */
         $user = $this->getUser();
+
+        if (!$evenement->estVisiblePar($user)) {
+            throw $this->createAccessDeniedException();
+        }
 
         if ($evenement->getInscriptionDe($user)) {
             $this->addFlash('error', 'Vous êtes déjà inscrit(e) à cet événement.');
@@ -273,6 +296,7 @@ class EvenementController extends AbstractController
             ->setLieu((string) $request->request->get('lieu') ?: null)
             ->setDateDebut(new \DateTimeImmutable($dateDebut))
             ->setDateFin($dateFin ? new \DateTimeImmutable($dateFin) : null)
-            ->setNombrePlaces(null !== $nombrePlaces && '' !== $nombrePlaces ? (int) $nombrePlaces : null);
+            ->setNombrePlaces(null !== $nombrePlaces && '' !== $nombrePlaces ? (int) $nombrePlaces : null)
+            ->setVisibilite((string) $request->request->get('visibilite'));
     }
 }

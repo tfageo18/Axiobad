@@ -186,6 +186,10 @@ main :
   évènement (convocation, ordre du jour, procès-verbal...) — utile notamment pour les assemblées
   générales et réunions, déjà gérées comme un type d'évènement dédié. Téléchargeables par tout
   licencié connecté ; ajout/suppression réservés au bureau.
+- **Visibilité restreinte** : un évènement peut être limité au **bureau uniquement** (ex. une
+  réunion de bureau) — invisible dans la liste, sur le calendrier, sur « Mon espace » et refusé
+  (403) en accès direct pour tout licencié n'ayant pas le rôle bureau ; ses documents et
+  inscriptions suivent la même restriction. Par défaut, un évènement reste visible de tous.
 
 ### Salariés (RH)
 

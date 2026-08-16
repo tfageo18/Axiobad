@@ -24,6 +24,14 @@ class Evenement
         self::TYPE_AUTRE => 'Autre',
     ];
 
+    public const VISIBILITE_TOUS = 'TOUS';
+    public const VISIBILITE_BUREAU = 'BUREAU';
+
+    public const VISIBILITES_LABELS = [
+        self::VISIBILITE_TOUS => 'Tous les licenciés',
+        self::VISIBILITE_BUREAU => 'Bureau uniquement',
+    ];
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -49,6 +57,13 @@ class Evenement
 
     #[ORM\Column(nullable: true)]
     private ?int $nombrePlaces = null;
+
+    /**
+     * Qui peut voir/s'inscrire à cet événement — TOUS (défaut) ou BUREAU uniquement (ex.
+     * réunions du bureau).
+     */
+    #[ORM\Column(length: 20)]
+    private string $visibilite = self::VISIBILITE_TOUS;
 
     /**
      * @var Collection<int, Inscription>
@@ -169,6 +184,37 @@ class Evenement
         $this->nombrePlaces = $nombrePlaces;
 
         return $this;
+    }
+
+    public function getVisibilite(): string
+    {
+        return $this->visibilite;
+    }
+
+    public function getVisibiliteLabel(): string
+    {
+        return self::VISIBILITES_LABELS[$this->visibilite] ?? $this->visibilite;
+    }
+
+    public function setVisibilite(string $visibilite): static
+    {
+        $this->visibilite = in_array($visibilite, [self::VISIBILITE_TOUS, self::VISIBILITE_BUREAU], true)
+            ? $visibilite
+            : self::VISIBILITE_TOUS;
+
+        return $this;
+    }
+
+    /**
+     * L'événement est-il visible (et ouvert à l'inscription) pour ce licencié ?
+     */
+    public function estVisiblePar(?Licencie $licencie): bool
+    {
+        if (self::VISIBILITE_TOUS === $this->visibilite) {
+            return true;
+        }
+
+        return null !== $licencie && in_array(Licencie::ROLE_BUREAU, $licencie->getRoles(), true);
     }
 
     /**

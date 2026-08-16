@@ -101,7 +101,7 @@ class MonEspaceController extends AbstractController
         // Évènements à venir.
         $evenementsAVenir = array_values(array_filter(
             $evenementRepository->findBy([], ['dateDebut' => 'ASC']),
-            static fn (Evenement $e) => $e->getDateDebut() >= $aujourdhui
+            static fn (Evenement $e) => $e->getDateDebut() >= $aujourdhui && $e->estVisiblePar($licencie)
         ));
         $evenementsAVenir = array_slice($evenementsAVenir, 0, 5);
 

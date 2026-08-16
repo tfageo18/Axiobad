@@ -25,7 +25,12 @@
             {% for evenement in evenements %}
                 <tr>
                     <td data-label="Date">{{ evenement.dateDebut|date('d/m/Y H:i') }}</td>
-                    <td data-label="Titre">{{ evenement.titre }}</td>
+                    <td data-label="Titre">
+                        {{ evenement.titre }}
+                        {% if evenement.visibilite == 'BUREAU' %}
+                            <span style="font-size: 0.78rem; color: var(--color-text-muted);" title="Visible du bureau uniquement">🔒 bureau</span>
+                        {% endif %}
+                    </td>
                     <td data-label="Type">{{ evenement.typeLabel }}</td>
                     <td data-label="Lieu">{{ evenement.lieu ?? '-' }}</td>
                     <td data-label="Places">

@@ -164,7 +164,8 @@
             .sidebar-header .brand-text { font-weight: 800; font-size: 1.05rem; color: var(--color-text); letter-spacing: -0.01em; }
             .app.collapsed .sidebar-header { justify-content: center; padding-left: 0; padding-right: 0; }
             .app.collapsed .brand-text, .app.collapsed .nav-label, .app.collapsed .nav-group-title,
-            .app.collapsed .sidebar-user-info, .app.collapsed .badge-count { display: none; }
+            .app.collapsed .sidebar-user-info, .app.collapsed .badge-count,
+            .app.collapsed .nav-subgroup-title span, .app.collapsed .nav-subgroup-chevron { display: none; }
 
             .nav-group { margin-bottom: 1rem; }
             .nav-group-title {
@@ -181,6 +182,20 @@
             .nav-item.active { background: var(--color-primary-soft); color: var(--color-primary-dark); }
             .nav-item svg { flex: 0 0 auto; width: 18px; height: 18px; }
             .app.collapsed .nav-item { justify-content: center; padding: 0.55rem; }
+            .nav-subgroup { margin-bottom: 0.15rem; }
+            .nav-subgroup-title {
+                display: flex; align-items: center; gap: 0.5rem; cursor: pointer; list-style: none;
+                padding: 0.4rem 0.6rem; border-radius: 8px;
+                color: var(--color-text-muted); font-weight: 700; font-size: 0.8rem;
+                user-select: none;
+            }
+            .nav-subgroup-title::-webkit-details-marker { display: none; }
+            .nav-subgroup-title:hover { background: var(--color-surface-2); color: var(--color-text); }
+            .nav-subgroup-title .nav-subgroup-chevron { flex: 0 0 auto; width: 14px; height: 14px; transition: transform 0.15s ease; }
+            .nav-subgroup[open] > .nav-subgroup-title .nav-subgroup-chevron { transform: rotate(90deg); }
+            .nav-subgroup .nav-item { padding-left: 1.4rem; }
+            .app.collapsed .nav-subgroup-title { justify-content: center; padding: 0.55rem; }
+            .app.collapsed .nav-subgroup .nav-item { padding-left: 0.55rem; }
 
             .sidebar-footer {
                 margin-top: auto; padding-top: 0.8rem; border-top: 1px solid var(--color-border);
@@ -645,38 +660,56 @@
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
                                     <span class="nav-label">Tableau de bord</span>
                                 </a>
-                                <a class="nav-item {{ chemin starts with '/licencies' ? 'active' : '' }}" href="{{ path('app_licencie_index') }}">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                                    <span class="nav-label">Licenciés</span>
-                                </a>
-                                <a class="nav-item {{ chemin starts with '/salaries' ? 'active' : '' }}" href="{{ path('app_salarie_index') }}">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-                                    <span class="nav-label">Salariés</span>
-                                </a>
-                                <a class="nav-item" href="{{ path('app_licencie_index') }}">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                                    <span class="nav-label">Adhésions et paiements</span>
-                                </a>
-                                <a class="nav-item {{ chemin starts with '/stock' ? 'active' : '' }}" href="{{ path('app_stock_index') }}">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg>
-                                    <span class="nav-label">Stock</span>
-                                </a>
-                                <a class="nav-item {{ chemin starts with '/communications' ? 'active' : '' }}" href="{{ path('app_communication_index') }}">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>
-                                    <span class="nav-label">Communication</span>
-                                </a>
-                                <a class="nav-item {{ chemin starts with '/notifications-historique' ? 'active' : '' }}" href="{{ path('app_notification_historique_index') }}">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                                    <span class="nav-label">Historique des notifications</span>
-                                </a>
-                                <a class="nav-item {{ chemin starts with '/journal-audit' ? 'active' : '' }}" href="{{ path('app_journal_audit_index') }}">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M9 15h6M9 11h6M9 19h3"/></svg>
-                                    <span class="nav-label">Journal d'audit</span>
-                                </a>
-                                <a class="nav-item {{ chemin starts with '/parametres' ? 'active' : '' }}" href="{{ path('app_parametres_club') }}">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
-                                    <span class="nav-label">Paramètres du club</span>
-                                </a>
+                                <details class="nav-subgroup" {{ chemin starts with '/licencies' or chemin starts with '/salaries' ? 'open' : '' }}>
+                                    <summary class="nav-subgroup-title">
+                                        <svg class="nav-subgroup-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                                        <span>Licenciés &amp; RH</span>
+                                    </summary>
+                                    <a class="nav-item {{ chemin starts with '/licencies' ? 'active' : '' }}" href="{{ path('app_licencie_index') }}">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                        <span class="nav-label">Licenciés</span>
+                                    </a>
+                                    <a class="nav-item {{ chemin starts with '/salaries' ? 'active' : '' }}" href="{{ path('app_salarie_index') }}">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                                        <span class="nav-label">Salariés</span>
+                                    </a>
+                                    <a class="nav-item" href="{{ path('app_licencie_index') }}">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                        <span class="nav-label">Adhésions et paiements</span>
+                                    </a>
+                                </details>
+                                <details class="nav-subgroup" {{ chemin starts with '/stock' or chemin starts with '/communications' or chemin starts with '/notifications-historique' ? 'open' : '' }}>
+                                    <summary class="nav-subgroup-title">
+                                        <svg class="nav-subgroup-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                                        <span>Stock &amp; communication</span>
+                                    </summary>
+                                    <a class="nav-item {{ chemin starts with '/stock' ? 'active' : '' }}" href="{{ path('app_stock_index') }}">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg>
+                                        <span class="nav-label">Stock</span>
+                                    </a>
+                                    <a class="nav-item {{ chemin starts with '/communications' ? 'active' : '' }}" href="{{ path('app_communication_index') }}">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>
+                                        <span class="nav-label">Communication</span>
+                                    </a>
+                                    <a class="nav-item {{ chemin starts with '/notifications-historique' ? 'active' : '' }}" href="{{ path('app_notification_historique_index') }}">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                                        <span class="nav-label">Historique des notifications</span>
+                                    </a>
+                                </details>
+                                <details class="nav-subgroup" {{ chemin starts with '/journal-audit' or chemin starts with '/parametres' ? 'open' : '' }}>
+                                    <summary class="nav-subgroup-title">
+                                        <svg class="nav-subgroup-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                                        <span>Administration</span>
+                                    </summary>
+                                    <a class="nav-item {{ chemin starts with '/journal-audit' ? 'active' : '' }}" href="{{ path('app_journal_audit_index') }}">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M9 15h6M9 11h6M9 19h3"/></svg>
+                                        <span class="nav-label">Journal d'audit</span>
+                                    </a>
+                                    <a class="nav-item {{ chemin starts with '/parametres' ? 'active' : '' }}" href="{{ path('app_parametres_club') }}">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+                                        <span class="nav-label">Paramètres du club</span>
+                                    </a>
+                                </details>
                             </div>
                         {% endif %}
                     </nav>

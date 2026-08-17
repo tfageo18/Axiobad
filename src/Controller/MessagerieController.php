@@ -74,7 +74,7 @@ class MessagerieController extends AbstractController
         }
 
         $conversation = (new Conversation())->setTitre($titre)->setCreateur($moi);
-        $conversation->ajouterParticipant($moi);
+        $conversation->ajouterParticipant($moi, estAdmin: true);
         foreach ($destinataires as $destinataire) {
             $conversation->ajouterParticipant($destinataire);
         }
@@ -86,7 +86,7 @@ class MessagerieController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_messagerie_conversation', methods: ['GET'])]
-    public function conversation(Conversation $conversation, MessageRepository $messageRepository, EntityManagerInterface $entityManager): Response
+    public function conversation(Conversation $conversation, MessageRepository $messageRepository, LicencieRepository $licencieRepository, EntityManagerInterface $entityManager): Response
     {
         /** @var Licencie $moi */
         $moi = $this->getUser();
@@ -95,12 +95,19 @@ class MessagerieController extends AbstractController
         $conversation->marquerVuPar($moi);
         $entityManager->flush();
 
+        $participants = $conversation->getAutresParticipants(null);
+        $ajoutables = array_values(array_filter(
+            $licencieRepository->findBy([], ['nom' => 'ASC']),
+            static fn (Licencie $l) => !in_array($l, $participants, true)
+        ));
+
         return $this->render('messagerie/conversation.html.twig', [
             'conversation' => $conversation,
             'nom' => $conversation->getNomAffiche($moi),
             'autresParticipants' => $conversation->getAutresParticipants($moi),
-            'messages' => $messageRepository->findRecents($conversation),
+            'messages' => $messageRepository->findRecents($conversation, pour: $moi),
             'moi' => $moi,
+            'ajoutables' => $ajoutables,
         ]);
     }
 
@@ -120,7 +127,7 @@ class MessagerieController extends AbstractController
         $entityManager->flush();
 
         $response = $this->render('messagerie/_messages.html.twig', [
-            'messages' => $messageRepository->findRecents($conversation),
+            'messages' => $messageRepository->findRecents($conversation, pour: $moi),
             'conversation' => $conversation,
             'moi' => $moi,
         ]);
@@ -174,11 +181,15 @@ class MessagerieController extends AbstractController
         }
 
         $etaitGroupe = $conversation->estGroupe();
+        $etaitAdmin = $conversation->estAdmin($moi);
         $conversation->retirerParticipant($moi);
 
         if ($conversation->getParticipants()->isEmpty()) {
             // Plus personne dans la conversation : elle est supprimée (avec ses messages).
             $entityManager->remove($conversation);
+        } elseif ($etaitAdmin && !$conversation->getAdmins()) {
+            // L'admin qui part était le seul : le rôle passe au participant restant le plus ancien.
+            $conversation->getParticipants()->first()->setEstAdmin(true);
         }
 
         $entityManager->flush();
@@ -188,9 +199,113 @@ class MessagerieController extends AbstractController
         return $this->redirectToRoute('app_messagerie_index');
     }
 
+    /**
+     * Ajoute un ou plusieurs participants à une conversation existante — réservé à l'admin du
+     * groupe. Fonctionne aussi sur une discussion à deux, qui devient alors un groupe : l'historique
+     * existant est conservé pour tout le monde, la case "sans l'historique" ne s'applique qu'aux
+     * nouveaux arrivants.
+     */
+    #[Route('/{id}/ajouter', name: 'app_messagerie_ajouter', methods: ['POST'])]
+    public function ajouter(Request $request, Conversation $conversation, LicencieRepository $licencieRepository, EntityManagerInterface $entityManager): Response
+    {
+        /** @var Licencie $moi */
+        $moi = $this->getUser();
+        $this->refuserSiPasAdmin($conversation, $moi);
+
+        if (!$this->isCsrfTokenValid('messagerie-ajouter-'.$conversation->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+            return $this->redirectToRoute('app_messagerie_conversation', ['id' => $conversation->getId()]);
+        }
+
+        $avecHistorique = (bool) $request->request->get('avecHistorique');
+        $ajoutes = 0;
+        foreach ($request->request->all('licencies') as $id) {
+            $licencie = $licencieRepository->find($id);
+            if ($licencie && !$conversation->estParticipant($licencie)) {
+                $conversation->ajouterParticipant($licencie, avecHistorique: $avecHistorique);
+                ++$ajoutes;
+            }
+        }
+
+        if ($ajoutes > 0) {
+            $entityManager->flush();
+            $this->addFlash('success', $ajoutes > 1 ? $ajoutes.' personnes ajoutées à la conversation.' : 'Personne ajoutée à la conversation.');
+        }
+
+        return $this->redirectToRoute('app_messagerie_conversation', ['id' => $conversation->getId()]);
+    }
+
+    /**
+     * Retire un participant du groupe — réservé à l'admin (pour se retirer soi-même, voir
+     * `quitter()`).
+     */
+    #[Route('/{id}/retirer/{licencieId}', name: 'app_messagerie_retirer', methods: ['POST'])]
+    public function retirer(Request $request, Conversation $conversation, int $licencieId, LicencieRepository $licencieRepository, EntityManagerInterface $entityManager): Response
+    {
+        /** @var Licencie $moi */
+        $moi = $this->getUser();
+        $this->refuserSiPasAdmin($conversation, $moi);
+
+        if (!$this->isCsrfTokenValid('messagerie-retirer-'.$conversation->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+            return $this->redirectToRoute('app_messagerie_conversation', ['id' => $conversation->getId()]);
+        }
+
+        $cible = $licencieRepository->find($licencieId);
+        if ($cible === $moi) {
+            $this->addFlash('error', 'Utilisez « Quitter le groupe » pour vous retirer vous-même.');
+
+            return $this->redirectToRoute('app_messagerie_conversation', ['id' => $conversation->getId()]);
+        }
+
+        if ($cible && $conversation->estParticipant($cible)) {
+            $conversation->retirerParticipant($cible);
+            $entityManager->flush();
+            $this->addFlash('success', $cible->getNomComplet().' a été retiré(e) de la conversation.');
+        }
+
+        return $this->redirectToRoute('app_messagerie_conversation', ['id' => $conversation->getId()]);
+    }
+
+    /**
+     * Transmet le rôle d'admin du groupe à un autre participant.
+     */
+    #[Route('/{id}/promouvoir/{licencieId}', name: 'app_messagerie_promouvoir', methods: ['POST'])]
+    public function promouvoir(Request $request, Conversation $conversation, int $licencieId, LicencieRepository $licencieRepository, EntityManagerInterface $entityManager): Response
+    {
+        /** @var Licencie $moi */
+        $moi = $this->getUser();
+        $this->refuserSiPasAdmin($conversation, $moi);
+
+        if (!$this->isCsrfTokenValid('messagerie-promouvoir-'.$conversation->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+            return $this->redirectToRoute('app_messagerie_conversation', ['id' => $conversation->getId()]);
+        }
+
+        $cible = $licencieRepository->find($licencieId);
+        if ($cible && $conversation->estParticipant($cible)) {
+            $conversation->transmettreAdmin($moi, $cible);
+            $entityManager->flush();
+            $this->addFlash('success', $cible->getNomComplet().' est désormais admin du groupe.');
+        }
+
+        return $this->redirectToRoute('app_messagerie_conversation', ['id' => $conversation->getId()]);
+    }
+
     private function refuserSiPasParticipant(Conversation $conversation, Licencie $licencie): void
     {
         if (!$conversation->estParticipant($licencie)) {
+            throw $this->createAccessDeniedException();
+        }
+    }
+
+    private function refuserSiPasAdmin(Conversation $conversation, Licencie $licencie): void
+    {
+        $this->refuserSiPasParticipant($conversation, $licencie);
+        if (!$conversation->estAdmin($licencie)) {
             throw $this->createAccessDeniedException();
         }
     }

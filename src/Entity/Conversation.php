@@ -136,10 +136,16 @@ class Conversation
         return null !== $this->getParticipation($licencie);
     }
 
-    public function ajouterParticipant(Licencie $licencie): static
+    public function ajouterParticipant(Licencie $licencie, bool $estAdmin = false, bool $avecHistorique = true): static
     {
         if (!$this->estParticipant($licencie)) {
-            $participation = (new ConversationParticipant())->setConversation($this)->setLicencie($licencie);
+            $participation = (new ConversationParticipant())
+                ->setConversation($this)
+                ->setLicencie($licencie)
+                ->setEstAdmin($estAdmin);
+            if (!$avecHistorique) {
+                $participation->setVoitHistoriqueDepuis(new \DateTimeImmutable());
+            }
             $this->participants->add($participation);
         }
 
@@ -151,6 +157,37 @@ class Conversation
         $participation = $this->getParticipation($licencie);
         if ($participation) {
             $this->participants->removeElement($participation);
+        }
+
+        return $this;
+    }
+
+    public function estAdmin(?Licencie $licencie): bool
+    {
+        return $this->getParticipation($licencie)?->isEstAdmin() ?? false;
+    }
+
+    /**
+     * @return list<Licencie>
+     */
+    public function getAdmins(): array
+    {
+        return array_values(array_map(
+            static fn (ConversationParticipant $p) => $p->getLicencie(),
+            array_filter($this->participants->toArray(), static fn (ConversationParticipant $p) => $p->isEstAdmin())
+        ));
+    }
+
+    /**
+     * Transmet le rôle d'admin à un autre participant (l'admin actuel le perd).
+     */
+    public function transmettreAdmin(Licencie $actuel, Licencie $nouveau): static
+    {
+        $ancienneParticipation = $this->getParticipation($actuel);
+        $nouvelleParticipation = $this->getParticipation($nouveau);
+        if ($ancienneParticipation && $nouvelleParticipation) {
+            $ancienneParticipation->setEstAdmin(false);
+            $nouvelleParticipation->setEstAdmin(true);
         }
 
         return $this;
@@ -183,6 +220,11 @@ class Conversation
         }
 
         return implode(', ', array_map(static fn (Licencie $l) => $l->getNomComplet(), $autres));
+    }
+
+    public function getVoitHistoriqueDepuisPour(?Licencie $licencie): ?\DateTimeImmutable
+    {
+        return $this->getParticipation($licencie)?->getVoitHistoriqueDepuis();
     }
 
     public function getVuLePar(?Licencie $licencie): ?\DateTimeImmutable

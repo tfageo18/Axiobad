@@ -29,6 +29,20 @@ class ConversationParticipant
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $vuLe = null;
 
+    /**
+     * Administrateur du groupe : peut ajouter/retirer des participants et transmettre le rôle
+     * d'admin. Le créateur d'une conversation en est admin par défaut.
+     */
+    #[ORM\Column]
+    private bool $estAdmin = false;
+
+    /**
+     * Si renseignée, ce participant ne voit l'historique qu'à partir de cette date (ajout à un
+     * groupe "sans l'historique"). Null = voit tout l'historique de la conversation.
+     */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $voitHistoriqueDepuis = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -66,6 +80,30 @@ class ConversationParticipant
     public function setVuLe(?\DateTimeImmutable $vuLe): static
     {
         $this->vuLe = $vuLe;
+
+        return $this;
+    }
+
+    public function isEstAdmin(): bool
+    {
+        return $this->estAdmin;
+    }
+
+    public function setEstAdmin(bool $estAdmin): static
+    {
+        $this->estAdmin = $estAdmin;
+
+        return $this;
+    }
+
+    public function getVoitHistoriqueDepuis(): ?\DateTimeImmutable
+    {
+        return $this->voitHistoriqueDepuis;
+    }
+
+    public function setVoitHistoriqueDepuis(?\DateTimeImmutable $voitHistoriqueDepuis): static
+    {
+        $this->voitHistoriqueDepuis = $voitHistoriqueDepuis;
 
         return $this;
     }

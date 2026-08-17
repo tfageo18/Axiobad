@@ -679,6 +679,16 @@ classique.
    à deux, cela ne supprime la conversation que pour vous — l'autre personne garde son historique.
    Une fois que plus personne n'y participe, la conversation et ses messages sont définitivement
    effacés.
+7. **Gestion d'un groupe (admin uniquement)** : la personne qui crée un groupe en devient l'**admin**
+   (repérable par la mention « admin » à côté de son nom dans la liste des participants). Depuis la
+   conversation, l'admin peut :
+   - **Ajouter des personnes** (bloc dépliable « Ajouter des personnes ») — fonctionne aussi sur une
+     discussion à deux, qui devient alors un groupe. Une case à cocher permet de choisir si les
+     nouveaux arrivants voient l'historique déjà échangé ou seulement les messages à venir.
+   - **Retirer** un participant du groupe.
+   - **Rendre admin** un autre participant — le rôle lui est transmis, vous ne l'avez plus.
+   Si l'admin quitte le groupe, le rôle passe automatiquement à quelqu'un d'autre pour que le groupe
+   reste toujours gérable.
 
 ## Mon profil
 

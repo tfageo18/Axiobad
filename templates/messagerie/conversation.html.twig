@@ -21,9 +21,53 @@
     <h1>{{ nom }}</h1>
     {% if conversation.estGroupe %}
         <p style="color: var(--color-text-muted); font-size: 0.9rem;">
-            Groupe ({{ conversation.participants|length }} participants) : {{ autresParticipants|map(l => l.nomComplet)|join(', ') }}
+            Groupe ({{ conversation.participants|length }} participants)
         </p>
     {% endif %}
+
+    {% set jeSuisAdmin = conversation.estAdmin(moi) %}
+
+    <div class="fiche-enfant" style="background: var(--color-surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 0.85rem 1.1rem; margin-bottom: 1rem;">
+        <strong>Participants</strong>
+        <ul style="list-style: none; padding: 0; margin: 0.4rem 0 0;">
+            <li style="padding: 0.25rem 0;">{{ moi.nomComplet }} (vous){% if jeSuisAdmin %} — <span style="color: var(--color-primary);">admin</span>{% endif %}</li>
+            {% for p in autresParticipants %}
+                <li style="padding: 0.25rem 0; display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+                    <span>{{ p.nomComplet }}{% if conversation.estAdmin(p) %} — <span style="color: var(--color-primary);">admin</span>{% endif %}</span>
+                    {% if jeSuisAdmin %}
+                        <form method="post" action="{{ path('app_messagerie_retirer', {id: conversation.id, licencieId: p.id}) }}" onsubmit="return confirm('Retirer {{ p.nomComplet }} de la conversation ?');" style="display: inline;">
+                            <input type="hidden" name="_token" value="{{ csrf_token('messagerie-retirer-' ~ conversation.id) }}">
+                            <button type="submit" style="font-size: 0.78rem;">Retirer</button>
+                        </form>
+                        {% if not conversation.estAdmin(p) %}
+                            <form method="post" action="{{ path('app_messagerie_promouvoir', {id: conversation.id, licencieId: p.id}) }}" onsubmit="return confirm('Rendre {{ p.nomComplet }} admin du groupe ? Vous perdrez ce rôle.');" style="display: inline;">
+                                <input type="hidden" name="_token" value="{{ csrf_token('messagerie-promouvoir-' ~ conversation.id) }}">
+                                <button type="submit" style="font-size: 0.78rem;">Rendre admin</button>
+                            </form>
+                        {% endif %}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+
+        {% if jeSuisAdmin and ajoutables|length %}
+            <details style="margin-top: 0.75rem;">
+                <summary style="cursor: pointer; font-weight: 600; font-size: 0.88rem;">Ajouter des personnes</summary>
+                <form method="post" action="{{ path('app_messagerie_ajouter', {id: conversation.id}) }}" style="margin-top: 0.5rem;">
+                    <input type="hidden" name="_token" value="{{ csrf_token('messagerie-ajouter-' ~ conversation.id) }}">
+                    <select name="licencies[]" multiple size="5" required style="min-width: 14rem;">
+                        {% for l in ajoutables %}
+                            <option value="{{ l.id }}">{{ l.nomComplet }}</option>
+                        {% endfor %}
+                    </select>
+                    <div style="margin-top: 0.4rem;">
+                        <label><input type="checkbox" name="avecHistorique" value="1" checked> Ces personnes voient l'historique déjà échangé</label>
+                    </div>
+                    <button type="submit" style="margin-top: 0.4rem;">Ajouter</button>
+                </form>
+            </details>
+        {% endif %}
+    </div>
 
     <form method="post" action="{{ path('app_messagerie_quitter', {id: conversation.id}) }}" style="margin-bottom: 1rem;" onsubmit="return confirm('{{ conversation.estGroupe ? 'Quitter ce groupe ?' : 'Supprimer cette conversation ?' }}');">
         <input type="hidden" name="_token" value="{{ csrf_token('messagerie-quitter-' ~ conversation.id) }}">

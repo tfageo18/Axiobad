@@ -272,6 +272,14 @@ main :
   à tout moment. Pour une discussion à deux, ça la supprime seulement pour soi — l'autre personne
   garde son historique. Quand plus aucun participant n'y figure, la conversation et ses messages
   sont définitivement supprimés (cascade DB).
+- **Admin de groupe** (`ConversationParticipant.estAdmin`) : le créateur d'un groupe en est
+  l'admin par défaut. Seul l'admin peut ajouter des participants, en retirer (kick), ou transmettre
+  le rôle d'admin à quelqu'un d'autre. Si l'admin quitte le groupe, le rôle passe automatiquement
+  à un participant restant. Ajouter quelqu'un fonctionne aussi sur une discussion à deux, qui
+  devient alors un groupe.
+- **Ajout avec ou sans historique** (`ConversationParticipant.voitHistoriqueDepuis`) : à l'ajout,
+  l'admin choisit si la personne voit tout l'historique déjà échangé ou seulement les messages
+  envoyés à partir de son arrivée.
 
 ### Gymnases
 

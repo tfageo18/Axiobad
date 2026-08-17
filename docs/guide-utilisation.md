@@ -26,6 +26,7 @@ en ligne, une fois connecté, via le menu du compte (en bas du menu latéral) �
 - [Championnats / Interclubs (tous les licenciés, bureau)](#championnats--interclubs-tous-les-licenciés-bureau)
 - [Tableau de bord (bureau)](#tableau-de-bord-bureau)
 - [Mon espace (tous les licenciés)](#mon-espace-tous-les-licenciés)
+- [Messagerie (tous les licenciés)](#messagerie-tous-les-licenciés)
 - [Mon profil](#mon-profil)
 - [Journal d'audit (bureau)](#journal-daudit-bureau)
 - [Mes données personnelles (RGPD)](#mes-données-personnelles-rgpd)
@@ -652,6 +653,21 @@ Menu **Mon espace**, votre page personnelle en un coup d'œil :
   filtrer le calendrier).
 - Les **évènements à venir** du club.
 - Votre historique de participation aux **tournois internes** et aux **interclubs**.
+
+## Messagerie (tous les licenciés)
+
+Menu **Messagerie** : messages privés à deux, comme une messagerie instantanée classique.
+
+1. Depuis **Messagerie**, choisir un licencié dans la liste déroulante « Nouvelle conversation »
+   et cliquer sur **Démarrer** — une nouvelle conversation est créée (ou l'existante est réouverte
+   s'il y en a déjà une avec cette personne).
+2. Taper son message dans la zone de texte en bas de la conversation, puis **Envoyer**.
+3. La liste des messages **s'actualise automatiquement toutes les 4 secondes** — inutile de
+   recharger la page. Le champ de saisie n'est jamais affecté par cette actualisation, même en
+   plein milieu de la frappe d'un message.
+4. Sur la liste des conversations, un point bleu à côté du nom indique des messages non lus.
+5. Le contenu d'une conversation n'est visible que des deux personnes concernées — ni le bureau,
+   ni personne d'autre, n'y a accès.
 
 ## Mon profil
 

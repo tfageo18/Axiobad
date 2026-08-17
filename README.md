@@ -254,6 +254,19 @@ main :
 - Statut d'adhésion : affiche la saison en cours, ou à défaut (ex. adhésion réglée en avance avant
   le début de la saison) la prochaine saison si une adhésion y est déjà enregistrée.
 
+### Messagerie
+
+- Menu **Messagerie** : messages privés à deux entre licenciés (`Conversation`, `Message`) —
+  n'importe quel licencié peut démarrer une conversation avec n'importe quel autre. Contenu
+  visible des seuls deux participants, y compris pour le bureau (pas d'accès de modération à ce
+  stade).
+- **Auto-actualisation par polling** : la zone d'affichage des messages se rafraîchit toute seule
+  toutes les 4 secondes (`fetch` vers une route dédiée qui ne renvoie que le HTML des messages),
+  sans jamais recharger la page ni toucher au formulaire de saisie — le texte en cours de frappe
+  n'est jamais perdu. Pas de WebSocket/Mercure : un simple polling, suffisant à l'échelle d'un
+  club.
+- Indicateur de conversation avec messages non lus sur la liste des conversations.
+
 ### Gymnases
 
 - Nom, adresse, téléphone, nombre de terrains.

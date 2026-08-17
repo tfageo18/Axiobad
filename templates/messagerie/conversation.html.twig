@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ autre ? autre.nomComplet : 'Conversation' }} — Messagerie — Axiobad{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        #messages { display: flex; flex-direction: column; gap: 0.5rem; max-height: 55vh; overflow-y: auto; padding: 1rem; background: var(--color-surface); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 1rem; }
+        .message-bulle { max-width: 75%; padding: 0.5rem 0.75rem; border-radius: 12px; }
+        .message-autre { align-self: flex-start; background: var(--color-surface-2); }
+        .message-moi { align-self: flex-end; background: var(--color-primary); color: #fff; }
+        .message-contenu { white-space: pre-wrap; word-break: break-word; }
+        .message-heure { font-size: 0.72rem; opacity: 0.7; margin-top: 0.2rem; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('app_messagerie_index') }}">&laquo; Retour à la messagerie</a></p>
+
+    <h1>{{ autre ? autre.nomComplet : 'Conversation' }}</h1>
+
+    <div id="messages">{% include 'messagerie/_messages.html.twig' %}</div>
+
+    <form method="post" action="{{ path('app_messagerie_envoyer', {id: conversation.id}) }}" style="display: flex; gap: 0.5rem;">
+        <input type="hidden" name="_token" value="{{ csrf_token('messagerie-envoyer-' ~ conversation.id) }}">
+        <textarea name="contenu" rows="2" required maxlength="4000" placeholder="Votre message..." style="flex: 1; resize: vertical;" autofocus></textarea>
+        <button type="submit">Envoyer</button>
+    </form>
+
+    <script>
+        (function () {
+            var zone = document.getElementById('messages');
+            var url = '{{ path('app_messagerie_actualiser', {id: conversation.id}) }}';
+
+            function presDuBas() {
+                return zone.scrollHeight - zone.scrollTop - zone.clientHeight < 60;
+            }
+
+            zone.scrollTop = zone.scrollHeight;
+
+            function actualiser() {
+                var scrollerApres = presDuBas();
+                fetch(url, { headers: { 'X-Requested-With': 'fetch' } })
+                    .then(function (r) { return r.ok ? r.text() : null; })
+                    .then(function (html) {
+                        if (null === html) { return; }
+                        zone.innerHTML = html;
+                        if (scrollerApres) { zone.scrollTop = zone.scrollHeight; }
+                    })
+                    .catch(function () { /* silencieux : on réessaiera au prochain intervalle */ });
+            }
+
+            setInterval(actualiser, 4000);
+            document.addEventListener('visibilitychange', function () {
+                if (!document.hidden) { actualiser(); }
+            });
+        })();
+    </script>
+{% endblock %}

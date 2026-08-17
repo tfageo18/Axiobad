@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Messagerie — Axiobad{% endblock %}
+
+{% block body %}
+    <h1>Messagerie</h1>
+    <p style="color: var(--color-text-muted);">
+        Messages privés entre licenciés — visibles uniquement des deux personnes concernées.
+    </p>
+
+    <div class="fiche-enfant" style="background: var(--color-surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+        <h2 style="margin-top: 0;">Nouvelle conversation</h2>
+        <form method="post" action="{{ path('app_messagerie_nouvelle') }}" style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+            <input type="hidden" name="_token" value="{{ csrf_token('messagerie-nouvelle') }}">
+            <select name="licencie" required style="min-width: 14rem;">
+                <option value="">Choisir un licencié...</option>
+                {% for l in licencies %}
+                    <option value="{{ l.id }}">{{ l.nomComplet }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Démarrer</button>
+        </form>
+    </div>
+
+    {% if conversations|length %}
+        <ul style="list-style: none; padding: 0;">
+            {% for conversation in conversations %}
+                {% set autre = conversation.getAutreParticipant(moi) %}
+                {% set nonLu = conversation.aDesMessagesNonLusPour(moi) %}
+                <li>
+                    <a href="{{ path('app_messagerie_conversation', {id: conversation.id}) }}" style="display: block; background: var(--color-surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 0.85rem 1.1rem; margin-bottom: 0.6rem;">
+                        <strong style="{{ nonLu ? 'color: var(--color-primary);' : '' }}">
+                            {{ autre ? autre.nomComplet : 'Licencié supprimé' }}
+                            {% if nonLu %}<span title="Nouveaux messages">●</span>{% endif %}
+                        </strong>
+                        {% if conversation.dernierMessageLe %}
+                            <span style="color: var(--color-text-muted); font-size: 0.85rem; float: right;">{{ conversation.dernierMessageLe|date('d/m/Y H:i') }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p><em>Aucune conversation pour l'instant.</em></p>
+    {% endif %}
+{% endblock %}

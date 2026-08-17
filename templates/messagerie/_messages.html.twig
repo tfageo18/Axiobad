@@ -1,0 +1,8 @@
+{% for message in messages %}
+    <div class="message-bulle {{ message.expediteur == moi ? 'message-moi' : 'message-autre' }}">
+        <div class="message-contenu">{{ message.contenu|nl2br }}</div>
+        <div class="message-heure">{{ message.envoyeLe|date('d/m/Y H:i') }}</div>
+    </div>
+{% else %}
+    <p style="color: var(--color-text-muted); text-align: center;">Aucun message pour l'instant — envoyez le premier !</p>
+{% endfor %}

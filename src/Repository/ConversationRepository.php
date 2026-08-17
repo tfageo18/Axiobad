@@ -17,15 +17,31 @@ class ConversationRepository extends ServiceEntityRepository
         parent::__construct($registry, Conversation::class);
     }
 
+    /**
+     * Conversation à deux (sans titre de groupe) déjà existante entre exactement ces deux
+     * licenciés, pour éviter d'en recréer une à chaque fois qu'on démarre une discussion privée
+     * classique. Les discussions de groupe (3 participants ou plus) ne sont jamais réutilisées.
+     */
     public function findEntre(Licencie $a, Licencie $b): ?Conversation
     {
-        return $this->createQueryBuilder('c')
-            ->andWhere('(c.participant1 = :a AND c.participant2 = :b) OR (c.participant1 = :b AND c.participant2 = :a)')
+        $candidates = $this->createQueryBuilder('c')
+            ->innerJoin('c.participants', 'p1')
+            ->innerJoin('c.participants', 'p2')
+            ->andWhere('p1.licencie = :a')
+            ->andWhere('p2.licencie = :b')
+            ->andWhere('c.titre IS NULL')
             ->setParameter('a', $a)
             ->setParameter('b', $b)
-            ->setMaxResults(1)
             ->getQuery()
-            ->getOneOrNullResult();
+            ->getResult();
+
+        foreach ($candidates as $conversation) {
+            if (2 === $conversation->getParticipants()->count()) {
+                return $conversation;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -36,7 +52,8 @@ class ConversationRepository extends ServiceEntityRepository
     public function findPourLicencie(Licencie $licencie): array
     {
         return $this->createQueryBuilder('c')
-            ->andWhere('c.participant1 = :licencie OR c.participant2 = :licencie')
+            ->innerJoin('c.participants', 'p')
+            ->andWhere('p.licencie = :licencie')
             ->setParameter('licencie', $licencie)
             ->orderBy('c.dernierMessageLe', 'DESC')
             ->addOrderBy('c.creeLe', 'DESC')

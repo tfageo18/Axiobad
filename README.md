@@ -256,10 +256,12 @@ main :
 
 ### Messagerie
 
-- Menu **Messagerie** : messages privés à deux entre licenciés (`Conversation`, `Message`) —
-  n'importe quel licencié peut démarrer une conversation avec n'importe quel autre. Contenu
-  visible des seuls deux participants, y compris pour le bureau (pas d'accès de modération à ce
-  stade).
+- Menu **Messagerie** : discussions privées entre licenciés (`Conversation`, `ConversationParticipant`,
+  `Message`) — à deux, ou **de groupe** (1 à N destinataires choisis à la création, avec un nom
+  de groupe optionnel). N'importe quel licencié peut démarrer une conversation avec n'importe
+  quels autres. Contenu visible des seuls participants, y compris pour le bureau (pas d'accès de
+  modération à ce stade). Une discussion à deux sans nom est réutilisée si elle existe déjà plutôt
+  que d'en recréer une à chaque fois ; les groupes sont toujours créés à part.
 - **Auto-actualisation par polling** : la zone d'affichage des messages se rafraîchit toute seule
   toutes les 4 secondes (`fetch` vers une route dédiée qui ne renvoie que le HTML des messages),
   sans jamais recharger la page ni toucher au formulaire de saisie — le texte en cours de frappe

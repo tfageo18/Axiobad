@@ -656,18 +656,24 @@ Menu **Mon espace**, votre page personnelle en un coup d'œil :
 
 ## Messagerie (tous les licenciés)
 
-Menu **Messagerie** : messages privés à deux, comme une messagerie instantanée classique.
+Menu **Messagerie** : discussions privées, à deux ou en groupe, comme une messagerie instantanée
+classique.
 
-1. Depuis **Messagerie**, choisir un licencié dans la liste déroulante « Nouvelle conversation »
-   et cliquer sur **Démarrer** — une nouvelle conversation est créée (ou l'existante est réouverte
-   s'il y en a déjà une avec cette personne).
+1. Depuis **Messagerie**, choisir un ou plusieurs destinataires dans la liste « Nouvelle
+   conversation » (Ctrl/Cmd+clic pour en sélectionner plusieurs) et cliquer sur **Démarrer**.
+   - Un seul destinataire → discussion privée à deux ; si une conversation existe déjà avec cette
+     personne, elle est réouverte plutôt que d'en recréer une.
+   - Plusieurs destinataires → discussion de groupe (toujours nouvelle). Un **nom de groupe**
+     optionnel peut être renseigné (ex. « Équipe interclub ») ; sans nom, le groupe est identifié
+     par la liste de ses membres.
 2. Taper son message dans la zone de texte en bas de la conversation, puis **Envoyer**.
 3. La liste des messages **s'actualise automatiquement toutes les 4 secondes** — inutile de
    recharger la page. Le champ de saisie n'est jamais affecté par cette actualisation, même en
-   plein milieu de la frappe d'un message.
+   plein milieu de la frappe d'un message. Dans un groupe, le nom de l'expéditeur est affiché
+   au-dessus de chacun de ses messages.
 4. Sur la liste des conversations, un point bleu à côté du nom indique des messages non lus.
-5. Le contenu d'une conversation n'est visible que des deux personnes concernées — ni le bureau,
-   ni personne d'autre, n'y a accès.
+5. Le contenu d'une conversation n'est visible que de ses participants — ni le bureau, ni personne
+   d'autre, n'y a accès.
 
 ## Mon profil
 

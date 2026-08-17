@@ -15,8 +15,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * Messagerie privée à deux entre licenciés. Contenu visible des seuls participants — pas d'accès
- * bureau, y compris pour la modération.
+ * Messagerie privée entre licenciés — discussions à deux ou de groupe (1 à N destinataires).
+ * Contenu visible des seuls participants — pas d'accès bureau, y compris pour la modération.
  */
 #[Route('/messagerie')]
 class MessagerieController extends AbstractController
@@ -48,19 +48,39 @@ class MessagerieController extends AbstractController
         /** @var Licencie $moi */
         $moi = $this->getUser();
 
-        $autre = $licencieRepository->find($request->request->get('licencie'));
-        if (!$autre || $autre === $moi) {
-            $this->addFlash('error', 'Licencié invalide.');
+        $destinataires = [];
+        foreach ($request->request->all('licencies') as $id) {
+            $licencie = $licencieRepository->find($id);
+            if ($licencie && $licencie !== $moi && !in_array($licencie, $destinataires, true)) {
+                $destinataires[] = $licencie;
+            }
+        }
+
+        if (!$destinataires) {
+            $this->addFlash('error', 'Choisissez au moins un destinataire.');
 
             return $this->redirectToRoute('app_messagerie_index');
         }
 
-        $conversation = $conversationRepository->findEntre($moi, $autre);
-        if (!$conversation) {
-            $conversation = (new Conversation())->setParticipant1($moi)->setParticipant2($autre);
-            $entityManager->persist($conversation);
-            $entityManager->flush();
+        $titre = trim((string) $request->request->get('titre')) ?: null;
+
+        // Discussion à deux sans titre : on réutilise la conversation existante s'il y en a
+        // déjà une, plutôt que d'en recréer une à chaque fois.
+        if (1 === count($destinataires) && !$titre) {
+            $conversation = $conversationRepository->findEntre($moi, $destinataires[0]);
+            if ($conversation) {
+                return $this->redirectToRoute('app_messagerie_conversation', ['id' => $conversation->getId()]);
+            }
         }
+
+        $conversation = (new Conversation())->setTitre($titre)->setCreateur($moi);
+        $conversation->ajouterParticipant($moi);
+        foreach ($destinataires as $destinataire) {
+            $conversation->ajouterParticipant($destinataire);
+        }
+
+        $entityManager->persist($conversation);
+        $entityManager->flush();
 
         return $this->redirectToRoute('app_messagerie_conversation', ['id' => $conversation->getId()]);
     }
@@ -77,7 +97,8 @@ class MessagerieController extends AbstractController
 
         return $this->render('messagerie/conversation.html.twig', [
             'conversation' => $conversation,
-            'autre' => $conversation->getAutreParticipant($moi),
+            'nom' => $conversation->getNomAffiche($moi),
+            'autresParticipants' => $conversation->getAutresParticipants($moi),
             'messages' => $messageRepository->findRecents($conversation),
             'moi' => $moi,
         ]);
@@ -100,6 +121,7 @@ class MessagerieController extends AbstractController
 
         $response = $this->render('messagerie/_messages.html.twig', [
             'messages' => $messageRepository->findRecents($conversation),
+            'conversation' => $conversation,
             'moi' => $moi,
         ]);
         $response->headers->set('Cache-Control', 'no-store');

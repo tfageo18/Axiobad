@@ -1,5 +1,8 @@
 {% for message in messages %}
     <div class="message-bulle {{ message.expediteur == moi ? 'message-moi' : 'message-autre' }}">
+        {% if conversation.estGroupe and message.expediteur != moi %}
+            <div class="message-expediteur">{{ message.expediteur ? message.expediteur.nomComplet : 'Licencié supprimé' }}</div>
+        {% endif %}
         <div class="message-contenu">{{ message.contenu|nl2br }}</div>
         <div class="message-heure">{{ message.envoyeLe|date('d/m/Y H:i') }}</div>
     </div>

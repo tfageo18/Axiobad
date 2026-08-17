@@ -268,6 +268,10 @@ main :
   n'est jamais perdu. Pas de WebSocket/Mercure : un simple polling, suffisant à l'échelle d'un
   club.
 - Indicateur de conversation avec messages non lus sur la liste des conversations.
+- **Quitter/supprimer une conversation** : chaque participant peut retirer sa propre participation
+  à tout moment. Pour une discussion à deux, ça la supprime seulement pour soi — l'autre personne
+  garde son historique. Quand plus aucun participant n'y figure, la conversation et ses messages
+  sont définitivement supprimés (cascade DB).
 
 ### Gymnases
 

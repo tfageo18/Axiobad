@@ -146,6 +146,16 @@ class Conversation
         return $this;
     }
 
+    public function retirerParticipant(Licencie $licencie): static
+    {
+        $participation = $this->getParticipation($licencie);
+        if ($participation) {
+            $this->participants->removeElement($participation);
+        }
+
+        return $this;
+    }
+
     /**
      * @return list<Licencie>
      */

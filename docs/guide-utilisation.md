@@ -674,6 +674,11 @@ classique.
 4. Sur la liste des conversations, un point bleu à côté du nom indique des messages non lus.
 5. Le contenu d'une conversation n'est visible que de ses participants — ni le bureau, ni personne
    d'autre, n'y a accès.
+6. Depuis la conversation, bouton **Quitter le groupe** (discussion à plusieurs) ou **Supprimer
+   la conversation** (discussion à deux) : vous n'y avez plus accès ensuite. Dans une discussion
+   à deux, cela ne supprime la conversation que pour vous — l'autre personne garde son historique.
+   Une fois que plus personne n'y participe, la conversation et ses messages sont définitivement
+   effacés.
 
 ## Mon profil
 

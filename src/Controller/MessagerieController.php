@@ -160,6 +160,34 @@ class MessagerieController extends AbstractController
         return $this->redirectToRoute('app_messagerie_conversation', ['id' => $conversation->getId()]);
     }
 
+    #[Route('/{id}/quitter', name: 'app_messagerie_quitter', methods: ['POST'])]
+    public function quitter(Request $request, Conversation $conversation, EntityManagerInterface $entityManager): Response
+    {
+        /** @var Licencie $moi */
+        $moi = $this->getUser();
+        $this->refuserSiPasParticipant($conversation, $moi);
+
+        if (!$this->isCsrfTokenValid('messagerie-quitter-'.$conversation->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('error', 'Jeton de sécurité invalide, veuillez réessayer.');
+
+            return $this->redirectToRoute('app_messagerie_conversation', ['id' => $conversation->getId()]);
+        }
+
+        $etaitGroupe = $conversation->estGroupe();
+        $conversation->retirerParticipant($moi);
+
+        if ($conversation->getParticipants()->isEmpty()) {
+            // Plus personne dans la conversation : elle est supprimée (avec ses messages).
+            $entityManager->remove($conversation);
+        }
+
+        $entityManager->flush();
+
+        $this->addFlash('success', $etaitGroupe ? 'Vous avez quitté le groupe.' : 'Conversation supprimée.');
+
+        return $this->redirectToRoute('app_messagerie_index');
+    }
+
     private function refuserSiPasParticipant(Conversation $conversation, Licencie $licencie): void
     {
         if (!$conversation->estParticipant($licencie)) {

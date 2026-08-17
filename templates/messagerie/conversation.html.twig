@@ -25,6 +25,11 @@
         </p>
     {% endif %}
 
+    <form method="post" action="{{ path('app_messagerie_quitter', {id: conversation.id}) }}" style="margin-bottom: 1rem;" onsubmit="return confirm('{{ conversation.estGroupe ? 'Quitter ce groupe ?' : 'Supprimer cette conversation ?' }}');">
+        <input type="hidden" name="_token" value="{{ csrf_token('messagerie-quitter-' ~ conversation.id) }}">
+        <button type="submit">{{ conversation.estGroupe ? 'Quitter le groupe' : 'Supprimer la conversation' }}</button>
+    </form>
+
     <div id="messages">{% include 'messagerie/_messages.html.twig' %}</div>
 
     <form method="post" action="{{ path('app_messagerie_envoyer', {id: conversation.id}) }}" style="display: flex; gap: 0.5rem;">
